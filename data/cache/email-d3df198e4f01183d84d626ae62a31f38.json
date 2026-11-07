@@ -1,0 +1,9 @@
+{
+  "name": "email",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T15:07:19.088Z",
+  "output": {
+    "subject": "Chicken breast fillets pricing",
+    "body": "Hi Munster Fresh Foods team,\n\nThank you for your reliable service and quality. We really value working with you and want to keep it that way.\n\nWe have seen lower pricing on one product and would like to ask you to match it. For the chicken breast fillets, we would need €17.00 per 2kg pack, about 4% lower. This is what the business needs to stay competitive.\n\nIf you can meet that price, we are happy to keep our regular weekly orders with you. Could you please reply by {reply_by_date}?\n\nThanks very much for considering it.\n\nKind regards,\nAoife\nThe Corner Café"
+  }
+}

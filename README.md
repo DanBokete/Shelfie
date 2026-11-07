@@ -67,6 +67,25 @@ Real crumpled photos are still worth adding by hand before the pitch.
 - Run the whole flow once with the API key, then set `DEMO_MODE=true` to serve every Claude answer from `data/cache` with no network.
   Photo identification of a new photo can't be cached, so rehearse scanning with barcodes.
 
+## Writing request emails
+
+"Ask to match" and "Ask for a quote" emails are written from the owner's template (the default) or by Claude.
+Settings, "Writing emails", sets the default; the email window has a switch to redo one email the other way, keeping the To and the reply address.
+Templates make no model call, so they work with no `ANTHROPIC_API_KEY` and in `DEMO_MODE`.
+Either way, every figure comes from our code; each saved draft records its `writer` (`template` or `ai`).
+
+Template syntax (`src/lib/templates.ts`):
+
+- `{name}` is a placeholder: `{supplier_name}`, `{owner_name}`, `{business_name}`, `{town}`, `{reply_by_date}`.
+- A line holding only `{items}` starts the products list and a line holding only `{/items}` ends it.
+  The lines between repeat once per product, and only there can `{product}`, `{pack}`, `{price_found}` and `{weekly_quantity}` be used.
+  "Ask to match" also has `{your_price}`, `{target_price}` and `{reduction_percent}`; a quote request never can, so the seller never sees what the owner pays.
+- Money is formatted as euro with cents. A line whose value is missing (for example no weekly quantity) is left out.
+- Settings refuses to save a template with an unknown placeholder, a stray `{` or `}`, or a broken products list, and shows a live preview with sample figures.
+  A template saved unchanged from the default is stored as null, so better default wording reaches it.
+
+The quote request still looks up the seller's contact details on the web; without a key or internet the draft is written anyway and the owner adds the address.
+
 ## Reading supplier replies
 
 When a supplier or seller replies to an "Ask to match" or "Ask for a quote" email with a quote, price list or invoice, Shelfie reads it and updates prices.
@@ -158,7 +177,7 @@ Setup:
 ```
 invoice PDF/photo ─┐                       ┌─> item screen (scan)
 stock list ────────┼─> extract ─> match ─> savings ─> audit report
-barcode/photo ─────┘   (Claude)   (aliases,         └─> email draft (Claude writes, our numbers)
+barcode/photo ─────┘   (Claude)   (aliases,         └─> email draft (template or Claude, our numbers)
                                    barcode,
                                    shortlist,
                                    Claude)
@@ -175,7 +194,7 @@ barcode/photo ─────┘   (Claude)   (aliases,         └─> email dr
   Alias lookup, barcode, token shortlist (`src/lib/tokens.ts`), one Claude call per invoice, 0.85 / 0.60 thresholds, aliases remembered.
 - `src/routes/scan.tsx`, `src/routes/item.$productId.tsx`: Feature 3.
 - `src/lib/stocklist.ts`, `src/lib/audit.server.ts`, `src/routes/audit.tsx`: Feature 4.
-- `src/lib/email.server.ts`, `src/components/EmailModal.tsx`: Feature 5 (negotiation email and Fix all).
+- `src/lib/email.server.ts`, `src/lib/templates.ts`, `src/components/EmailModal.tsx`: Feature 5 (negotiation email and Fix all).
 - `src/routes/api/*`: the plan's `/api/...` endpoints.
   Page reads and small writes are server functions in `src/server/fns.ts`.
 

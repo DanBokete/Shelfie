@@ -4,6 +4,8 @@ import { randomBytes } from 'node:crypto'
 import { z } from 'zod'
 import { gmailLink, googleSetupProblem } from './google-auth.server'
 import type { GmailLink } from './google-auth.server'
+import { DEFAULT_TEMPLATES, templateFor, templateProblems } from './templates'
+import type { EmailKind, EmailTemplate, Writer } from './templates'
 import { db, mustOne } from './supabase.server'
 
 export interface Settings {
@@ -25,6 +27,13 @@ export interface Settings {
   match_by_sender: boolean
   alerts_enabled: boolean
   alert_min_saving: number
+  /** Who writes request emails by default: the owner's templates, or Claude. */
+  email_writer: Writer
+  /** The owner's templates. Null: the default wording in templates.ts. */
+  match_template_subject: string | null
+  match_template_body: string | null
+  quote_template_subject: string | null
+  quote_template_body: string | null
   /** When Gmail was last checked for replies, and what went wrong if it failed. */
   replies_checked_at: string | null
   replies_check_error: string | null
@@ -36,7 +45,7 @@ export interface Settings {
 export type SendVia = 'gmail' | 'postmark'
 
 const COLS =
-  'business_name, owner_name, town, reply_by_days, cc_shelfie, bcc_email, send_via, from_email, reply_scanning, inbound_address, webhook_secret, match_by_sender, alerts_enabled, alert_min_saving, replies_checked_at, replies_check_error, updated_at'
+  'business_name, owner_name, town, reply_by_days, cc_shelfie, bcc_email, send_via, from_email, reply_scanning, inbound_address, webhook_secret, match_by_sender, alerts_enabled, alert_min_saving, email_writer, match_template_subject, match_template_body, quote_template_subject, quote_template_body, replies_checked_at, replies_check_error, updated_at'
 
 export async function getSettings(): Promise<Settings> {
   const [res, gmail] = await Promise.all([
@@ -130,27 +139,75 @@ export function withBusiness(prompt: string, s: Settings): string {
     .replaceAll('{town}', s.town)
 }
 
+/** The template for an email kind: the owner's own, else the default. */
+export function emailTemplate(s: Settings, kind: EmailKind): EmailTemplate {
+  return kind === 'match'
+    ? templateFor('match', {
+        subject: s.match_template_subject,
+        body: s.match_template_body,
+      })
+    : templateFor('quote', {
+        subject: s.quote_template_subject,
+        body: s.quote_template_body,
+      })
+}
+
+/** Saved as null when it is the default wording, so a better default reaches it later. */
+function templatePart(kind: EmailKind, part: keyof EmailTemplate) {
+  return z
+    .string()
+    .max(5000)
+    .transform((v) => v.replace(/\r\n/g, '\n'))
+    .transform((v) => (v === DEFAULT_TEMPLATES[kind][part] ? null : v))
+}
+
 const optionalEmail = z
   .string()
   .trim()
   .transform((v) => v || null)
   .pipe(z.email('Enter a valid email address').nullable())
 
-export const SettingsInput = z.object({
-  business_name: z.string().trim().min(1, 'Business name is required').max(80),
-  owner_name: z.string().trim().min(1, 'Your name is required').max(60),
-  town: z.string().trim().min(1, 'Town is required').max(60),
-  reply_by_days: z.number().int().min(1).max(60),
-  cc_shelfie: z.boolean(),
-  bcc_email: optionalEmail,
-  send_via: z.enum(['gmail', 'postmark']),
-  from_email: optionalEmail,
-  reply_scanning: z.boolean(),
-  inbound_address: optionalEmail,
-  match_by_sender: z.boolean(),
-  alerts_enabled: z.boolean(),
-  alert_min_saving: z.number().min(0).max(100_000),
-})
+export const SettingsInput = z
+  .object({
+    business_name: z
+      .string()
+      .trim()
+      .min(1, 'Business name is required')
+      .max(80),
+    owner_name: z.string().trim().min(1, 'Your name is required').max(60),
+    town: z.string().trim().min(1, 'Town is required').max(60),
+    reply_by_days: z.number().int().min(1).max(60),
+    cc_shelfie: z.boolean(),
+    bcc_email: optionalEmail,
+    send_via: z.enum(['gmail', 'postmark']),
+    from_email: optionalEmail,
+    reply_scanning: z.boolean(),
+    inbound_address: optionalEmail,
+    match_by_sender: z.boolean(),
+    alerts_enabled: z.boolean(),
+    alert_min_saving: z.number().min(0).max(100_000),
+    email_writer: z.enum(['template', 'ai']),
+    match_template_subject: templatePart('match', 'subject'),
+    match_template_body: templatePart('match', 'body'),
+    quote_template_subject: templatePart('quote', 'subject'),
+    quote_template_body: templatePart('quote', 'body'),
+  })
+  .superRefine((v, ctx) => {
+    // Templates with unknown placeholders or a broken products list are not saved.
+    for (const kind of ['match', 'quote'] as const) {
+      const label = kind === 'match' ? '"Ask to match"' : '"Ask for a quote"'
+      const tpl = templateFor(kind, {
+        subject: v[`${kind}_template_subject`],
+        body: v[`${kind}_template_body`],
+      })
+      for (const p of templateProblems(kind, tpl))
+        ctx.addIssue({
+          code: 'custom',
+          path: [`${kind}_template_${p.field}`],
+          message: `${label} template: ${p.message}`,
+        })
+    }
+  })
 export type SettingsInput = z.input<typeof SettingsInput>
 
 export async function saveSettings(input: z.output<typeof SettingsInput>) {

@@ -3,7 +3,10 @@ import { replyByDate } from './email.server'
 import { inboundAddressFor } from './inbound'
 import { P11_QUOTE_REQUEST } from './prompts'
 import { fromHeader, gmailError } from './send.server'
+import { DEFAULT_TEMPLATES } from './templates'
 import {
+  SettingsInput,
+  emailTemplate,
   inboundAddress,
   replyCc,
   sendingStatus,
@@ -29,6 +32,11 @@ const base: Settings = {
   match_by_sender: true,
   alerts_enabled: true,
   alert_min_saving: 0,
+  email_writer: 'template',
+  match_template_subject: null,
+  match_template_body: null,
+  quote_template_subject: null,
+  quote_template_body: null,
   replies_checked_at: null,
   replies_check_error: null,
   updated_at: '2026-11-07T12:00:00Z',
@@ -177,5 +185,64 @@ describe('sending', () => {
         from_email: 'orders@corner.ie',
       }),
     ).toBe('"Aoife at Café Corner, Cork" <orders@corner.ie>')
+  })
+})
+
+describe('email templates in settings', () => {
+  const input = {
+    business_name: 'The Corner Café',
+    owner_name: 'Aoife',
+    town: 'Cork',
+    reply_by_days: 7,
+    cc_shelfie: true,
+    bcc_email: '',
+    send_via: 'gmail' as const,
+    from_email: '',
+    reply_scanning: true,
+    inbound_address: '',
+    match_by_sender: true,
+    alerts_enabled: true,
+    alert_min_saving: 0,
+    email_writer: 'template' as const,
+    match_template_subject: DEFAULT_TEMPLATES.match.subject,
+    match_template_body: DEFAULT_TEMPLATES.match.body,
+    quote_template_subject: DEFAULT_TEMPLATES.quote.subject,
+    quote_template_body: DEFAULT_TEMPLATES.quote.body,
+  }
+
+  it('saves the default wording as null, and the owner’s own as typed', () => {
+    const out = SettingsInput.parse({
+      ...input,
+      quote_template_subject: 'Quote please - {business_name}',
+      match_template_body: DEFAULT_TEMPLATES.match.body.replaceAll(
+        '\n',
+        '\r\n',
+      ),
+    })
+    expect(out.match_template_subject).toBeNull()
+    expect(out.match_template_body).toBeNull()
+    expect(out.quote_template_subject).toBe('Quote please - {business_name}')
+    expect(out.quote_template_body).toBeNull()
+  })
+
+  it('refuses a template with problems', () => {
+    const res = SettingsInput.safeParse({
+      ...input,
+      quote_template_body: '{items}\n{product} {your_price}\n{/items}',
+    })
+    expect(res.success).toBe(false)
+    expect(res.error?.issues.map((i) => i.path.join('.'))).toEqual([
+      'quote_template_body',
+    ])
+    expect(res.error?.issues[0].message).toMatch(
+      /^"Ask for a quote" template: \{your_price\} can't be used/,
+    )
+  })
+
+  it('uses the saved template, else the default', () => {
+    expect(
+      emailTemplate({ ...base, match_template_subject: 'Mine' }, 'match'),
+    ).toEqual({ subject: 'Mine', body: DEFAULT_TEMPLATES.match.body })
+    expect(emailTemplate(base, 'quote')).toEqual(DEFAULT_TEMPLATES.quote)
   })
 })

@@ -5,7 +5,8 @@ import { AIError, askJSON, searchWeb } from './claude.server'
 import { verifyContact } from './contact'
 import { inboundAddressFor } from './inbound'
 import type { VerifiedContact } from './contact'
-import { replyByDate } from './email.server'
+import { saveDraftRow, writeEmail } from './email.server'
+import type { DraftOptions } from './email.server'
 import {
   P10_SELLER_CONTACT_READ,
   P11_QUOTE_REQUEST,
@@ -13,7 +14,7 @@ import {
 } from './prompts'
 import { invoicePeriod, observationsByProduct } from './queries.server'
 import { productInsight } from './savings'
-import { EmailDraft, SellerContact } from './schemas'
+import { SellerContact } from './schemas'
 import {
   getSettings,
   replyCc,
@@ -87,9 +88,13 @@ export async function sellerContact(supplierId: string): Promise<QuoteContact> {
     // The email can still be drafted; the owner fills in the address.
     return stored(
       seller,
-      err instanceof AIError
-        ? err.message
-        : 'Could not look up contact details.',
+      err instanceof AIError && err.kind === 'config'
+        ? 'Looking up their contact details needs ANTHROPIC_API_KEY in .env.'
+        : err instanceof AIError && err.kind === 'demo_cache_miss'
+          ? 'Demo mode is offline, so their contact details were not looked up.'
+          : err instanceof AIError
+            ? err.message
+            : 'Could not look up contact details.',
     )
   }
   const parsed = await askJSON({
@@ -139,7 +144,10 @@ interface WebOfferRow {
 }
 
 /** Drafts a quote request for one web price (a price_observations row with source 'web'). */
-export async function draftQuoteRequest(offerId: string) {
+export async function draftQuoteRequest(
+  offerId: string,
+  opts: DraftOptions = {},
+) {
   const offer = mustOne(
     await db()
       .from('price_observations')
@@ -191,58 +199,64 @@ export async function draftQuoteRequest(offerId: string) {
           units_per_case: cur.units_per_case,
         })
       : null
-  const offerPack = isRawUnit(offer.pack_unit)
+  const offerPackLabel = isRawUnit(offer.pack_unit)
     ? describePack({
         pack_size: offer.pack_size,
         pack_unit: offer.pack_unit,
         units_per_case: offer.units_per_case,
       })
-    : 'pack'
+    : null
+  const offerPack = offerPackLabel === 'unknown pack' ? null : offerPackLabel
 
   const item = {
     product: offer.products.canonical_name,
     their_listing: offer.raw_description,
-    price_seen: `€${Number(offer.pack_price).toFixed(2)} ex VAT per ${offerPack}`,
+    price_seen: `€${Number(offer.pack_price).toFixed(2)} ex VAT per ${offerPackLabel ?? 'pack'}`,
     typical_weekly_quantity:
       weekly != null && ownerPack ? `about ${weekly} x ${ownerPack}` : null,
   }
 
   const settings = await getSettings()
-  const system = withBusiness(P11_QUOTE_REQUEST, settings)
-  const raw = await askJSON({
-    name: 'quote',
-    system,
-    content: JSON.stringify({ seller: seller.name, items: [item] }),
-    schema: EmailDraft,
-    effort: 'low',
-    maxTokens: 4000,
+  const writer = opts.writer ?? settings.email_writer
+  const draft = await writeEmail({
+    kind: 'quote',
+    writer,
+    settings,
+    supplierName: seller.name,
+    items: [
+      {
+        product: offer.products.canonical_name,
+        // Without a readable pack size, the listing's own name says what the price is for.
+        pack: offerPack ?? offer.raw_description,
+        price_found: Number(offer.pack_price),
+        weekly_quantity: weekly,
+        weekly_pack: ownerPack,
+      },
+    ],
+    ai: {
+      name: 'quote',
+      system: P11_QUOTE_REQUEST,
+      facts: { seller: seller.name, items: [item] },
+    },
   })
-  const date = replyByDate(settings.reply_by_days)
-  const draft = {
-    subject: raw.subject.replaceAll('{reply_by_date}', date),
-    body: raw.body.replaceAll('{reply_by_date}', date),
-  }
-  const row = mustOne(
-    await db()
-      .from('email_drafts')
-      .insert({
-        kind: 'quote',
-        supplier_id: seller.id,
-        price_observation_id: offer.id,
-        to_email: contact.email,
-        subject: draft.subject,
-        body: draft.body,
-        items: [item],
-        status: 'draft',
-      })
-      .select('id')
-      .single<{ id: string }>(),
-    'save draft',
+  const id = await saveDraftRow(
+    {
+      kind: 'quote',
+      supplier_id: seller.id,
+      price_observation_id: offer.id,
+      to_email: contact.email,
+      subject: draft.subject,
+      body: draft.body,
+      items: [item],
+      writer,
+    },
+    opts.redo_of,
   )
   return {
-    id: row.id,
+    id,
+    writer,
     supplier: { name: seller.name, email: contact.email },
-    reply_cc: replyCc(settings, inboundAddressFor, row.id),
+    reply_cc: replyCc(settings, inboundAddressFor, id),
     reply_bcc: settings.bcc_email,
     sending: sendingStatus(settings),
     contact,

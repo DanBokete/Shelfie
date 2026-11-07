@@ -1,0 +1,24 @@
+{
+  "name": "prices-read",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T15:06:14.911Z",
+  "output": {
+    "offers": [
+      {
+        "seller": "Dunnes Stores",
+        "title": "Dunnes Stores Irish Chicken Breast Fillets 291g",
+        "url": "https://www.dunnesstoresgrocery.com/product/dunnes-stores-irish-chicken-breast-fillets-291g-id-100275665",
+        "price": 3.49,
+        "vat_included": true,
+        "vat_rate_percent": 0,
+        "pack_size": 291,
+        "pack_unit": "g",
+        "units_per_case": 1,
+        "match": "equivalent",
+        "match_note": "Small 291g retail pack, not a 2kg case",
+        "promo": false,
+        "confidence": 0.75
+      }
+    ]
+  }
+}

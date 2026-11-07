@@ -1,0 +1,9 @@
+{
+  "name": "email",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T15:08:16.311Z",
+  "output": {
+    "subject": "Request to match pricing on chicken breast fillets",
+    "body": "Hi Munster Fresh Foods team,\n\nThank you for your reliable service. We really value working with you and would like to keep doing so.\n\nWe have seen lower pricing on one product and I'm asking if you can match it:\n\nChicken breast fillets, 2kg: we would need €9.80 per pack, about 45% lower.\n\nThis is what the business needs to stay competitive. I'd much prefer to stay with you than move our order.\n\nCould you please reply by {reply_by_date}? I'm happy to talk it through by phone if that's easier.\n\nKind regards,\nAoife\nThe Corner Café"
+  }
+}

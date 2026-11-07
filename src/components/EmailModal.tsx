@@ -1,11 +1,13 @@
-// Drafts one email per request, lets the owner edit it, then sends it from Shelfie (Postmark).
+// Drafts one email per request, lets the owner edit it, then sends it from Shelfie.
 // Two kinds: "match" asks a current supplier to match a lower price; "quote" asks a seller
-// found online for their trade prices.
+// found online for their trade prices. Each draft is written from the owner's template or by
+// Claude (the default is in Settings), and can be redone the other way.
 import { Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { Icon, Spinner } from './Icon'
 import { postJSON } from '#/lib/api'
 import { dateTime } from '#/lib/format'
+import type { Writer } from '#/lib/templates'
 import { saveDraft } from '#/server/fns'
 
 export interface EmailItem {
@@ -44,6 +46,8 @@ interface Contact {
 
 interface DraftResponse {
   id: string
+  /** Who wrote it: the owner's template or Claude. */
+  writer: Writer
   subject: string
   body: string
   supplier: { email: string | null }
@@ -67,6 +71,12 @@ interface DraftResponse {
 interface Draft {
   state: 'drafting' | 'ready' | 'failed'
   id?: string
+  writer?: Writer
+  /** The writer asked for on the last attempt; undefined means the Settings default. */
+  tried?: Writer
+  /** Rewriting this draft the other way. */
+  redoing?: Writer
+  redoError?: string
   to: string
   subject: string
   body: string
@@ -113,27 +123,68 @@ export function EmailModal({
   const patch = (i: number, p: Partial<Draft>) =>
     setDrafts((d) => d.map((x, j) => (j === i ? { ...x, ...p } : x)))
 
-  function draft(i: number) {
-    patch(i, { state: 'drafting', error: undefined })
-    postJSON<DraftResponse>('/api/email/draft', bodyOf(requests[i]))
-      .then((r) =>
-        patch(i, {
-          state: 'ready',
-          id: r.id,
-          subject: r.subject,
-          body: r.body,
-          to: r.supplier.email ?? '',
-          cc: r.reply_cc ?? null,
-          bcc: r.reply_bcc ?? null,
-          sending: r.sending,
-          asks: r.asks,
-          contact: r.contact,
-        }),
-      )
+  function fromResponse(r: DraftResponse, to: string): Partial<Draft> {
+    return {
+      state: 'ready',
+      id: r.id,
+      writer: r.writer,
+      subject: r.subject,
+      body: r.body,
+      to,
+      cc: r.reply_cc ?? null,
+      bcc: r.reply_bcc ?? null,
+      sending: r.sending,
+      asks: r.asks,
+      contact: r.contact,
+    }
+  }
+
+  function draft(i: number, writer?: Writer) {
+    patch(i, { state: 'drafting', error: undefined, tried: writer })
+    postJSON<DraftResponse>('/api/email/draft', {
+      ...bodyOf(requests[i]),
+      writer,
+    })
+      .then((r) => patch(i, fromResponse(r, r.supplier.email ?? '')))
       .catch((e: unknown) =>
         patch(i, {
           state: 'failed',
           error: e instanceof Error ? e.message : 'Could not draft the email',
+        }),
+      )
+  }
+
+  /** Rewrites a ready draft the other way, in place. The To the owner typed is kept. */
+  function redo(i: number, writer: Writer) {
+    const current = drafts[i]
+    if (!current.id) return
+    patch(i, { redoing: writer, redoError: undefined })
+    postJSON<DraftResponse>('/api/email/draft', {
+      ...bodyOf(requests[i]),
+      writer,
+      redo_of: current.id,
+    })
+      .then((r) =>
+        setDrafts((ds) =>
+          ds.map((x, j) =>
+            j === i
+              ? {
+                  ...x,
+                  ...fromResponse(
+                    r,
+                    x.to.trim() ? x.to : (r.supplier.email ?? ''),
+                  ),
+                  redoing: undefined,
+                }
+              : x,
+          ),
+        ),
+      )
+      .catch((e: unknown) =>
+        patch(i, {
+          redoing: undefined,
+          redoError:
+            e instanceof Error ? e.message : 'Could not rewrite the email',
         }),
       )
   }
@@ -191,6 +242,7 @@ export function EmailModal({
   const sent = d.send === 'sent'
   const canSend =
     d.state === 'ready' &&
+    !d.redoing &&
     d.send === 'idle' &&
     Boolean(d.sending?.ready) &&
     d.to.trim() !== ''
@@ -271,9 +323,22 @@ export function EmailModal({
           {d.state === 'failed' && (
             <div className="space-y-3 py-8 text-center">
               <p className="text-rust">{d.error}</p>
-              <button className="btn-secondary" onClick={() => draft(tab)}>
-                Try again
-              </button>
+              <div className="flex flex-wrap justify-center gap-2">
+                <button
+                  className="btn-secondary"
+                  onClick={() => draft(tab, d.tried)}
+                >
+                  Try again
+                </button>
+                {d.tried !== 'template' && (
+                  <button
+                    className="btn-secondary"
+                    onClick={() => draft(tab, 'template')}
+                  >
+                    Write from my template
+                  </button>
+                )}
+              </div>
             </div>
           )}
           {d.state === 'ready' && sent && (
@@ -307,6 +372,14 @@ export function EmailModal({
               {d.contact && (
                 <ContactNote contact={d.contact} seller={nameOf(r)} />
               )}
+              {d.writer && (
+                <WriterSwitch
+                  writer={d.writer}
+                  redoing={d.redoing}
+                  error={d.redoError}
+                  onRedo={(w) => redo(tab, w)}
+                />
+              )}
               <label className="block space-y-1">
                 <span className="label">To</span>
                 <input
@@ -335,14 +408,16 @@ export function EmailModal({
                 <input
                   className="input"
                   value={d.subject}
+                  readOnly={Boolean(d.redoing)}
                   onChange={(e) => patch(tab, { subject: e.target.value })}
                 />
               </label>
               <label className="block space-y-1">
                 <span className="label">Message</span>
                 <textarea
-                  className="input min-h-72 resize-y leading-relaxed"
+                  className={`input min-h-72 resize-y leading-relaxed ${d.redoing ? 'opacity-60' : ''}`}
                   value={d.body}
+                  readOnly={Boolean(d.redoing)}
                   onChange={(e) => patch(tab, { body: e.target.value })}
                 />
               </label>
@@ -406,7 +481,7 @@ export function EmailModal({
               </button>
               <button
                 className="btn-secondary"
-                disabled={d.state !== 'ready'}
+                disabled={d.state !== 'ready' || Boolean(d.redoing)}
                 onClick={() => void copy()}
               >
                 <Icon name={copied ? 'check' : 'copy'} className="h-4 w-4" />{' '}
@@ -419,6 +494,53 @@ export function EmailModal({
           )}
         </footer>
       </div>
+    </div>
+  )
+}
+
+/** "Written from your template · Rewrite with AI", and the other way round. */
+function WriterSwitch({
+  writer,
+  redoing,
+  error,
+  onRedo,
+}: {
+  writer: Writer
+  redoing?: Writer
+  error?: string
+  onRedo: (w: Writer) => void
+}) {
+  const other: Writer = writer === 'template' ? 'ai' : 'template'
+  return (
+    <div className="space-y-1.5">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
+        <span className="text-muted">
+          {redoing
+            ? redoing === 'ai'
+              ? 'Rewriting with AI…'
+              : 'Rewriting from your template…'
+            : writer === 'template'
+              ? 'Written from your template'
+              : 'Written by AI (Claude)'}
+        </span>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-sm font-medium text-brand hover:bg-soft disabled:opacity-50"
+          disabled={Boolean(redoing)}
+          onClick={() => onRedo(other)}
+        >
+          {redoing && <Spinner className="h-3.5 w-3.5" />}
+          {other === 'ai' ? 'Rewrite with AI' : 'Use my template'}
+        </button>
+      </div>
+      {error && (
+        <p
+          role="alert"
+          className="rounded-lg bg-rust-soft px-3 py-2 text-sm text-rust"
+        >
+          {error}
+        </p>
+      )}
     </div>
   )
 }

@@ -2,9 +2,11 @@ import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { z } from 'zod'
+import { EmailWriting, templatesValid } from '#/components/EmailTemplates'
 import { Icon, Spinner } from '#/components/Icon'
 import { postJSON } from '#/lib/api'
 import { dateTime, timeAgo } from '#/lib/format'
+import { templateFor } from '#/lib/templates'
 import { disconnectGoogle, getSettingsPage, updateSettings } from '#/server/fns'
 
 /** Where "Connect Gmail" starts Google's sign-in. */
@@ -37,6 +39,26 @@ function formOf(v: View) {
     match_by_sender: v.match_by_sender,
     alerts_enabled: v.alerts_enabled,
     alert_min_saving: String(v.alert_min_saving),
+    email_writer: v.email_writer,
+    // Null means the default wording: the form shows it so it can be edited from there.
+    ...withTemplates(v),
+  }
+}
+
+function withTemplates(v: View) {
+  const match = templateFor('match', {
+    subject: v.match_template_subject,
+    body: v.match_template_body,
+  })
+  const quote = templateFor('quote', {
+    subject: v.quote_template_subject,
+    body: v.quote_template_body,
+  })
+  return {
+    match_template_subject: match.subject,
+    match_template_body: match.body,
+    quote_template_subject: quote.subject,
+    quote_template_body: quote.body,
   }
 }
 type Form = ReturnType<typeof formOf>
@@ -81,8 +103,16 @@ function SettingsPage() {
     setMessage(null)
   }
   const dirty = JSON.stringify(form) !== JSON.stringify(formOf(view))
+  const valid = templatesValid(form)
 
   async function save() {
+    if (!valid) {
+      setMessage({
+        ok: false,
+        text: 'Fix the problems in your email templates first.',
+      })
+      return
+    }
     setSaving(true)
     setMessage(null)
     try {
@@ -143,7 +173,7 @@ function SettingsPage() {
 
       <Section
         title="Your business"
-        hint="Used to sign the emails Claude drafts, and shown across the app."
+        hint="Used to sign your supplier emails, and shown across the app."
       >
         <Field label="Business name">
           <input
@@ -171,6 +201,21 @@ function SettingsPage() {
             />
           </Field>
         </div>
+      </Section>
+
+      <Section
+        title="Writing emails"
+        hint="How the 'Ask to match' and 'Ask for a quote' emails are written. The figures in them always come from Shelfie, never from the AI."
+      >
+        <EmailWriting
+          form={form}
+          business={form}
+          replyByDays={Number(form.reply_by_days)}
+          onChange={(patch) => {
+            setForm((f) => ({ ...f, ...patch }))
+            setMessage(null)
+          }}
+        />
       </Section>
 
       <Section
