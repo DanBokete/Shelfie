@@ -40,9 +40,13 @@ export interface PriceCheck {
 const CHECK_COLS =
   'id, product_id, status, started_at, finished_at, offers_found, summary, error'
 
-/** Today in Ireland, YYYY-MM-DD. */
+/** A moment as an Irish calendar date, YYYY-MM-DD. */
+function dublinDate(d: Date): string {
+  return d.toLocaleDateString('en-CA', { timeZone: 'Europe/Dublin' })
+}
+
 function today(): string {
-  return new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Dublin' })
+  return dublinDate(new Date())
 }
 
 /** Host and path without query or trailing slash, so the same page always compares equal. */
@@ -166,6 +170,7 @@ export async function checkProductPrices(
   ) as PriceCheck
 
   let sources: Array<WebSource> = []
+  let notes: string | null = null
   try {
     const obs = (await observationsByProduct([productId])).get(productId) ?? []
     const current = currentPrice(obs)
@@ -176,6 +181,7 @@ export async function checkProductPrices(
       prompt: describeProduct(product, current),
     })
     sources = research.sources
+    notes = research.text || null
     if (!research.text) throw new Error('The web search came back empty.')
 
     const known = must(
@@ -195,16 +201,25 @@ export async function checkProductPrices(
     })
 
     // Keep offers for pages the search really opened, that match, and that we can price.
-    const seen = new Set(sources.map((s) => pageKey(s.url)))
-    const priced = read.offers
-      .filter(
-        (o) =>
-          o.match !== 'different' &&
-          o.confidence >= MIN_CONFIDENCE &&
-          seen.has(pageKey(o.url)),
-      )
-      .map((o) => price(o, product))
-      .filter((p): p is Priced => p !== null)
+    // Count what was dropped and why, so an empty result can explain itself.
+    const seen = new Map(sources.map((s) => [pageKey(s.url), s]))
+    const dropped: Dropped = {
+      different: 0,
+      unsure: 0,
+      unopened: 0,
+      unpriced: 0,
+    }
+    const priced: Array<Priced> = []
+    for (const o of read.offers) {
+      if (o.match === 'different') dropped.different++
+      else if (o.confidence < MIN_CONFIDENCE) dropped.unsure++
+      else if (!seen.has(pageKey(o.url))) dropped.unopened++
+      else {
+        const p = price(o, product)
+        if (p) priced.push(p)
+        else dropped.unpriced++
+      }
+    }
 
     // One price per shop: its cheapest like-for-like listing.
     const bySeller = new Map<string, Priced>()
@@ -215,6 +230,7 @@ export async function checkProductPrices(
     }
 
     const rows = []
+    const sellers = new Map<string, string>()
     for (const p of bySeller.values()) {
       const reasons = [
         p.offer.match === 'equivalent'
@@ -222,9 +238,17 @@ export async function checkProductPrices(
           : null,
         p.vatNote,
       ].filter((x): x is string => x !== null)
+      // A fetch can return a cached copy of the page: date the price from when it was read.
+      const retrieved = seen.get(pageKey(p.offer.url))?.retrieved_at
+      const observedAt =
+        retrieved && Date.parse(retrieved) < Date.now()
+          ? new Date(retrieved)
+          : new Date()
+      const supplierId = await competitorId(p.offer.seller, p.offer.url)
+      sellers.set(supplierId, p.offer.seller)
       rows.push({
         product_id: productId,
-        supplier_id: await competitorId(p.offer.seller, p.offer.url),
+        supplier_id: supplierId,
         price_check_id: check.id,
         raw_description: p.offer.title,
         pack_price: p.packPriceExVat,
@@ -232,7 +256,8 @@ export async function checkProductPrices(
         pack_unit: p.spec.pack_unit,
         units_per_case: p.spec.units_per_case,
         price_per_base_unit: p.ppu,
-        observed_on: today(),
+        observed_on: dublinDate(observedAt),
+        observed_at: observedAt.toISOString(),
         source: 'web',
         source_url: p.offer.url,
         extraction_confidence: p.offer.confidence,
@@ -255,9 +280,10 @@ export async function checkProductPrices(
           finished_at: new Date().toISOString(),
           offers_found: rows.length,
           summary: rows.length
-            ? read.summary
-            : 'No like-for-like prices found online.',
+            ? summarise(rows, sellers, current, product)
+            : nothingComparable(read.offers.length, dropped),
           sources,
+          notes,
         })
         .eq('id', check.id)
         .select(CHECK_COLS)
@@ -272,6 +298,7 @@ export async function checkProductPrices(
         finished_at: new Date().toISOString(),
         error: err instanceof Error ? err.message : String(err),
         sources,
+        notes,
       })
       .eq('id', check.id)
     throw err
@@ -406,4 +433,89 @@ export async function productPriceChecks(productId: string) {
     review_reasons: r.review_reasons,
   }))
   return { checks, offers, max_age_days: WEB_PRICE_MAX_AGE_DAYS }
+}
+
+/**
+ * One line for the owner, written here rather than by the model so every number
+ * comes from the stored prices. Only offers that count towards savings are compared.
+ */
+function summarise(
+  rows: Array<{
+    price_per_base_unit: number
+    observed_at: string
+    review_reasons: Array<string>
+    supplier_id: string
+  }>,
+  sellers: Map<string, string>,
+  current: ReturnType<typeof currentPrice>,
+  product: Product,
+): string {
+  const isOld = (r: (typeof rows)[number]) =>
+    Date.now() - Date.parse(r.observed_at) > WEB_PRICE_MAX_AGE_DAYS * 86_400_000
+  const fresh = rows.filter(
+    (r) => r.review_reasons.every((x) => x.startsWith('Match:')) && !isOld(r),
+  )
+  if (fresh.length === 0) {
+    const old = rows.filter(isOld)
+    if (old.length === rows.length) {
+      const newest = old
+        .map((r) => r.observed_at)
+        .sort()
+        .at(-1)!
+      return `Only old copies of seller pages came back (newest from ${new Date(newest).toLocaleDateString('en-IE', { day: 'numeric', month: 'short' })}), so nothing counts as a live price. Try again later.`
+    }
+    return 'Prices found, but only with VAT we could not work out or from old copies of the page, so none count.'
+  }
+  const best = fresh.reduce((a, b) =>
+    b.price_per_base_unit < a.price_per_base_unit ? b : a,
+  )
+  const std = standardQuantity(product.base_unit)
+  const fmt = (ppu: number) =>
+    `€${perStandardUnit(ppu, product.base_unit).toFixed(2)}${std.short ? `/${std.short}` : ' each'}`
+  const where = sellers.get(best.supplier_id) ?? 'another seller'
+  if (!current)
+    return `Cheapest online: ${where} at ${fmt(best.price_per_base_unit)} ex VAT.`
+  const diff = (best.price_per_base_unit - current.ppu) / current.ppu
+  const pctText = `${Math.round(Math.abs(diff) * 100)}%`
+  return diff < 0
+    ? `Cheapest online: ${where} at ${fmt(best.price_per_base_unit)} ex VAT, ${pctText} less than the ${fmt(current.ppu)} you pay ${current.supplier_name}.`
+    : `You pay ${fmt(current.ppu)} at ${current.supplier_name}. The cheapest online, ${where}, is ${pctText} more at ${fmt(best.price_per_base_unit)}.`
+}
+
+/** Listings the search turned up that were not kept, by reason. */
+interface Dropped {
+  /** A different product, e.g. semi-skimmed for whole milk. */
+  different: number
+  /** The model was not sure of the price, size or match. */
+  unsure: number
+  /** The link was not a page the search actually opened. */
+  unopened: number
+  /** No pack size or unit price, or sold in a different unit (kg vs each). */
+  unpriced: number
+}
+
+/** Why a check kept nothing, in words, e.g. "Found 2 listings, but 1 had no pack size…". */
+function nothingComparable(listings: number, d: Dropped): string {
+  if (listings === 0) return 'No listings for this product found online.'
+  const plural = (n: number, one: string, many: string) =>
+    `${n} ${n === 1 ? one : many}`
+  const why = [
+    d.different &&
+      plural(d.different, 'was a different product', 'were different products'),
+    d.unpriced &&
+      plural(
+        d.unpriced,
+        'had no pack size or unit price to compare',
+        'had no pack size or unit price to compare',
+      ),
+    d.unsure &&
+      plural(d.unsure, 'was too unclear to trust', 'were too unclear to trust'),
+    d.unopened &&
+      plural(
+        d.unopened,
+        "came from a page we couldn't open",
+        "came from pages we couldn't open",
+      ),
+  ].filter(Boolean)
+  return `Found ${plural(listings, 'listing', 'listings')} online, but none comparable: ${why.join(', ')}.`
 }

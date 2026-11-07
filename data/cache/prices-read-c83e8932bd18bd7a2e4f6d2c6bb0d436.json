@@ -1,0 +1,24 @@
+{
+  "name": "prices-read",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T12:34:15.271Z",
+  "output": {
+    "offers": [
+      {
+        "seller": "Tesco",
+        "title": "Cafedirect Familia Espresso 100% Arabica Beans 1kg",
+        "url": "https://www.tesco.ie/shop/en-IE/products/318266112",
+        "price": 30,
+        "vat_included": true,
+        "vat_rate_percent": 0,
+        "pack_size": 1,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "match": "equivalent",
+        "match_note": "Close equivalent espresso beans, not the house blend",
+        "promo": false,
+        "confidence": 0.7
+      }
+    ]
+  }
+}

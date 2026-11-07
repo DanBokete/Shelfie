@@ -114,7 +114,4 @@ export const WebOffer = z.object({
   confidence,
 })
 export type WebOffer = z.infer<typeof WebOffer>
-export const WebOffers = z.object({
-  offers: z.array(WebOffer),
-  summary: z.string(), // one sentence for the owner
-})
+export const WebOffers = z.object({ offers: z.array(WebOffer) })

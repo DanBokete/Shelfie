@@ -1,0 +1,54 @@
+{
+  "name": "prices-read",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T12:37:32.641Z",
+  "output": {
+    "offers": [
+      {
+        "seller": "Tesco",
+        "title": "Tesco Little Gem Lettuce Twin Pack",
+        "url": "https://www.tesco.ie/shop/en-IE/products/253560041",
+        "price": 1.39,
+        "vat_included": true,
+        "vat_rate_percent": 0,
+        "pack_size": 2,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "match": "equivalent",
+        "match_note": "Little gem twin pack, same type as baby gem",
+        "promo": false,
+        "confidence": 0.85
+      },
+      {
+        "seller": "SuperValu",
+        "title": "SuperValu Little Gem Lettuce (2 Piece)",
+        "url": "https://shop.supervalu.ie/product/supervalu-sweet-gem-lettuce-2-piece-1025387000",
+        "price": 1.39,
+        "vat_included": true,
+        "vat_rate_percent": 0,
+        "pack_size": 2,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "match": "equivalent",
+        "match_note": "Little gem twin pack, same type as baby gem",
+        "promo": false,
+        "confidence": 0.85
+      },
+      {
+        "seller": "Fruitbaskets.ie",
+        "title": "Baby Gem Lettuce - Twin Pack",
+        "url": "https://fruitbaskets.ie/products/baby-gem-lettuce-twin-pack",
+        "price": 1.4,
+        "vat_included": true,
+        "vat_rate_percent": 0,
+        "pack_size": 2,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "match": "exact",
+        "match_note": "Baby gem twin pack; page had Sold out label",
+        "promo": false,
+        "confidence": 0.6
+      }
+    ]
+  }
+}

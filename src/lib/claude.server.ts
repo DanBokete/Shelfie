@@ -200,13 +200,15 @@ function toAIError(err: unknown): AIError | null {
 export interface WebSource {
   url: string
   title: string
+  /** When the page text was retrieved. Fetches can return a cached copy weeks old. */
+  retrieved_at: string | null
 }
 
 /** Server tool loops stop after 10 steps with pause_turn; resume this many times at most. */
 const MAX_RESUMES = 4
 
 /**
- * One research turn with live web search and page fetch, searched as if from Ireland.
+ * One research turn with live web search and page fetch, searched as if from Cork.
  * Returns Claude's written findings and every page the tools returned, so callers can
  * reject any link Claude did not actually see. Never cached: the point is fresh data.
  */
@@ -228,7 +230,7 @@ export async function searchWeb(opts: {
   const messages: Array<Anthropic.Beta.BetaMessageParam> = [
     { role: 'user', content: opts.prompt },
   ]
-  const sources = new Map<string, string>()
+  const sources = new Map<string, WebSource>()
   const text: Array<string> = []
   const started = Date.now()
 
@@ -244,10 +246,11 @@ export async function searchWeb(opts: {
           {
             type: 'web_search_20260209',
             name: 'web_search',
-            max_uses: opts.maxSearches ?? 5,
+            // Searches run in code, several at a time, so a small limit is gone in one step.
+            max_uses: opts.maxSearches ?? 12,
+            // The API rejects country 'IE', so Ireland comes from the city and the prompt.
             user_location: {
               type: 'approximate',
-              country: 'IE',
               city: 'Cork',
               timezone: 'Europe/Dublin',
             },
@@ -255,7 +258,7 @@ export async function searchWeb(opts: {
           {
             type: 'web_fetch_20260209',
             name: 'web_fetch',
-            max_uses: opts.maxFetches ?? 8,
+            max_uses: opts.maxFetches ?? 12,
           },
         ],
         output_config: { effort: opts.effort ?? 'medium' },
@@ -276,18 +279,25 @@ export async function searchWeb(opts: {
         block.type === 'web_search_tool_result' &&
         Array.isArray(block.content)
       ) {
-        for (const r of block.content) sources.set(r.url, r.title)
+        for (const r of block.content) {
+          if (!sources.has(r.url))
+            sources.set(r.url, {
+              url: r.url,
+              title: r.title,
+              retrieved_at: null,
+            })
+        }
       }
       if (
         block.type === 'web_fetch_tool_result' &&
         block.content.type === 'web_fetch_result'
       ) {
-        sources.set(
-          block.content.url,
-          block.content.content.title ??
-            sources.get(block.content.url) ??
-            block.content.url,
-        )
+        const { url, retrieved_at, content } = block.content
+        sources.set(url, {
+          url,
+          title: content.title ?? sources.get(url)?.title ?? url,
+          retrieved_at,
+        })
       }
     }
     console.info(
@@ -303,6 +313,6 @@ export async function searchWeb(opts: {
 
   return {
     text: text.join('\n').trim(),
-    sources: [...sources].map(([url, title]) => ({ url, title })),
+    sources: [...sources.values()],
   }
 }

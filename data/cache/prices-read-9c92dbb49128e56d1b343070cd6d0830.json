@@ -1,0 +1,54 @@
+{
+  "name": "prices-read",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T12:33:14.908Z",
+  "output": {
+    "offers": [
+      {
+        "seller": "Tesco",
+        "title": "Avonmore Fresh Whole Milk 2 Litre",
+        "url": "https://www.tesco.ie/shop/en-IE/products/250004694",
+        "price": 2.69,
+        "vat_included": true,
+        "vat_rate_percent": 0,
+        "pack_size": 2,
+        "pack_unit": "l",
+        "units_per_case": 1,
+        "match": "exact",
+        "match_note": "Same Avonmore whole milk, 2L single pack",
+        "promo": false,
+        "confidence": 0.95
+      },
+      {
+        "seller": "SuperValu",
+        "title": "Avonmore Fresh Milk (2 L)",
+        "url": "https://shop.supervalu.ie/product/avonmore-fresh-milk-2-l-id-1005787000",
+        "price": 2.69,
+        "vat_included": true,
+        "vat_rate_percent": 0,
+        "pack_size": 2,
+        "pack_unit": "l",
+        "units_per_case": 1,
+        "match": "exact",
+        "match_note": "Listed under whole milk, Avonmore 2L single pack",
+        "promo": false,
+        "confidence": 0.93
+      },
+      {
+        "seller": "Aldi",
+        "title": "Clonbawn Irish Fresh Milk 3.5% Fat",
+        "url": "https://www.aldi.ie/product/clonbawn-irish-fresh-milk-3-5-fat-000000000000476447",
+        "price": 2.25,
+        "vat_included": true,
+        "vat_rate_percent": 0,
+        "pack_size": 2,
+        "pack_unit": "l",
+        "units_per_case": 1,
+        "match": "equivalent",
+        "match_note": "Different brand, 3.5% fat whole milk, 2L; price from category page",
+        "promo": false,
+        "confidence": 0.8
+      }
+    ]
+  }
+}

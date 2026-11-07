@@ -15,13 +15,17 @@ export function supplierColour(index: number) {
   return SERIES[index] ?? NEUTRAL
 }
 
-/** Width of an element, kept up to date as the layout changes. */
-function useWidth(fallback: number) {
+/**
+ * Width of an element, kept up to date as the layout changes. Null until the browser
+ * has measured it, so charts draw only on the client and never mismatch the server HTML.
+ */
+function useWidth() {
   const ref = useRef<HTMLDivElement>(null)
-  const [width, setWidth] = useState(fallback)
+  const [width, setWidth] = useState<number | null>(null)
   useEffect(() => {
     const el = ref.current
     if (!el) return
+    setWidth(el.clientWidth)
     const ro = new ResizeObserver(([e]) => setWidth(e.contentRect.width))
     ro.observe(el)
     return () => ro.disconnect()
@@ -95,13 +99,15 @@ export function WeeklySpendChart({
   weeks: Array<SpendWeek>
   suppliers: Array<string>
 }) {
-  const [ref, width] = useWidth(640)
+  const [ref, width] = useWidth()
   const [active, setActive] = useState<number | null>(null)
 
   const plotH = 180
   const axisW = 48
   const axisH = 24
   const top = 18
+  if (width == null)
+    return <div ref={ref} style={{ height: top + plotH + axisH }} />
   const plotW = Math.max(width - axisW, 100)
   const totals = weeks.map((w) =>
     Object.values(w.by_supplier).reduce((s, v) => s + v, 0),
@@ -336,11 +342,13 @@ export function PriceSparkline({
   points: Array<{ date: string; price: number }>
   unit: string
 }) {
-  const [ref, width] = useWidth(240)
+  const [ref, width] = useWidth()
   const [active, setActive] = useState<number | null>(null)
   if (points.length < 2) return null
 
   const h = 56
+  // The sparkline plus its caption line.
+  if (width == null) return <div ref={ref} style={{ height: h + 22 }} />
   const pad = 6
   const prices = points.map((p) => p.price)
   const lo = Math.min(...prices)

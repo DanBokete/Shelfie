@@ -1,0 +1,9 @@
+{
+  "name": "prices-read",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T12:27:08.448Z",
+  "output": {
+    "offers": [],
+    "summary": "No offers could be listed because no seller prices were retrieved, so the cheapest like-for-like cannot be compared against your €4.20 ex VAT per 2L pack."
+  }
+}

@@ -69,21 +69,26 @@ Where to look: Irish supermarkets with online shops (Tesco, SuperValu, Dunnes St
 - Find the same product first: same brand when a brand is given, same type and spec. Whole milk is not semi-skimmed, free-range eggs are not caged, oat milk is not dairy.
 - If the exact product is not sold online, a close equivalent of the same type and spec is useful. Say it is an equivalent.
 - Bigger packs and cases are welcome: the owner compares price per litre, kg or item.
-- For each offer note: seller, the product name as listed, the page URL, the price shown, the pack size and how many in a case, whether the price includes VAT (supermarket shelf prices do), and any promotion or loyalty-card-only price. Use the normal price when a club price needs a loyalty card, and mention the club price.
+- Fresh produce and deli are often sold loose or by weight. Note the unit price the page shows (e.g. '€1.99/kg', '€0.45 each') as well as the shelf price, and how many items a pack holds.
+- For each offer note: seller, the product name as listed, the page URL, the price shown, the unit price shown (per kg, per litre or each), the pack size and how many in a case, whether the price includes VAT (supermarket shelf prices do), and any promotion or loyalty-card-only price. Use the normal price when a club price needs a loyalty card, and mention the club price.
 - Aim for 3 to 6 offers from different sellers. Stop when you have them or your searches run out. Never invent a price or a URL.
-Write the findings as a plain list, one offer per line, then one sentence on how the cheapest compares with what the owner pays.`
+How the tools work, so you do not waste them:
+- web_fetch only opens a URL that appeared in an earlier search result. Never build a URL yourself, such as a shop's search page.
+- Search once per seller (e.g. 'Avonmore whole milk 2L tesco.ie'), then open the product page links the results give you.
+- Open each page once. When you work in code, print each result's title and URL, and the lines of a page around its euro prices, so you can read them.
+Write the findings as a plain list, one offer per line, each with its full URL, then one sentence on how the cheapest compares with what the owner pays.`
 
 export const P8_WEB_PRICE_READ = `Turn these price research notes into offers. Use only what the notes say.
 - url: copy the product page URL exactly from the notes. Leave out any offer without one.
 - seller: the shop's name only (e.g. 'Tesco', 'SuperValu', 'Dunnes Stores', 'Aldi', 'Lidl'). If it is one of the known sellers given, spell it exactly that way.
 - title: the product name as listed. price: the euro price for ONE listing as sold, exactly as shown. Never compute it.
 - pack_size, pack_unit, units_per_case: what one listing holds. '6 x 2L' = units_per_case 6, pack_size 2, pack_unit 'l'. '1kg' = pack_size 1, pack_unit 'kg', units_per_case 1. 'Pack of 12 eggs' = pack_size 12, pack_unit 'each'. Use null when the size is not stated.
+- Sold loose, by weight, or with no pack size but a unit price shown: use the unit price as the listing. '€1.99/kg' = price 1.99, pack_size 1, pack_unit 'kg'. '€0.45 each' = price 0.45, pack_size 1, pack_unit 'each'. '€1.79 per 2 pack' of lettuces = price 1.79, pack_size 2, pack_unit 'each'.
 - vat_included: true for supermarket and other consumer shelf prices, false only when the page says ex VAT.
 - vat_rate_percent, when vat_included: the Irish VAT rate for this product. 0 for most food and drink staples (milk, butter, cheese, eggs, bread, flour, sugar, tea, coffee, fresh produce). 23 for soft drinks, bottled water, sweets, chocolate, crisps, alcohol and non-food such as cups and napkins. Null if unsure.
 - match: 'exact' for the same product (pack size may differ), 'equivalent' for a close swap of the same type and spec, 'different' for anything else. match_note: at most 12 words.
 - promo: true when the price is a temporary offer.
-- confidence: 0 to 1, how sure you are that the price, pack size and match are right.
-- summary: one plain sentence for the owner on the cheapest like-for-like offer versus what they pay. No more than 25 words.`
+- confidence: 0 to 1, how sure you are that the price, pack size and match are right.`
 
 export const BUSINESS = {
   name: 'The Corner Café',

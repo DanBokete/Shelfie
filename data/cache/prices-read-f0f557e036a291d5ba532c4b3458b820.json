@@ -1,0 +1,54 @@
+{
+  "name": "prices-read",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T12:37:58.008Z",
+  "output": {
+    "offers": [
+      {
+        "seller": "SuperValu",
+        "title": "SuperValu Single Loose Banana (1 kg)",
+        "url": "https://shop.supervalu.ie/product/loose-bananas-1-kg-1013680000",
+        "price": 1.65,
+        "vat_included": true,
+        "vat_rate_percent": 0,
+        "pack_size": 1,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "match": "exact",
+        "match_note": "Loose bananas sold by weight at €1.65/kg",
+        "promo": false,
+        "confidence": 0.85
+      },
+      {
+        "seller": "Tesco",
+        "title": "Tesco Bananas Loose",
+        "url": "https://www.tesco.ie/shop/en-IE/products/275280804",
+        "price": 1.82,
+        "vat_included": true,
+        "vat_rate_percent": 0,
+        "pack_size": 1,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "match": "exact",
+        "match_note": "Loose bananas at €1.82/kg; read from category page",
+        "promo": false,
+        "confidence": 0.7
+      },
+      {
+        "seller": "Aldi",
+        "title": "Nature's Pick Bananas",
+        "url": "https://www.aldi.ie/product/nature-s-pick-bananas-000000000000280703",
+        "price": 2.49,
+        "vat_included": true,
+        "vat_rate_percent": 0,
+        "pack_size": 6,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "match": "exact",
+        "match_note": "Pack of 6 bananas, no weight stated",
+        "promo": false,
+        "confidence": 0.8
+      }
+    ]
+  }
+}

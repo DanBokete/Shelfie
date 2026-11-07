@@ -231,8 +231,13 @@ function PriceRow({
               )}
             </p>
           ) : (
-            <p className="text-muted">
-              {row.last_check?.status === 'done' ? 'None found' : '-'}
+            <p
+              className="line-clamp-2 text-xs text-muted"
+              title={row.last_check?.summary ?? undefined}
+            >
+              {row.last_check?.status === 'done'
+                ? (row.last_check.summary ?? 'Nothing comparable found')
+                : '-'}
             </p>
           )}
         </div>

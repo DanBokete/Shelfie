@@ -1,0 +1,8 @@
+{
+  "name": "prices-read",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T12:34:02.786Z",
+  "output": {
+    "offers": []
+  }
+}

@@ -446,6 +446,10 @@ function OnlinePrices({
             const vatUnknown = o.review_reasons.some((r) =>
               r.startsWith('Web: shelf price incl. VAT'),
             )
+            // The seller's page can come back as an old cached copy.
+            const stale =
+              Date.now() - Date.parse(o.observed_at) >
+              live.max_age_days * 86_400_000
             return (
               <li
                 key={o.id}
@@ -467,12 +471,18 @@ function OnlinePrices({
                   )}
                   <p className="mt-1 flex flex-wrap gap-1.5 text-xs text-muted">
                     <span>
-                      {euro(o.pack_price, { cents: true })} per {pack(o)}
+                      {euro(o.pack_price, { cents: true })} per {pack(o)} · read{' '}
+                      {dateTime(o.observed_at)}
                     </span>
                     {equivalent && (
                       <span className="chip">Similar product</span>
                     )}
                     {vatUnknown && <span className="chip">Incl. VAT</span>}
+                    {stale && (
+                      <span className="chip bg-warn-soft text-warn">
+                        Old copy of the page, not counted
+                      </span>
+                    )}
                   </p>
                 </div>
                 <div className="shrink-0 text-right">
