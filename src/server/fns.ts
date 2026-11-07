@@ -8,7 +8,11 @@ import {
   snapshotInfo,
   wipe,
 } from '#/lib/admin.server'
-import { lastAlert, telegramStatus } from '#/lib/alerts.server'
+import {
+  lastAlert,
+  notifyNotHonoured,
+  telegramStatus,
+} from '#/lib/alerts.server'
 import { demoMode, model } from '#/lib/claude.server'
 import { updateDraft } from '#/lib/email.server'
 import { deliveryProblems } from '#/lib/gmail-replies.server'
@@ -22,11 +26,13 @@ import {
   pendingEmails,
   savedDraft,
 } from '#/lib/pending-emails.server'
+import { notHonouredText } from '#/lib/reply-review'
 import {
   findByBarcode,
   homeSummary,
   invoiceLines,
   invoiceList,
+  notHonoured,
   productDetail,
   reviewQueue,
   searchProducts,
@@ -37,6 +43,20 @@ import {
   createProductFor,
   editLine,
 } from '#/lib/review.server'
+import {
+  addHeldInvoice,
+  addReplyLine,
+  applyBetterLines,
+  applyReplyLine,
+  editReplyLine,
+  rejectAllLines,
+  rejectHeldInvoice,
+  rejectReplyLine,
+  replyReview,
+  setOutcome,
+  undoHeldInvoice,
+  undoReplyLine,
+} from '#/lib/reply-review.server'
 import { setBarcode } from '#/lib/scan.server'
 import { setSellingPrice } from '#/lib/selling.server'
 import {
@@ -64,6 +84,15 @@ export const getInvoiceLines = createServerFn({ method: 'GET' })
 
 export const getReviewQueue = createServerFn({ method: 'GET' }).handler(() =>
   reviewQueue(),
+)
+
+/** Agreed prices a later invoice charged more than, with the sentence to show. */
+export const getNotHonoured = createServerFn({ method: 'GET' }).handler(
+  async () =>
+    (await notHonoured()).map((b) => ({
+      ...b,
+      text: notHonouredText(b, b.product_name),
+    })),
 )
 
 export const getProduct = createServerFn({ method: 'GET' })
@@ -157,8 +186,116 @@ export const getReplies = createServerFn({ method: 'GET' }).handler(
 )
 
 export const retryReply = createServerFn({ method: 'POST' })
-  .validator(z.object({ id: z.uuid(), supplier_id: z.uuid().optional() }))
-  .handler(({ data }) => reprocessInbound(data.id, data.supplier_id))
+  .validator(
+    z.object({
+      id: z.uuid(),
+      supplier_id: z.uuid().optional(),
+      /** Read one part again: 'email body' or an attachment's file name. */
+      only: z.string().min(1).max(200).optional(),
+    }),
+  )
+  .handler(({ data }) => reprocessInbound(data.id, data.supplier_id, data.only))
+
+// --- Reviewing a reply -------------------------------------------------------------------
+
+const RawUnitSchema = z.enum(['ml', 'cl', 'l', 'g', 'kg', 'each'])
+const NewProductSchema = z.object({
+  canonical_name: z.string().trim().min(2).max(120),
+  base_unit: z.enum(['ml', 'g', 'each']),
+})
+const LineEditSchema = z.object({
+  product_id: z.uuid().nullable().optional(),
+  new_product: NewProductSchema.nullable().optional(),
+  pack_price: z.number().positive().max(100000).optional(),
+  pack_size: z.number().positive().nullable().optional(),
+  pack_unit: RawUnitSchema.nullable().optional(),
+  units_per_case: z.number().int().positive().max(1000).optional(),
+})
+
+export const getReplyReview = createServerFn({ method: 'GET' })
+  .validator(id)
+  .handler(({ data }) => replyReview(data.id))
+
+export const reviewReplyLine = createServerFn({ method: 'POST' })
+  .validator(
+    z.object({
+      id: z.uuid(),
+      action: z.enum(['apply', 'reject', 'undo', 'edit']),
+      edit: LineEditSchema.optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    if (data.action === 'apply') await applyReplyLine(data.id, data.edit)
+    else if (data.action === 'reject') await rejectReplyLine(data.id)
+    else if (data.action === 'undo') await undoReplyLine(data.id)
+    else await editReplyLine(data.id, data.edit ?? {})
+    return { ok: true }
+  })
+
+export const reviewReplyAll = createServerFn({ method: 'POST' })
+  .validator(
+    z.object({ id: z.uuid(), action: z.enum(['apply_better', 'reject_all']) }),
+  )
+  .handler(async ({ data }) => {
+    if (data.action === 'apply_better')
+      return { applied: await applyBetterLines(data.id) }
+    await rejectAllLines(data.id)
+    return { applied: 0 }
+  })
+
+export const addReplyLineByHand = createServerFn({ method: 'POST' })
+  .validator(
+    z.object({
+      reply_id: z.uuid(),
+      raw_description: z.string().trim().min(1).max(200),
+      product_id: z.uuid().nullable(),
+      new_product: NewProductSchema.nullable(),
+      pack_price: z.number().positive().max(100000),
+      pack_size: z.number().positive().nullable(),
+      pack_unit: RawUnitSchema.nullable(),
+      units_per_case: z.number().int().positive().max(1000),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { reply_id, ...line } = data
+    if (!line.product_id && !line.new_product)
+      throw new Error('Pick the product this price is for.')
+    return { id: await addReplyLine(reply_id, line) }
+  })
+
+export const setReplyOutcome = createServerFn({ method: 'POST' })
+  .validator(
+    z.object({
+      reply_id: z.uuid(),
+      request_item: z.number().int().min(0).nullable(),
+      outcome: z.enum([
+        'accepted',
+        'counter_offer',
+        'declined',
+        'needs_info',
+        'unclear',
+      ]),
+    }),
+  )
+  .handler(async ({ data }) => {
+    await setOutcome(data.reply_id, data.request_item, data.outcome)
+    return { ok: true }
+  })
+
+export const reviewHeldInvoice = createServerFn({ method: 'POST' })
+  .validator(
+    z.object({ id: z.uuid(), action: z.enum(['add', 'reject', 'undo']) }),
+  )
+  .handler(async ({ data }) => {
+    if (data.action === 'add') {
+      const r = await addHeldInvoice(data.id)
+      if (r.invoice_id && !r.error) await notifyNotHonoured(r.invoice_id)
+      return r
+    }
+    if (data.action === 'reject') await rejectHeldInvoice(data.id)
+    else await undoHeldInvoice(data.id)
+    return { invoice_id: null, error: null }
+  })
 
 /** The Emails page: requests waiting for a reply, drafts, failed sends, replies to review. */
 export const getPendingEmails = createServerFn({ method: 'GET' }).handler(() =>

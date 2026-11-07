@@ -23,6 +23,7 @@ import {
 import { baseUnitsPerPack, isRawUnit, standardQuantity } from '#/lib/units'
 import type { BaseUnit } from '#/lib/units'
 import { targetBuyPrice } from '#/lib/ask'
+import { notHonouredText } from '#/lib/reply-review'
 import {
   getProduct,
   getProductPriceChecks,
@@ -166,11 +167,64 @@ function ItemPage() {
         )}
       </section>
 
+      {/* Agreed in a reply, and whether the next invoice kept to it */}
+      {insight.not_honoured && (
+        <section
+          role="alert"
+          className="card flex items-start gap-3 border-rust/30 bg-rust-soft px-5 py-4"
+        >
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-card text-rust">
+            <Icon name="alert" />
+          </span>
+          <div>
+            <p className="font-semibold">
+              {notHonouredText(insight.not_honoured, product.canonical_name)}
+            </p>
+            <p className="text-sm text-muted">
+              On the invoice of {shortDate(insight.not_honoured.invoice_on)}.
+              Ask them to credit the difference.
+            </p>
+          </div>
+        </section>
+      )}
+      {insight.agreed && (
+        <section className="card flex items-start gap-3 border-brand/30 px-5 py-4">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-soft text-brand">
+            <Icon name="check" />
+          </span>
+          <div>
+            <p className="font-semibold">
+              Agreed: {euro(insight.agreed.price.pack_price, { cents: true })}{' '}
+              from {insight.agreed.price.supplier_name} on{' '}
+              {shortDate(insight.agreed.agreed_on)}
+            </p>
+            <p className="text-sm text-muted">
+              Was {euro(insight.agreed.was.pack_price, { cents: true })} per{' '}
+              {pack(insight.agreed.was)} on your last invoice
+              {insight.agreed.annual_saving != null &&
+              insight.agreed.annual_saving > 0 ? (
+                <>
+                  {' '}
+                  · saves{' '}
+                  <span className="tag">
+                    {euro(insight.agreed.annual_saving, { cents: false })}
+                  </span>{' '}
+                  a year
+                </>
+              ) : null}
+              . Counted as what you pay until their next invoice.
+            </p>
+          </div>
+        </section>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-2">
         {/* 2. You pay */}
         {cur && (
           <section className="card px-5 py-4">
-            <p className="label">You pay</p>
+            <p className="label">
+              {insight.agreed ? 'You pay (agreed)' : 'You pay'}
+            </p>
             <p className="mt-1 text-3xl font-bold">
               {euro(cur.pack_price, { cents: true })}
             </p>
@@ -478,6 +532,7 @@ const SOURCE_LABEL = {
   price_list: 'Price list',
   web: 'Online',
   quote: 'Quote',
+  agreed: 'Agreed',
 } as const
 
 type Live = Awaited<ReturnType<typeof getProductPriceChecks>>

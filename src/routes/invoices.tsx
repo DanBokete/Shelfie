@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from '@tanstack/react-router'
+import { Link, createFileRoute, useRouter } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { Icon, Spinner } from '#/components/Icon'
 import { LineFixer } from '#/components/LineFixer'
@@ -9,18 +9,20 @@ import { euro, pack, pct, shortDate } from '#/lib/format'
 import {
   getInvoiceLines,
   getInvoices,
+  getNotHonoured,
   getReplies,
   getReviewQueue,
 } from '#/server/fns'
 
 export const Route = createFileRoute('/invoices')({
   loader: async () => {
-    const [invoices, review, replies] = await Promise.all([
+    const [invoices, review, replies, broken] = await Promise.all([
       getInvoices(),
       getReviewQueue(),
       getReplies(),
+      getNotHonoured(),
     ])
-    return { invoices, review, replies }
+    return { invoices, review, replies, broken }
   },
   component: InvoicesPage,
   head: () => ({ meta: [{ title: 'Invoices - Shelfie' }] }),
@@ -47,7 +49,7 @@ const ACCEPT =
   'application/pdf,image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif'
 
 function InvoicesPage() {
-  const { invoices, review, replies } = Route.useLoaderData()
+  const { invoices, review, replies, broken } = Route.useLoaderData()
   const router = useRouter()
   const [queue, setQueue] = useState<Array<QueueItem>>([])
   const [dragging, setDragging] = useState(false)
@@ -220,6 +222,32 @@ function InvoicesPage() {
             problem is left out of your savings until you confirm it.
           </p>
         </div>
+        {broken.length > 0 && (
+          <ul className="space-y-2">
+            {broken.map((b) => (
+              <li
+                key={`${b.product_id}:${b.supplier_id}`}
+                className="card flex flex-col gap-3 border-rust/30 bg-rust-soft px-4 py-3 sm:flex-row sm:items-center"
+              >
+                <Icon name="alert" className="h-5 w-5 shrink-0 text-rust" />
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold break-words">{b.text}</p>
+                  <p className="text-sm text-muted">
+                    Price not honoured on the invoice of{' '}
+                    {shortDate(b.invoice_on)}.
+                  </p>
+                </div>
+                <Link
+                  to="/item/$productId"
+                  params={{ productId: b.product_id }}
+                  className="btn-secondary self-start px-3 py-1.5 sm:self-auto"
+                >
+                  Open item
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
         {review.length === 0 ? (
           <p className="card px-4 py-5 text-sm text-muted">
             Nothing to check. Every line was read and matched with confidence.

@@ -138,7 +138,40 @@ export const ReplyDocument = z.object({
 })
 export type ReplyDocument = z.infer<typeof ReplyDocument>
 
-export const ReplyRead = z.object({ documents: z.array(ReplyDocument) })
+/** What a supplier answered to a request, as the reader understands it. */
+export const ReplyOutcome = z.enum([
+  'accepted',
+  'counter_offer',
+  'declined',
+  'needs_info',
+  'unclear',
+])
+export type ReplyOutcome = z.infer<typeof ReplyOutcome>
+
+// The answer about one requested product (R1, R2...), or about a product the reply names
+// when the request is not known (request_item null, product_hint set).
+export const ReplyAnswer = z.object({
+  request_item: z.string().nullable(), // 'R1', or null
+  product_hint: z.string().nullable(), // the product named, when request_item is null
+  outcome: ReplyOutcome,
+  said: z.string(), // the supplier's own words about it, at most 25 words
+  question: z.string().nullable(), // what they asked, for needs_info
+  // counter_offer only: the price they named, for ONE pack, and what pack it is for.
+  offer_price: z.number().nullable(),
+  offer_pack: z.enum(['requested', 'stated', 'unknown']).nullable(),
+  pack_size: z.number().nullable(), // for offer_pack 'stated'
+  pack_unit: z.enum(['ml', 'cl', 'l', 'g', 'kg', 'each']).nullable(),
+  units_per_case: z.number().int().nullable(),
+  price_includes_vat: z.boolean(),
+})
+export type ReplyAnswer = z.infer<typeof ReplyAnswer>
+
+export const ReplyRead = z.object({
+  overall: ReplyOutcome,
+  overall_said: z.string(), // one short sentence: what the reply says
+  answers: z.array(ReplyAnswer),
+  documents: z.array(ReplyDocument),
+})
 export type ReplyRead = z.infer<typeof ReplyRead>
 
 // P10: how to reach a seller found online

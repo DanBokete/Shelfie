@@ -1,5 +1,6 @@
 // Every email that still needs something: requests waiting for a reply, drafts never sent,
-// sends that failed, and replies the owner has to deal with. Reading only: no Claude calls.
+// sends that failed, replies the owner has to review, and what each supplier answered.
+// Reading only: no Claude calls.
 import { Link, createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import type { ReactNode } from 'react'
@@ -7,10 +8,12 @@ import { EmailModal } from '#/components/EmailModal'
 import type { EmailRequest } from '#/components/EmailModal'
 import { Icon, Spinner } from '#/components/Icon'
 import type { IconName } from '#/components/Icon'
-import { dateTime, timeAgo } from '#/lib/format'
+import { dateTime, shortDate, timeAgo } from '#/lib/format'
 import type {
+  AnsweredEmail,
   FailedEmail,
   PendingDraft,
+  RequestAnswer,
   ReviewReply,
   WaitingEmail,
 } from '#/lib/pending-emails'
@@ -57,6 +60,54 @@ function EmailsPage() {
         </p>
       </div>
 
+      {data.not_honoured.length > 0 && (
+        <Section
+          id="not-honoured"
+          title="Prices not honoured"
+          count={data.not_honoured.length}
+          note="A supplier agreed a price in a reply, then charged more on their next invoice."
+          empty=""
+        >
+          {data.not_honoured.map((b) => (
+            <Row key={`${b.product_id}:${b.supplier_id}`}>
+              <div className="flex min-w-0 flex-1 items-start gap-3">
+                <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-rust-soft text-rust">
+                  <Icon name="alert" className="h-5 w-5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold break-words">{b.text}</p>
+                  <p className="text-sm text-muted">
+                    Invoice of {shortDate(b.invoice_on)}
+                  </p>
+                </div>
+              </div>
+              <Actions>
+                <Link
+                  to="/item/$productId"
+                  params={{ productId: b.product_id }}
+                  className="btn-secondary px-3 py-1.5"
+                >
+                  Open item
+                  <Icon name="arrowRight" className="h-4 w-4" />
+                </Link>
+              </Actions>
+            </Row>
+          ))}
+        </Section>
+      )}
+
+      <Section
+        id="review"
+        title="Replies to review"
+        count={data.review.length}
+        note="Prices and invoices in a reply change nothing until you apply them."
+        empty="No replies need you. When a supplier replies, what they offer waits here for you to apply or reject."
+      >
+        {data.review.map((r) => (
+          <ReviewRow key={r.id} reply={r} />
+        ))}
+      </Section>
+
       <Section
         id="waiting"
         title="Waiting for a reply"
@@ -71,6 +122,17 @@ function EmailsPage() {
             replyByDays={data.reply_by_days}
             onRemind={(id) => edit({ ...w, id, follow_up_of: w.id })}
           />
+        ))}
+      </Section>
+
+      <Section
+        id="answered"
+        title="Answered"
+        count={data.answered.length}
+        empty="No answers yet. When a supplier replies to a request, what they said shows here."
+      >
+        {data.answered.map((a) => (
+          <AnsweredRow key={a.id} email={a} />
         ))}
       </Section>
 
@@ -103,17 +165,6 @@ function EmailsPage() {
             onRetry={() => edit(f)}
             onDiscarded={refresh}
           />
-        ))}
-      </Section>
-
-      <Section
-        id="review"
-        title="Replies to review"
-        count={data.review.length}
-        empty="No replies need you. Replies Shelfie can't read or place on its own show up here."
-      >
-        {data.review.map((r) => (
-          <ReviewRow key={r.id} reply={r} />
         ))}
       </Section>
 
@@ -262,22 +313,21 @@ function WaitingRow({
         email={w}
         when={`sent ${timeAgo(w.sent_at)}`}
       >
-        {(w.overdue || w.last_reminder_at) && (
-          <p className="mt-1.5 flex flex-wrap gap-1.5">
-            {w.overdue && (
-              <span className="chip bg-warn-soft text-warn">
-                <Icon name="alert" className="h-3 w-3" />
-                No reply after {w.days} day{w.days === 1 ? '' : 's'}
-              </span>
-            )}
-            {w.last_reminder_at && (
-              <span className="chip">
-                {w.reminders === 1 ? 'Reminder' : `${w.reminders} reminders`}{' '}
-                sent {timeAgo(w.last_reminder_at)}
-              </span>
-            )}
-          </p>
-        )}
+        <p className="mt-1.5 flex flex-wrap gap-1.5">
+          <span className="chip">Waiting</span>
+          {w.overdue && (
+            <span className="chip bg-warn-soft text-warn">
+              <Icon name="alert" className="h-3 w-3" />
+              No reply after {w.days} day{w.days === 1 ? '' : 's'}
+            </span>
+          )}
+          {w.last_reminder_at && (
+            <span className="chip">
+              {w.reminders === 1 ? 'Reminder' : `${w.reminders} reminders`} sent{' '}
+              {timeAgo(w.last_reminder_at)}
+            </span>
+          )}
+        </p>
         {err && (
           <p role="alert" className="mt-1 text-sm text-rust">
             {err}
@@ -454,11 +504,19 @@ function ReviewRow({ reply: r }: { reply: ReviewReply }) {
           className={`mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full ${
             r.status === 'failed'
               ? 'bg-rust-soft text-rust'
-              : 'bg-warn-soft text-warn'
+              : r.status === 'proposed'
+                ? 'bg-brand-soft text-brand'
+                : 'bg-warn-soft text-warn'
           }`}
         >
           <Icon
-            name={r.status === 'failed' ? 'alert' : 'mail'}
+            name={
+              r.status === 'failed'
+                ? 'alert'
+                : r.status === 'proposed'
+                  ? 'check'
+                  : 'mail'
+            }
             className="h-5 w-5"
           />
         </span>
@@ -474,20 +532,95 @@ function ReviewRow({ reply: r }: { reply: ReviewReply }) {
           <p className="text-sm break-words sm:truncate">
             {r.subject || '(no subject)'}
           </p>
+          {r.outcome_label && (
+            <p className="mt-1.5">
+              <span className="chip">{r.outcome_label}</span>
+            </p>
+          )}
           <p
-            className={`mt-1 text-sm ${r.status === 'failed' ? 'text-rust' : 'text-warn'}`}
+            className={`mt-1 text-sm ${
+              r.status === 'failed'
+                ? 'text-rust'
+                : r.status === 'proposed'
+                  ? 'text-muted'
+                  : 'text-warn'
+            }`}
           >
             {r.reason}
           </p>
         </div>
       </div>
       <Actions>
+        {r.status === 'proposed' ? (
+          <Link
+            to="/replies/$id"
+            params={{ id: r.id }}
+            className="btn-primary px-3 py-1.5"
+          >
+            Review
+            <Icon name="arrowRight" className="h-4 w-4" />
+          </Link>
+        ) : (
+          <Link
+            to="/invoices"
+            hash="replies"
+            className="btn-secondary px-3 py-1.5"
+          >
+            Open in Replies
+            <Icon name="arrowRight" className="h-4 w-4" />
+          </Link>
+        )}
+      </Actions>
+    </Row>
+  )
+}
+
+const ANSWER_TONE: Record<RequestAnswer['answers'][number]['outcome'], string> =
+  {
+    accepted: 'bg-good-soft text-good',
+    counter_offer: 'bg-brand-soft text-brand',
+    declined: 'bg-rust-soft text-rust',
+    needs_info: 'bg-warn-soft text-warn',
+    unclear: 'bg-soft text-muted',
+  }
+
+function AnsweredRow({ email: a }: { email: AnsweredEmail }) {
+  const several = (a.answer?.answers.length ?? 0) > 1
+  return (
+    <Row>
+      <Summary
+        icon="mail"
+        tone="bg-brand-soft text-brand"
+        email={a}
+        when={`replied ${timeAgo(a.replied_at)}`}
+      >
+        <p className="mt-1.5 flex flex-wrap gap-1.5">
+          {a.answer ? (
+            a.answer.answers.map((x, i) => (
+              <span key={i} className={`chip ${ANSWER_TONE[x.outcome]}`}>
+                {several && x.product_name ? `${x.product_name}: ` : ''}
+                {x.label}
+              </span>
+            ))
+          ) : (
+            <span className="chip">Reply not read yet</span>
+          )}
+        </p>
+        {a.answer?.answers
+          .filter((x) => x.question)
+          .map((x, i) => (
+            <p key={i} className="mt-1 text-sm text-warn">
+              They asked: {x.question}
+            </p>
+          ))}
+      </Summary>
+      <Actions>
         <Link
-          to="/invoices"
-          hash="replies"
+          to="/replies/$id"
+          params={{ id: a.reply_id }}
           className="btn-secondary px-3 py-1.5"
         >
-          Open in Replies
+          Open reply
           <Icon name="arrowRight" className="h-4 w-4" />
         </Link>
       </Actions>

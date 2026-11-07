@@ -1,0 +1,16 @@
+{
+  "name": "match",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T16:34:54.548Z",
+  "output": {
+    "results": [
+      {
+        "line_id": "L1",
+        "product_id": "p1",
+        "new_product": null,
+        "confidence": 0.97,
+        "reason": "Whole milk matches; pack size differences are acceptable."
+      }
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "reply",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T16:42:54.676Z",
+  "output": {
+    "overall": "counter_offer",
+    "overall_said": "The supplier offers 9.50 per pack for the chicken breast fillets.",
+    "answers": [
+      {
+        "request_item": null,
+        "product_hint": "Chicken breast fillets, 2kg",
+        "outcome": "counter_offer",
+        "said": "I can do 9.50 per pack",
+        "question": null,
+        "offer_price": 9.5,
+        "offer_pack": "stated",
+        "pack_size": 2,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "price_includes_vat": false
+      }
+    ],
+    "documents": [
+      {
+        "source": "email body",
+        "kind": "other",
+        "supplier_name": "Munster Fresh Foods",
+        "document_date": null,
+        "prices_include_vat": false,
+        "vat_rate_percent": null,
+        "lines": []
+      }
+    ]
+  }
+}

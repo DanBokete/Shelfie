@@ -156,30 +156,29 @@ export async function draftEmail(
   // Each product gets a target buy price and the percentage cut that is. Where the owner has
   // entered a selling price it is the price that keeps their profit when they sell at the
   // competitive price; otherwise it is the better price found. Nothing to ask means no email.
-  const asks = (
-    await Promise.all(
-      items.map(async (i) => {
-        const selling = i.product_id
-          ? await sellingPricePerPack(i.product_id)
-          : null
-        const t = targetBuyPrice({
-          your_price: i.your_price,
-          best_price: i.best_price,
-          selling_price: selling,
-        })
-        return t
-          ? {
-              product_name: i.product_name,
-              pack_label: i.pack_label,
-              your_price: i.your_price,
-              best_price: i.best_price,
-              weekly_quantity: i.weekly_quantity,
-              ...t,
-            }
-          : null
-      }),
-    )
-  ).filter((a): a is NonNullable<typeof a> => a != null)
+  const targets = await Promise.all(
+    items.map(async (i) => {
+      const selling = i.product_id
+        ? await sellingPricePerPack(i.product_id)
+        : null
+      const t = targetBuyPrice({
+        your_price: i.your_price,
+        best_price: i.best_price,
+        selling_price: selling,
+      })
+      return t
+        ? {
+            product_name: i.product_name,
+            pack_label: i.pack_label,
+            your_price: i.your_price,
+            best_price: i.best_price,
+            weekly_quantity: i.weekly_quantity,
+            ...t,
+          }
+        : null
+    }),
+  )
+  const asks = targets.filter((a): a is NonNullable<typeof a> => a != null)
   if (asks.length === 0)
     throw new Error('There is no lower price to ask this supplier to match.')
   const draft = await writeEmail({
@@ -221,7 +220,11 @@ export async function draftEmail(
       to_email: supplier.email,
       subject: draft.subject,
       body: draft.body,
-      items,
+      // The price each item asks for, so a "yes" in the reply can be read as that price.
+      items: items.map((i, k) => ({
+        ...i,
+        asked_price: targets[k]?.target ?? null,
+      })),
       writer,
     },
     opts.redo_of,

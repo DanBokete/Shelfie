@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { Icon, Spinner } from '#/components/Icon'
 import { postJSON } from '#/lib/api'
@@ -30,13 +31,27 @@ const HOW: Record<string, string> = {
 function summary(r: Reply): string {
   const bits: Array<string> = []
   if (r.quote_lines > 0)
-    bits.push(`${r.quote_lines} price${r.quote_lines === 1 ? '' : 's'} added`)
+    bits.push(`${r.quote_lines} price${r.quote_lines === 1 ? '' : 's'}`)
   if (r.invoices_read > 0)
-    bits.push(
-      `${r.invoices_read} invoice${r.invoices_read === 1 ? '' : 's'} read`,
-    )
+    bits.push(`${r.invoices_read} invoice${r.invoices_read === 1 ? '' : 's'}`)
   if (bits.length === 0) bits.push('no prices in this reply')
   return bits.join(' · ')
+}
+
+const REVIEW_TONE: Record<NonNullable<Reply['review']>['kind'], string> = {
+  waiting: 'bg-warn-soft text-warn',
+  applied: 'bg-good-soft text-good',
+  rejected: 'bg-soft text-muted',
+  partly: 'bg-brand-soft text-brand',
+  nothing: 'bg-soft text-muted',
+}
+
+const OUTCOME_TONE: Record<NonNullable<Reply['outcome']>['outcome'], string> = {
+  accepted: 'bg-good-soft text-good',
+  counter_offer: 'bg-brand-soft text-brand',
+  declined: 'bg-rust-soft text-rust',
+  needs_info: 'bg-warn-soft text-warn',
+  unclear: 'bg-soft text-muted',
 }
 
 interface ReplyCheck {
@@ -120,9 +135,9 @@ export function Replies({
         <div>
           <h2 className="text-lg font-bold">Replies</h2>
           <p className="text-sm text-muted">
-            When a supplier answers a quote or match request with a quote, price
-            list or invoice, Shelfie reads it from your Gmail and updates your
-            prices.
+            When a supplier answers a quote or match request, Shelfie reads it
+            from your Gmail. Nothing changes until you review it: you apply or
+            reject each price and invoice.
           </p>
         </div>
         <button
@@ -273,18 +288,28 @@ function ReplyRow({
           {r.attachment_names.length > 0 &&
             ` · ${r.attachment_names.join(', ')}`}
         </p>
+        {r.status === 'processed' && (
+          <p className="mt-1 flex flex-wrap items-center gap-1.5 text-sm">
+            {r.outcome && (
+              <span className={`chip ${OUTCOME_TONE[r.outcome.outcome]}`}>
+                {r.outcome.label}
+              </span>
+            )}
+            {r.review && r.review.kind !== 'nothing' && (
+              <span className={`chip ${REVIEW_TONE[r.review.kind]}`}>
+                {r.review.label}
+              </span>
+            )}
+            {r.better_quotes > 0 && r.review?.kind === 'waiting' && (
+              <span className="chip bg-brand-soft text-brand">
+                {r.better_quotes} better price
+                {r.better_quotes === 1 ? '' : 's'}
+              </span>
+            )}
+            <span className="text-muted">{summary(r)}</span>
+          </p>
+        )}
         <p className="mt-0.5 text-sm">
-          {r.status === 'processed' && (
-            <>
-              <span className="text-muted">{summary(r)}</span>
-              {r.better_quotes > 0 && (
-                <span className="ml-2 rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand">
-                  {r.better_quotes} better deal
-                  {r.better_quotes === 1 ? '' : 's'}
-                </span>
-              )}
-            </>
-          )}
           {reading && <span className="text-muted">Reading the reply...</span>}
           {r.status === 'failed' && (
             <span className="text-rust">
@@ -341,6 +366,15 @@ function ReplyRow({
         >
           {busy ? 'Reading...' : 'Retry'}
         </button>
+      )}
+      {r.status === 'processed' && (
+        <Link
+          to="/replies/$id"
+          params={{ id: r.id }}
+          className={`${r.review?.kind === 'waiting' ? 'btn-primary' : 'btn-secondary'} px-3 py-1.5`}
+        >
+          {r.review?.kind === 'waiting' ? 'Review' : 'Open'}
+        </Link>
       )}
     </li>
   )

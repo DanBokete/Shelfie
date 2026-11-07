@@ -184,8 +184,69 @@ describe('groupPendingEmails', () => {
       drafts: 1,
       failed: 1,
       review: 1,
+      not_honoured: 0,
       action: 4,
     })
+  })
+
+  it('counts prices not honoured as needing action', () => {
+    const p = groupPendingEmails([], [], { ...OPTS, notHonoured: 2 })
+    expect(p.counts).toMatchObject({ not_honoured: 2, action: 2 })
+  })
+
+  it('lists an answered request with its answer, from its newest reply', () => {
+    const answer = {
+      reply_id: 'new',
+      answers: [
+        {
+          product_name: 'Whole milk',
+          outcome: 'accepted' as const,
+          label: 'Accepted €3.55',
+          question: null,
+        },
+      ],
+    }
+    const p = groupPendingEmails(
+      [
+        draft({ id: 'req', sent_at: '2026-11-05T12:00:00Z' }),
+        draft({
+          id: 'rem',
+          follow_up_of: 'req',
+          sent_at: '2026-11-12T12:00:00Z',
+        }),
+        draft({ id: 'quiet', sent_at: '2026-11-06T12:00:00Z' }),
+      ],
+      [
+        reply({
+          id: 'old',
+          draft_id: 'req',
+          received_at: '2026-11-08T09:00:00Z',
+        }),
+        reply({
+          id: 'new',
+          draft_id: 'rem',
+          received_at: '2026-11-13T09:00:00Z',
+        }),
+      ],
+      { ...OPTS, answers: new Map([['req', answer]]) },
+    )
+    expect(p.waiting.map((w) => w.id)).toEqual(['quiet'])
+    expect(p.answered).toHaveLength(1)
+    expect(p.answered[0]).toMatchObject({
+      id: 'req',
+      reply_id: 'new',
+      replied_at: '2026-11-13T09:00:00Z',
+      answer,
+    })
+  })
+
+  it('shows an answered request whose reply is not read yet without an answer', () => {
+    const p = groupPendingEmails(
+      [draft({ id: 'req', sent_at: '2026-11-05T12:00:00Z' })],
+      [reply({ id: 'r', draft_id: 'req', status: 'received' })],
+      OPTS,
+    )
+    expect(p.answered[0]).toMatchObject({ id: 'req', answer: null })
   })
 
   it('is empty with no emails', () => {
@@ -291,6 +352,24 @@ describe('repliesToReview', () => {
     expect(r[0].from).toBe('Sam <sales@munster.example>')
     expect(r[0].reason).toMatch(/Pick the supplier/)
     expect(r[1].reason).toBe('Shelfie could not read it: the PDF is empty')
+  })
+
+  it('adds read replies with prices waiting for review', () => {
+    const r = repliesToReview([
+      reply({ id: 'done', to_review: 0 }),
+      reply({ id: 'one', to_review: 1, outcome_label: 'Accepted €2.91' }),
+      reply({ id: 'two', to_review: 2, received_at: '2026-11-11T00:00:00Z' }),
+      reply({ id: 'reading', status: 'received', to_review: 3 }),
+    ])
+    expect(r.map((x) => x.id)).toEqual(['two', 'one'])
+    expect(r[0].status).toBe('proposed')
+    expect(r[0].reason).toBe(
+      '2 prices or invoices wait for you to apply or reject.',
+    )
+    expect(r[1].reason).toBe(
+      '1 price or invoice waits for you to apply or reject.',
+    )
+    expect(r[1].outcome_label).toBe('Accepted €2.91')
   })
 })
 

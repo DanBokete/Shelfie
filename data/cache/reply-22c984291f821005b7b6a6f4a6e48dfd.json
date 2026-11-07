@@ -1,0 +1,44 @@
+{
+  "name": "reply",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T16:18:47.415Z",
+  "output": {
+    "overall": "counter_offer",
+    "overall_said": "Supplier offers Chicken breast fillets 2kg at 9.40 per pack from next week.",
+    "answers": [
+      {
+        "request_item": "Chicken breast fillets 2kg",
+        "product_hint": "Chicken breast fillets 2kg",
+        "outcome": "counter_offer",
+        "said": "We can do the Chicken breast fillets 2kg at 9.40 per pack from next week.",
+        "question": null,
+        "offer_price": 9.4,
+        "offer_pack": "stated",
+        "pack_size": 2,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "price_includes_vat": false
+      }
+    ],
+    "documents": [
+      {
+        "source": "email body",
+        "kind": "quote",
+        "supplier_name": null,
+        "document_date": null,
+        "prices_include_vat": false,
+        "vat_rate_percent": null,
+        "lines": [
+          {
+            "description": "Chicken breast fillets 2kg",
+            "pack_price": 9.4,
+            "pack_size": 2,
+            "pack_unit": "kg",
+            "units_per_case": 1,
+            "confidence": 0.9
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,16 +1,25 @@
 import { describe, expect, it } from 'vitest'
 import {
   betterQuoteText,
+  REPLY_LINE_MAX,
+  REPLY_SNIPPET_MAX,
   biggestWaiting,
+  clip,
   dealKey,
   isWebDeal,
   itemLink,
+  notHonouredAlertText,
+  readError,
+  replyLink,
+  replySnippet,
+  replyText,
   testText,
   webPriceText,
   weekWindow,
   weeklyRises,
   weeklyText,
 } from './alerts'
+import type { ReplyAlert } from './alerts'
 import type { Observation } from './savings'
 
 const APP = 'https://shelfie.example/'
@@ -384,5 +393,302 @@ describe('no em dashes', () => {
       weeklyText({ rises: [], waiting: null }, APP),
     ].join('\n')
     expect(all).not.toContain('—')
+  })
+})
+
+describe('clip', () => {
+  it('leaves short text alone', () => {
+    expect(clip('  Yes thats perfect ', 40)).toBe('Yes thats perfect')
+  })
+
+  it('cuts at a word and ends with an ellipsis, within the cap', () => {
+    const out = clip('I can do the butter at 2.91 from next week on', 20)
+    expect(out).toBe('I can do the butter…')
+    expect(out.length).toBeLessThanOrEqual(20)
+  })
+})
+
+describe('replySnippet', () => {
+  it('drops the Outlook signature and the quoted request', () => {
+    const body = [
+      'Yes thats perfect',
+      '',
+      'Sent from Outlook for Mac',
+      '',
+      'From: Aoife at The Corner Café <aoife@cornercafe.ie>',
+      'Date: Saturday, 7 November 2026 at 16:02',
+      'To: sales@leevalley.ie',
+      'Subject: Our prices with you',
+      '',
+      'Hi Lee Valley Wholesale,',
+    ].join('\r\n')
+    expect(replySnippet(body)).toBe('Yes thats perfect')
+  })
+
+  it('drops the greeting and joins the lines', () => {
+    expect(
+      replySnippet('Hi Aoife,\n\nI can do 9.50 per pack\nfrom Monday'),
+    ).toBe('I can do 9.50 per pack from Monday')
+  })
+
+  it('drops the sign-off and the name under it', () => {
+    expect(
+      replySnippet(
+        'Hello,\n\nOur new prices: Whole milk 2L 2.05.\n\nKind regards,\nNiamh',
+      ),
+    ).toBe('Our new prices: Whole milk 2L 2.05.')
+    expect(replySnippet('Thanks')).toBe('Thanks')
+  })
+
+  it('keeps a one-line greeting-like reply', () => {
+    expect(replySnippet('Hello')).toBe('Hello')
+  })
+
+  it('cuts at a Gmail "On ... wrote:" line, also over two lines', () => {
+    expect(
+      replySnippet(
+        'We can do 15.00 per kg.\n\nOn Sat, 7 Nov 2026 at 16:02, Aoife <\naoife@cornercafe.ie> wrote:\n> Hi',
+      ),
+    ).toBe('We can do 15.00 per kg.')
+  })
+
+  it('cuts at quoted lines, "--" signatures and Original Message', () => {
+    expect(replySnippet('Fine by us\n> earlier')).toBe('Fine by us')
+    expect(replySnippet('Fine by us\n-- \nSean Murphy\nSales')).toBe(
+      'Fine by us',
+    )
+    expect(replySnippet('Fine\n-----Original Message-----\nFrom: x')).toBe(
+      'Fine',
+    )
+    expect(replySnippet('Fine\nSent from my iPhone')).toBe('Fine')
+  })
+
+  it('is null when nothing is left', () => {
+    expect(replySnippet(null)).toBeNull()
+    expect(replySnippet('\n\nSent from my iPhone')).toBeNull()
+  })
+
+  it('caps the length', () => {
+    const out = replySnippet('word '.repeat(100))!
+    expect(out.length).toBeLessThanOrEqual(REPLY_SNIPPET_MAX)
+    expect(out.endsWith('…')).toBe(true)
+  })
+})
+
+describe('readError', () => {
+  it('cuts an API error down to its message', () => {
+    expect(
+      readError(
+        'Claude API error 400: 400 {"type":"error","error":{"type":"invalid_request_error","message":"messages.0.content.2.pdf.source.base64.data: The PDF specified was not valid"}}',
+      ),
+    ).toBe('The PDF specified was not valid.')
+  })
+
+  it('leaves a plain reason alone', () => {
+    expect(readError('ANTHROPIC_API_KEY is not set.')).toBe(
+      'ANTHROPIC_API_KEY is not set.',
+    )
+    expect(readError(null)).toBe('no reason given.')
+  })
+})
+
+describe('replyText', () => {
+  const base: ReplyAlert = {
+    from: 'Lee Valley Wholesale',
+    request: { kind: 'match', product_names: ['Salted butter'] },
+    subject: 'RE: Our prices with you',
+    body: 'Yes thats perfect\n\nSent from Outlook for Mac',
+    attachment_names: [],
+    status: 'processed',
+    error: null,
+    outcome: null,
+    offers: [],
+    quote_lines: 0,
+    lines_to_check: 0,
+    invoices_read: 0,
+  }
+
+  it('a plain yes: who, what they wrote, nothing read, link', () => {
+    expect(replyText(base, APP)).toBe(
+      [
+        'Lee Valley Wholesale replied to your Salted butter match request',
+        '"Yes thats perfect"',
+        'No prices or invoices in it.',
+        'Open: https://shelfie.example/invoices#replies',
+      ].join('\n'),
+    )
+  })
+
+  it('a better price: the best offer with what the owner pays and the saving', () => {
+    const text = replyText(
+      {
+        ...base,
+        from: 'Munster Fresh Foods',
+        request: {
+          kind: 'match',
+          product_names: ['Chicken breast fillets', 'Whole milk'],
+        },
+        body: 'Hi Aoife,\n\nI can do 9.50 per pack',
+        quote_lines: 2,
+        offers: [
+          {
+            product_name: 'Whole milk',
+            quote_ppu: 0.00178,
+            your_ppu: 0.0021,
+            base_unit: 'ml',
+            annual_saving: 120,
+          },
+          {
+            product_name: 'Chicken breast fillets',
+            quote_ppu: 0.00475,
+            your_ppu: 0.0089,
+            base_unit: 'g',
+            annual_saving: 1468,
+          },
+        ],
+      },
+      APP,
+    )
+    expect(text.split('\n')).toEqual([
+      'Munster Fresh Foods replied to your Chicken breast fillets and Whole milk match request',
+      '"I can do 9.50 per pack"',
+      'Offer: Chicken breast fillets €4.75/kg (you pay €8.90/kg), could save €1,468/yr. 1 more better price.',
+      'Open: https://shelfie.example/invoices#replies',
+    ])
+  })
+
+  it('leaves out the saving when there is no yearly use to work it from', () => {
+    const text = replyText(
+      {
+        ...base,
+        quote_lines: 1,
+        offers: [
+          {
+            product_name: 'Salted butter',
+            quote_ppu: 0.0064,
+            your_ppu: 0.0072,
+            base_unit: 'g',
+            annual_saving: 0,
+          },
+        ],
+      },
+      APP,
+    )
+    expect(text).toContain('Offer: Salted butter €6.40/kg (you pay €7.20/kg).')
+  })
+
+  it('prices that are not better, or wait for review', () => {
+    expect(replyText({ ...base, quote_lines: 1 }, APP)).toContain(
+      'Read 1 price, none below what you pay now.',
+    )
+    expect(
+      replyText({ ...base, quote_lines: 3, lines_to_check: 2 }, APP),
+    ).toContain('Read 3 prices, none below what you pay now, 2 to review.')
+    expect(replyText({ ...base, invoices_read: 1 }, APP)).toContain(
+      '1 invoice to add.',
+    )
+  })
+
+  it('an unmatched reply says so', () => {
+    const text = replyText(
+      {
+        ...base,
+        from: 'Sean (sean@example.ie)',
+        request: null,
+        status: 'unmatched',
+      },
+      APP,
+    )
+    expect(text.split('\n')).toEqual([
+      'Sean (sean@example.ie) replied to "RE: Our prices with you"',
+      '"Yes thats perfect"',
+      "We couldn't tell which supplier this is from. Pick one in Replies.",
+      'Open: https://shelfie.example/invoices#replies',
+    ])
+  })
+
+  it('a reply that could not be read gives the reason', () => {
+    expect(
+      replyText(
+        { ...base, status: 'failed', error: 'The reader timed out.' },
+        APP,
+      ),
+    ).toContain("Couldn't read it: The reader timed out.")
+  })
+
+  it('a reply with no request and no subject', () => {
+    expect(replyText({ ...base, request: null, subject: null }, APP)).toContain(
+      'Lee Valley Wholesale sent you an email',
+    )
+  })
+
+  it('names attachments when there is no message', () => {
+    expect(
+      replyText({ ...base, body: '', attachment_names: ['quote.pdf'] }, APP),
+    ).toContain('(No message, 1 attachment: quote.pdf)')
+  })
+
+  it('shows the request outcome once reply review records it', () => {
+    const text = replyText(
+      {
+        ...base,
+        outcome: { outcome: 'counter_offer', note: '€15.00/kg' },
+      },
+      APP,
+    )
+    expect(text.split('\n')[2]).toBe('Outcome: Counter-offer, €15.00/kg')
+    expect(text.split('\n')).toHaveLength(5)
+  })
+
+  it('never goes past 5 lines or the line cap', () => {
+    const long = 'x'.repeat(1000)
+    const text = replyText(
+      {
+        ...base,
+        from: long,
+        request: { kind: 'quote', product_names: [long, long, long] },
+        body: long,
+        status: 'failed',
+        error: long,
+        outcome: { outcome: 'needs_info', note: long },
+      },
+      APP,
+    )
+    const ls = text.split('\n')
+    expect(ls).toHaveLength(5)
+    for (const l of ls.slice(0, 4))
+      expect(l.length).toBeLessThanOrEqual(REPLY_LINE_MAX)
+  })
+})
+
+describe('reply review links and agreed prices', () => {
+  it('links a reply to its review page when its id is known', () => {
+    expect(replyLink('https://shelfie.example/', 'abc')).toBe(
+      'https://shelfie.example/replies/abc',
+    )
+    expect(replyLink('https://shelfie.example')).toBe(
+      'https://shelfie.example/invoices#replies',
+    )
+  })
+
+  it('says an invoice did not honour the agreed price', () => {
+    expect(
+      notHonouredAlertText(
+        {
+          supplier_name: 'Lee Valley',
+          charged_pack_price: 4.2,
+          agreed_pack_price: 3.55,
+          agreed_on: '2026-11-07',
+        },
+        { id: 'milk', name: 'Whole milk' },
+        'https://shelfie.example',
+      ),
+    ).toBe(
+      [
+        'Lee Valley charged €4.20 for Whole milk, but agreed €3.55 on 7 Nov.',
+        'Ask them to credit the difference.',
+        'Tap to view: https://shelfie.example/item/milk',
+      ].join('\n'),
+    )
   })
 })

@@ -1,5 +1,6 @@
 import { timingSafeEqual } from 'node:crypto'
 import { createFileRoute } from '@tanstack/react-router'
+import { notifyReply } from '#/lib/alerts.server'
 import { handle, jsonError } from '#/lib/http.server'
 import { parsePostmark, receiveInbound } from '#/lib/inbound.server'
 import { getSettings, webhookSecret } from '#/lib/settings.server'
@@ -24,8 +25,9 @@ function authorised(request: Request, secret: string): boolean {
   return false
 }
 
-// POST: Postmark's inbound webhook. Keeps the reply, ties it to the request it answers and
-// reads it. Always answers 200 for a message it has stored, so Postmark does not retry it.
+// POST: Postmark's inbound webhook. Keeps the reply, ties it to the request it answers,
+// reads it and tells the owner on Telegram. Always answers 200 for a message it has stored,
+// so Postmark does not retry it.
 // The secret and the on/off switch come from Settings, with .env as the fallback secret.
 export const Route = createFileRoute('/api/email/inbound')({
   server: {
@@ -45,7 +47,11 @@ export const Route = createFileRoute('/api/email/inbound')({
           if (!settings.reply_scanning)
             return Response.json({ ignored: 'reply scanning is off' })
           const msg = parsePostmark(await request.json())
-          return Response.json(await receiveInbound(msg))
+          const res = await receiveInbound(msg)
+          // One Telegram message per reply, sent once (keyed by the reply). The owner's own
+          // outgoing copy is not a reply.
+          if (!('ignored' in res)) await notifyReply(res.id)
+          return Response.json(res)
         }),
     },
   },

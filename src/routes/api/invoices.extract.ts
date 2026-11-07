@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
+import { notifyNotHonoured } from '#/lib/alerts.server'
 import { handle, readFile } from '#/lib/http.server'
 import { extractInvoice, storeInvoiceFile } from '#/lib/invoices.server'
 
@@ -20,7 +21,10 @@ export const Route = createFileRoute('/api/invoices/extract')({
               .object({ invoice_id: z.uuid() })
               .parse(await request.json()).invoice_id
           }
-          return Response.json(await extractInvoice(invoiceId))
+          const result = await extractInvoice(invoiceId)
+          // A supplier that agreed a lower price in a reply and still charged the old one.
+          if (result.status === 'done') await notifyNotHonoured(invoiceId)
+          return Response.json(result)
         }),
     },
   },

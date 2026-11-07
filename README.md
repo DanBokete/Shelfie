@@ -128,27 +128,53 @@ Good to know:
 
 Without connecting, with an app password instead: turn on 2-Step Verification for the Google account, create an app password at myaccount.google.com/apppasswords, put it in `GMAIL_APP_PASSWORD` and restart, then enter that Gmail address in Settings.
 
-What happens to a reply:
+### Reviewing a reply
 
-- Invoice attachments go through the normal invoice reader.
-- Quotes and price lists (an attachment or the email body) become prices with source `quote`. They are matched to products like any other price, so the item screen and savings use them straight away.
-- A line that is hard to read, or has no usable pack size, waits in "Check matches" and stays out of savings until you confirm it.
-- When a quote is below what the owner pays now, `notifyBetterQuote` in `src/lib/alerts.server.ts` sends a Telegram alert (see below).
+Nothing in a reply changes a price until the owner says so.
+Shelfie reads each reply into a review, and the owner applies or rejects what it found on the reply's own page (`/replies/<id>`, linked from Replies and from the Emails page).
+The code is in `src/lib/reply-review.ts` (pure) and `src/lib/reply-review.server.ts`.
+
+- The reader is given the request it answers: the kind, and each product asked about with its pack and the price asked for (stored as `asked_price` when the email is sent).
+- For each requested product it records what the supplier answered (`request_outcomes`): Accepted, Countered (with their price), Declined, Needs info or Unclear, with their own words and any question they asked.
+  The owner can change an answer with "Change"; reading the reply again keeps the owner's choice, a newer reply replaces it.
+- An acceptance becomes a proposed price at the price asked for; a counter-offer becomes one at the price offered ("per kg" means 1 kg, "per pack" or nothing means the requested pack).
+  Price lists and quotes in the body or an attachment become proposed prices too, matched to products without saving aliases or creating products.
+- Proposed prices wait in `reply_lines`, out of savings.
+  Each shows what they wrote, the product, pack and price, what the owner pays now and from whom, the difference and the yearly saving, and is marked when it is not better.
+  The owner can Apply, Reject, Edit then apply, Undo, "Apply all better prices", "Reject all" and "Add a line by hand".
+  Undo takes back exactly what Apply added: the price, and the alias and product if Apply created them.
+- Invoice attachments are held too: "Add this invoice" sends them through the normal invoice reader, with a preview first; Undo removes the invoice and its prices again.
+- "Read again" re-reads the email body or one attachment; lines and invoices the owner already decided on stay as they are.
 - Each email is read once, however many times Gmail is checked.
+
+Agreed prices:
+
+- An applied price from an accepted or countered answer is stored with source `agreed`; any other applied price is a `quote`.
+- An agreed price is what the owner pays for that product from that supplier until a newer invoice from them, so the item screen shows "Agreed: €2.91 from Lee Valley Wholesale on 7 Nov" with the yearly saving against the last invoice.
+  On the same day an agreed price beats an invoice.
+- The first later invoice from that supplier is checked against it.
+  If it charged more than agreed (0.5% slack for rounding), the price was not honoured: it shows on the item screen, in "Check matches" and in "Prices not honoured" on the Emails page, and sends one Telegram alert.
+
+The Emails page shows each sent request's answer (Accepted €2.91, Countered €15.00/kg, Declined, Needs info, Waiting), lists replies waiting for review, and keeps answered requests in their own section.
 
 ## Telegram alerts
 
 The owner hears about better deals on Telegram without opening the app.
 Every message is a fixed template in `src/lib/alerts.ts`, never written by a model, and every number in it comes from `src/lib/savings.ts`.
 
-- A supplier's emailed quote is below what the owner pays.
+- A supplier replied: exactly one message per reply, at most 5 lines.
+  It says who replied to which request, a short clean snippet of what they wrote (no quoted history or signature), what Shelfie made of it (the best lower price with what the owner pays and the yearly saving, prices to check, "couldn't read it" with the reason, or "couldn't tell which supplier"), and a link to Replies.
+  It is keyed by the reply, so reading it again or checking Gmail again sends nothing more.
+  When the reply answered the request, the message also says the answer (Accepted, Countered, Declined, ...), and it links to the reply's review page.
+  The message is sent after `receiveInbound` returns, by the Gmail check and by the webhook; the owner's own outgoing copies and "could not deliver" notices send nothing.
+- A supplier's invoice charged more than a price they agreed to in a reply: once per agreed price and invoice (`notifyNotHonoured`), when the invoice is read or added from a reply.
 - A web price check finds a price 5% or more below what the owner pays.
 - The weekly summary: prices that went up 3% or more on this week's invoices, and the biggest saving not yet acted on (no email drafted about it since the current price).
   With the mock data, "this week" is the 7 days up to the latest invoice date, not up to today.
   The hidden "Send this week's alert" link at the bottom of the home page sends it now (`POST /api/alerts/send`); a real product would send it on a schedule.
 
 Every attempt is recorded in `alerts_sent`, including failed ones.
-The same deal (product, seller and price to the cent per litre, kg or item) is only sent once; a failed send can go again.
+The same reply, the same broken agreed price on the same invoice, and the same web deal (product, seller and price to the cent per litre, kg or item) are only sent once; a failed send can go again.
 The weekly summary and test messages can be re-sent on purpose.
 Sending never breaks the caller: with Telegram not set up or offline, reply scanning and price checks carry on, and `/admin/reset` shows the last failure.
 

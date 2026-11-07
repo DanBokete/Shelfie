@@ -1,0 +1,16 @@
+{
+  "name": "match",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T16:32:47.761Z",
+  "output": {
+    "results": [
+      {
+        "line_id": "L1",
+        "product_id": "p1",
+        "new_product": null,
+        "confidence": 0.93,
+        "reason": "Same product, chicken breast fillets; pack size differs only."
+      }
+    ]
+  }
+}

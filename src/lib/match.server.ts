@@ -30,6 +30,23 @@ export interface MatchOutcome {
   needs_review: boolean
 }
 
+/** A product the matcher would create; for a suggestion nothing is created yet. */
+export interface NewProduct {
+  canonical_name: string
+  brand: string | null
+  category: string
+  base_unit: BaseUnit
+}
+
+/**
+ * A match that is only suggested (suggestMatches): no alias saved, no product created. When
+ * the matcher would create a product, product_id is null and new_product says what.
+ */
+export interface MatchSuggestion extends Omit<MatchOutcome, 'product_id'> {
+  product_id: string | null
+  new_product: NewProduct | null
+}
+
 export interface ProductRow {
   id: string
   canonical_name: string
@@ -86,19 +103,38 @@ function normName(s: string): string {
     .trim()
 }
 
-async function findOrCreateProduct(
+function findProduct(
   products: Array<ProductRow>,
-  np: {
-    canonical_name: string
-    brand: string | null
-    category: string
-    base_unit: BaseUnit
-  },
+  name: string,
+): ProductRow | undefined {
+  return products.find((p) => normName(p.canonical_name) === normName(name))
+}
+
+/** Uses the product with this name, or creates it (only when remembering). */
+async function resolveProduct(
+  products: Array<ProductRow>,
+  np: NewProduct,
+  remember: boolean,
+): Promise<{ id: string | null; new_product: NewProduct | null }> {
+  const existing = findProduct(products, np.canonical_name)
+  if (existing) return { id: existing.id, new_product: null }
+  if (!remember) return { id: null, new_product: np }
+  const created = await createProduct(products, np)
+  return { id: created.id, new_product: null }
+}
+
+/** Creates a product, or returns the one with the same name. */
+export async function findOrCreateProduct(
+  products: Array<ProductRow>,
+  np: NewProduct,
 ): Promise<ProductRow> {
-  const existing = products.find(
-    (p) => normName(p.canonical_name) === normName(np.canonical_name),
-  )
-  if (existing) return existing
+  return findProduct(products, np.canonical_name) ?? createProduct(products, np)
+}
+
+async function createProduct(
+  products: Array<ProductRow>,
+  np: NewProduct,
+): Promise<ProductRow> {
   const created = must(
     await db()
       .from('products')
@@ -117,18 +153,34 @@ async function findOrCreateProduct(
 }
 
 /** Runs the whole pipeline for a batch of lines (one invoice or one price list). */
-export function matchLines(
+export async function matchLines(
   lines: Array<MatchLine>,
 ): Promise<Array<MatchOutcome>> {
-  return serial(() => matchLinesNow(lines))
+  const out = await serial(() => matchLinesNow(lines, true))
+  return out.map(({ new_product: _n, product_id, ...o }) => ({
+    ...o,
+    product_id: product_id!,
+  }))
+}
+
+/**
+ * The same pipeline without remembering anything: no alias is saved, no barcode attached and
+ * no product created. For prices that wait for the owner (supplier replies): applying a line
+ * remembers its match then.
+ */
+export function suggestMatches(
+  lines: Array<MatchLine>,
+): Promise<Array<MatchSuggestion>> {
+  return serial(() => matchLinesNow(lines, false))
 }
 
 async function matchLinesNow(
   lines: Array<MatchLine>,
-): Promise<Array<MatchOutcome>> {
+  remember: boolean,
+): Promise<Array<MatchSuggestion>> {
   if (lines.length === 0) return []
   const { products, candidates } = await loadCatalogue()
-  const outcomes = new Map<string, MatchOutcome>()
+  const outcomes = new Map<string, MatchSuggestion>()
 
   // 1. Alias lookup (free, instant)
   const aliasRows = must(
@@ -151,6 +203,7 @@ async function matchLinesNow(
       outcomes.set(l.id, {
         id: l.id,
         product_id: hit.product_id,
+        new_product: null,
         method: 'alias',
         confidence: 1,
         reason: hit.confirmed
@@ -169,6 +222,7 @@ async function matchLinesNow(
       outcomes.set(l.id, {
         id: l.id,
         product_id: p.id,
+        new_product: null,
         method: 'barcode',
         confidence: 1,
         reason: `Barcode ${l.barcode}`,
@@ -220,9 +274,14 @@ async function matchLinesNow(
           : null,
       }
       const allowed = new Set(shortlists.get(l.id)!.map((c) => c.product_id))
-      outcomes.set(l.id, await applyThresholds(l, r, allowed, products))
+      outcomes.set(
+        l.id,
+        await applyThresholds(l, r, allowed, products, remember),
+      )
     }
   }
+
+  if (!remember) return lines.map((l) => outcomes.get(l.id)!)
 
   // 6. Remember it, and attach barcodes we learned.
   const toRemember = lines.filter((l) => {
@@ -235,7 +294,7 @@ async function matchLinesNow(
       .map((l) => ({
         supplier_id: l.supplier_id,
         raw_text: l.description,
-        product_id: outcomes.get(l.id)!.product_id,
+        product_id: outcomes.get(l.id)!.product_id!,
       }))
       .filter((r) => {
         const k = `${r.supplier_id}|${r.raw_text}`
@@ -267,15 +326,18 @@ async function applyThresholds(
   r: MatchResult | undefined,
   allowed: Set<string>,
   products: Array<ProductRow>,
-): Promise<MatchOutcome> {
+  remember: boolean,
+): Promise<MatchSuggestion> {
   if (!r) {
-    const p = await findOrCreateProduct(
+    const p = await resolveProduct(
       products,
       fallbackNewProduct(l.description, null),
+      remember,
     )
     return {
       id: l.id,
       product_id: p.id,
+      new_product: p.new_product,
       method: 'new_product',
       confidence: 0,
       reason: 'No answer from matcher',
@@ -286,6 +348,7 @@ async function applyThresholds(
     return {
       id: l.id,
       product_id: r.product_id,
+      new_product: null,
       method: 'ai',
       confidence: r.confidence,
       reason: r.reason,
@@ -299,11 +362,12 @@ async function applyThresholds(
       l.description,
       products.find((p) => p.id === r.product_id) ?? null,
     )
-  const p = await findOrCreateProduct(products, template)
+  const p = await resolveProduct(products, template, remember)
   const lowConfidence = r.product_id != null || r.confidence < REVIEW
   return {
     id: l.id,
     product_id: p.id,
+    new_product: p.new_product,
     method: 'new_product',
     confidence: r.confidence,
     reason: r.product_id
@@ -316,12 +380,7 @@ async function applyThresholds(
 function fallbackNewProduct(
   description: string,
   like: ProductRow | null,
-): {
-  canonical_name: string
-  brand: string | null
-  category: string
-  base_unit: BaseUnit
-} {
+): NewProduct {
   const name = description
     .toLowerCase()
     .replace(/\s+/g, ' ')

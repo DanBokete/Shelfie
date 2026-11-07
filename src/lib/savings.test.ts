@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
+  agreedPrice,
   annualBaseUnits,
+  brokenPromises,
   classify,
   daysCovered,
   hasTwoPrices,
@@ -151,5 +153,148 @@ describe('classify', () => {
         ),
       ),
     ).toBe('switch')
+  })
+})
+
+describe('agreed prices', () => {
+  // A buys from Supplier A at €4.20 a carton; A agreed €3.55 on 7 Nov.
+  const base = [
+    milk('A', '2026-08-03', 4.2, 18),
+    milk('A', '2026-10-26', 4.2, 18),
+    milk('B', '2026-10-20', 3.8, null, 'price_list'),
+  ]
+  const agreed = milk('A', '2026-11-07', 3.55, null, 'agreed')
+
+  it('uses the agreed price as what the owner pays', () => {
+    const i = productInsight([...base, agreed], { period })
+    expect(i.current?.source).toBe('agreed')
+    expect(i.current?.pack_price).toBe(3.55)
+    expect(i.agreed?.agreed_on).toBe('2026-11-07')
+    expect(i.agreed?.was.pack_price).toBe(4.2)
+    expect(i.agreed?.per_unit_saving).toBeCloseTo((4.2 - 3.55) / 2000)
+    // 36 cartons over 84 days, annualised, at 65c a carton less.
+    expect(i.agreed?.annual_saving).toBe(Math.round(0.65 * ((36 / 84) * 365)))
+  })
+
+  it('compares other suppliers against the agreed price', () => {
+    const before = productInsight(base, { period })
+    expect(before.cheapest?.supplier_id).toBe('B')
+    const after = productInsight([...base, agreed], { period })
+    expect(after.cheapest).toBeNull()
+    expect(after.per_unit_saving).toBe(0)
+    expect(classify(after)).toBe('best')
+  })
+
+  it('still counts a cheaper supplier below the agreed price', () => {
+    const i = productInsight(
+      [...base, agreed, milk('C', '2026-11-01', 3.2, null, 'price_list')],
+      { period },
+    )
+    expect(i.cheapest?.supplier_id).toBe('C')
+    expect(i.per_unit_saving).toBeCloseTo((3.55 - 3.2) / 2000)
+  })
+
+  it('ignores a price a fraction of a cent below the agreed one', () => {
+    // Asked to match €3.5480, agreed €3.55.
+    const i = productInsight(
+      [...base, agreed, milk('C', '2026-11-01', 3.548, null, 'price_list')],
+      { period },
+    )
+    expect(i.cheapest).toBeNull()
+    expect(classify(i)).toBe('best')
+  })
+
+  it('wins over an invoice from the same day', () => {
+    const sameDay = milk('A', '2026-10-26', 3.55, null, 'agreed')
+    expect(agreedPrice([...base, sameDay], 'A')?.price.pack_price).toBe(3.55)
+  })
+
+  it('ends with a newer invoice from that supplier', () => {
+    const next = milk('A', '2026-11-14', 3.55, 18)
+    const i = productInsight([...base, agreed, next], { period })
+    expect(i.current?.source).toBe('invoice')
+    expect(i.agreed).toBeNull()
+  })
+
+  it('only applies to the current supplier', () => {
+    const i = productInsight(
+      [...base, milk('B', '2026-11-07', 3.5, null, 'agreed')],
+      { period },
+    )
+    expect(i.current?.supplier_id).toBe('A')
+    expect(i.agreed).toBeNull()
+    expect(i.cheapest?.supplier_id).toBe('B')
+    expect(i.cheapest?.pack_price).toBe(3.5)
+  })
+
+  it('is ignored when the current price is given (stock list)', () => {
+    const given = productInsight([...base, agreed], { period }).agreed!.was
+    const i = productInsight([...base, agreed], { period, current: given })
+    expect(i.agreed).toBeNull()
+    expect(i.current?.pack_price).toBe(4.2)
+  })
+})
+
+describe('brokenPromises', () => {
+  const agreed = milk('A', '2026-11-07', 3.55, null, 'agreed')
+
+  it('flags the next invoice that charges more than agreed', () => {
+    const inv = { ...milk('A', '2026-11-14', 4.2, 18), invoice_id: 'inv-1' }
+    const [b, ...rest] = brokenPromises([agreed, inv])
+    expect(rest).toHaveLength(0)
+    expect(b.supplier_name).toBe('Supplier A')
+    expect(b.agreed_on).toBe('2026-11-07')
+    expect(b.agreed_pack_price).toBe(3.55)
+    expect(b.charged_pack_price).toBe(4.2)
+    expect(b.invoice_id).toBe('inv-1')
+    const i = productInsight([agreed, inv], { period })
+    expect(i.not_honoured?.invoice_on).toBe('2026-11-14')
+  })
+
+  it('states the charge in the agreed pack', () => {
+    // A case of 6 at €25.20 is €4.20 a carton.
+    const inv = milk('A', '2026-11-14', 4.2, 3, 'invoice', 6)
+    expect(brokenPromises([agreed, inv])[0].charged_pack_price).toBe(4.2)
+  })
+
+  it('accepts an invoice at or below the agreed price, and rounding', () => {
+    expect(brokenPromises([agreed, milk('A', '2026-11-14', 3.55, 18)])).toEqual(
+      [],
+    )
+    expect(brokenPromises([agreed, milk('A', '2026-11-14', 3.56, 18)])).toEqual(
+      [],
+    )
+    expect(brokenPromises([agreed, milk('A', '2026-11-14', 3.4, 18)])).toEqual(
+      [],
+    )
+  })
+
+  it('ignores invoices from before, the same day, and other suppliers', () => {
+    expect(
+      brokenPromises([
+        agreed,
+        milk('A', '2026-11-01', 4.2, 18),
+        milk('A', '2026-11-07', 4.2, 18),
+        milk('B', '2026-11-14', 4.2, 18),
+      ]),
+    ).toEqual([])
+  })
+
+  it('checks only the first invoice after the agreement', () => {
+    const obs = [
+      agreed,
+      milk('A', '2026-11-14', 3.55, 18),
+      milk('A', '2026-11-21', 4.2, 18),
+    ]
+    expect(brokenPromises(obs)).toEqual([])
+  })
+
+  it('checks against the newer agreement once there is one', () => {
+    const obs = [
+      agreed,
+      milk('A', '2026-11-10', 3.9, null, 'agreed'),
+      milk('A', '2026-11-14', 3.8, 18),
+    ]
+    expect(brokenPromises(obs)).toEqual([])
   })
 })

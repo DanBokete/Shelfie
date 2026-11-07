@@ -1,6 +1,7 @@
 // Read models for the pages. All numbers come from lib/savings.ts.
-import { classify, productInsight } from './savings'
+import { brokenPromises, classify, productInsight } from './savings'
 import type {
+  BrokenPromise,
   FindingGroup,
   Observation,
   PriceSource,
@@ -43,6 +44,7 @@ export async function invoicePeriod(): Promise<{
 }
 
 interface ObsRow {
+  id: string
   product_id: string
   supplier_id: string
   pack_price: number
@@ -78,7 +80,7 @@ export async function observationsByProduct(
     let q = db()
       .from('price_observations')
       .select(
-        'product_id, supplier_id, pack_price, pack_size, pack_unit, units_per_case, price_per_base_unit, quantity, observed_on, observed_at, source, raw_description, source_url, invoice_id, review_reasons, suppliers(name)',
+        'id, product_id, supplier_id, pack_price, pack_size, pack_unit, units_per_case, price_per_base_unit, quantity, observed_on, observed_at, source, raw_description, source_url, invoice_id, review_reasons, suppliers(name)',
       )
       .not('product_id', 'is', null)
       .order('id')
@@ -101,6 +103,7 @@ export async function observationsByProduct(
         continue
       const list = out.get(r.product_id) ?? []
       list.push({
+        id: r.id,
         supplier_id: r.supplier_id,
         supplier_name: r.suppliers?.name ?? 'Unknown supplier',
         pack_price: Number(r.pack_price),
@@ -146,6 +149,60 @@ export async function allOpportunities(): Promise<Array<Opportunity>> {
     const insight = productInsight(obs.get(p.id) ?? [], { period })
     return { product: p, insight, group: classify(insight) }
   })
+}
+
+export interface NotHonoured extends BrokenPromise {
+  product_id: string
+  product_name: string
+  base_unit: BaseUnit
+}
+
+/**
+ * Invoices that charged more than the supplier agreed in a reply, newest first. Only the
+ * newest per product and supplier: the one the owner still has to take up with them.
+ */
+export async function notHonoured(
+  productIds?: Array<string>,
+): Promise<Array<NotHonoured>> {
+  const agreed = must(
+    await db()
+      .from('price_observations')
+      .select('product_id')
+      .eq('source', 'agreed')
+      .not('product_id', 'is', null),
+    'load agreed prices',
+  ) as Array<{ product_id: string }>
+  const ids = [...new Set(agreed.map((a) => a.product_id))].filter(
+    (id) => !productIds || productIds.includes(id),
+  )
+  if (ids.length === 0) return []
+  const [obs, products] = await Promise.all([
+    observationsByProduct(ids),
+    db()
+      .from('products')
+      .select('id, canonical_name, base_unit')
+      .in('id', ids)
+      .then((r) => must(r, 'load products')),
+  ])
+  const out: Array<NotHonoured> = []
+  for (const p of products as Array<{
+    id: string
+    canonical_name: string
+    base_unit: BaseUnit
+  }>) {
+    const seen = new Set<string>()
+    for (const b of brokenPromises(obs.get(p.id) ?? [])) {
+      if (seen.has(b.supplier_id)) continue
+      seen.add(b.supplier_id)
+      out.push({
+        ...b,
+        product_id: p.id,
+        product_name: p.canonical_name,
+        base_unit: p.base_unit,
+      })
+    }
+  }
+  return out.sort((a, b) => (a.invoice_on < b.invoice_on ? 1 : -1))
 }
 
 /** Monday of the week a YYYY-MM-DD date falls in. */

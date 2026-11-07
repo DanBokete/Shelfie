@@ -20,6 +20,7 @@ import { Route as AdminResetRouteImport } from './routes/admin.reset'
 import { Route as ApiAuditRouteImport } from './routes/api/audit'
 import { Route as ApiMatchRouteImport } from './routes/api/match'
 import { Route as ItemProductIdRouteImport } from './routes/item.$productId'
+import { Route as RepliesIdRouteImport } from './routes/replies.$id'
 import { Route as ApiAlertsSendRouteImport } from './routes/api/alerts.send'
 import { Route as ApiEmailDraftRouteImport } from './routes/api/email.draft'
 import { Route as ApiEmailInboundRouteImport } from './routes/api/email.inbound'
@@ -27,6 +28,7 @@ import { Route as ApiEmailRepliesRouteImport } from './routes/api/email.replies'
 import { Route as ApiEmailSendRouteImport } from './routes/api/email.send'
 import { Route as ApiInvoicesExtractRouteImport } from './routes/api/invoices.extract'
 import { Route as ApiPricesCheckRouteImport } from './routes/api/prices.check'
+import { Route as ApiReplyFileRouteImport } from './routes/api/reply.file'
 import { Route as ApiScanIdentifyRouteImport } from './routes/api/scan.identify'
 import { Route as ApiAuthGoogleCallbackRouteImport } from './routes/api/auth.google.callback'
 import { Route as ApiAuthGoogleStartRouteImport } from './routes/api/auth.google.start'
@@ -86,6 +88,11 @@ const ItemProductIdRoute = ItemProductIdRouteImport.update({
   path: '/item/$productId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RepliesIdRoute = RepliesIdRouteImport.update({
+  id: '/replies/$id',
+  path: '/replies/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAlertsSendRoute = ApiAlertsSendRouteImport.update({
   id: '/api/alerts/send',
   path: '/api/alerts/send',
@@ -121,6 +128,11 @@ const ApiPricesCheckRoute = ApiPricesCheckRouteImport.update({
   path: '/api/prices/check',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiReplyFileRoute = ApiReplyFileRouteImport.update({
+  id: '/api/reply/file',
+  path: '/api/reply/file',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiScanIdentifyRoute = ApiScanIdentifyRouteImport.update({
   id: '/api/scan/identify',
   path: '/api/scan/identify',
@@ -149,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/api/audit': typeof ApiAuditRoute
   '/api/match': typeof ApiMatchRoute
   '/item/$productId': typeof ItemProductIdRoute
+  '/replies/$id': typeof RepliesIdRoute
   '/api/alerts/send': typeof ApiAlertsSendRoute
   '/api/email/draft': typeof ApiEmailDraftRoute
   '/api/email/inbound': typeof ApiEmailInboundRoute
@@ -156,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/api/email/send': typeof ApiEmailSendRoute
   '/api/invoices/extract': typeof ApiInvoicesExtractRoute
   '/api/prices/check': typeof ApiPricesCheckRoute
+  '/api/reply/file': typeof ApiReplyFileRoute
   '/api/scan/identify': typeof ApiScanIdentifyRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
   '/api/auth/google/start': typeof ApiAuthGoogleStartRoute
@@ -172,6 +186,7 @@ export interface FileRoutesByTo {
   '/api/audit': typeof ApiAuditRoute
   '/api/match': typeof ApiMatchRoute
   '/item/$productId': typeof ItemProductIdRoute
+  '/replies/$id': typeof RepliesIdRoute
   '/api/alerts/send': typeof ApiAlertsSendRoute
   '/api/email/draft': typeof ApiEmailDraftRoute
   '/api/email/inbound': typeof ApiEmailInboundRoute
@@ -179,6 +194,7 @@ export interface FileRoutesByTo {
   '/api/email/send': typeof ApiEmailSendRoute
   '/api/invoices/extract': typeof ApiInvoicesExtractRoute
   '/api/prices/check': typeof ApiPricesCheckRoute
+  '/api/reply/file': typeof ApiReplyFileRoute
   '/api/scan/identify': typeof ApiScanIdentifyRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
   '/api/auth/google/start': typeof ApiAuthGoogleStartRoute
@@ -196,6 +212,7 @@ export interface FileRoutesById {
   '/api/audit': typeof ApiAuditRoute
   '/api/match': typeof ApiMatchRoute
   '/item/$productId': typeof ItemProductIdRoute
+  '/replies/$id': typeof RepliesIdRoute
   '/api/alerts/send': typeof ApiAlertsSendRoute
   '/api/email/draft': typeof ApiEmailDraftRoute
   '/api/email/inbound': typeof ApiEmailInboundRoute
@@ -203,6 +220,7 @@ export interface FileRoutesById {
   '/api/email/send': typeof ApiEmailSendRoute
   '/api/invoices/extract': typeof ApiInvoicesExtractRoute
   '/api/prices/check': typeof ApiPricesCheckRoute
+  '/api/reply/file': typeof ApiReplyFileRoute
   '/api/scan/identify': typeof ApiScanIdentifyRoute
   '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
   '/api/auth/google/start': typeof ApiAuthGoogleStartRoute
@@ -221,6 +239,7 @@ export interface FileRouteTypes {
     | '/api/audit'
     | '/api/match'
     | '/item/$productId'
+    | '/replies/$id'
     | '/api/alerts/send'
     | '/api/email/draft'
     | '/api/email/inbound'
@@ -228,6 +247,7 @@ export interface FileRouteTypes {
     | '/api/email/send'
     | '/api/invoices/extract'
     | '/api/prices/check'
+    | '/api/reply/file'
     | '/api/scan/identify'
     | '/api/auth/google/callback'
     | '/api/auth/google/start'
@@ -244,6 +264,7 @@ export interface FileRouteTypes {
     | '/api/audit'
     | '/api/match'
     | '/item/$productId'
+    | '/replies/$id'
     | '/api/alerts/send'
     | '/api/email/draft'
     | '/api/email/inbound'
@@ -251,6 +272,7 @@ export interface FileRouteTypes {
     | '/api/email/send'
     | '/api/invoices/extract'
     | '/api/prices/check'
+    | '/api/reply/file'
     | '/api/scan/identify'
     | '/api/auth/google/callback'
     | '/api/auth/google/start'
@@ -267,6 +289,7 @@ export interface FileRouteTypes {
     | '/api/audit'
     | '/api/match'
     | '/item/$productId'
+    | '/replies/$id'
     | '/api/alerts/send'
     | '/api/email/draft'
     | '/api/email/inbound'
@@ -274,6 +297,7 @@ export interface FileRouteTypes {
     | '/api/email/send'
     | '/api/invoices/extract'
     | '/api/prices/check'
+    | '/api/reply/file'
     | '/api/scan/identify'
     | '/api/auth/google/callback'
     | '/api/auth/google/start'
@@ -291,6 +315,7 @@ export interface RootRouteChildren {
   ApiAuditRoute: typeof ApiAuditRoute
   ApiMatchRoute: typeof ApiMatchRoute
   ItemProductIdRoute: typeof ItemProductIdRoute
+  RepliesIdRoute: typeof RepliesIdRoute
   ApiAlertsSendRoute: typeof ApiAlertsSendRoute
   ApiEmailDraftRoute: typeof ApiEmailDraftRoute
   ApiEmailInboundRoute: typeof ApiEmailInboundRoute
@@ -298,6 +323,7 @@ export interface RootRouteChildren {
   ApiEmailSendRoute: typeof ApiEmailSendRoute
   ApiInvoicesExtractRoute: typeof ApiInvoicesExtractRoute
   ApiPricesCheckRoute: typeof ApiPricesCheckRoute
+  ApiReplyFileRoute: typeof ApiReplyFileRoute
   ApiScanIdentifyRoute: typeof ApiScanIdentifyRoute
   ApiAuthGoogleCallbackRoute: typeof ApiAuthGoogleCallbackRoute
   ApiAuthGoogleStartRoute: typeof ApiAuthGoogleStartRoute
@@ -382,6 +408,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ItemProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/replies/$id': {
+      id: '/replies/$id'
+      path: '/replies/$id'
+      fullPath: '/replies/$id'
+      preLoaderRoute: typeof RepliesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/alerts/send': {
       id: '/api/alerts/send'
       path: '/api/alerts/send'
@@ -431,6 +464,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPricesCheckRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/reply/file': {
+      id: '/api/reply/file'
+      path: '/api/reply/file'
+      fullPath: '/api/reply/file'
+      preLoaderRoute: typeof ApiReplyFileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/scan/identify': {
       id: '/api/scan/identify'
       path: '/api/scan/identify'
@@ -467,6 +507,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuditRoute: ApiAuditRoute,
   ApiMatchRoute: ApiMatchRoute,
   ItemProductIdRoute: ItemProductIdRoute,
+  RepliesIdRoute: RepliesIdRoute,
   ApiAlertsSendRoute: ApiAlertsSendRoute,
   ApiEmailDraftRoute: ApiEmailDraftRoute,
   ApiEmailInboundRoute: ApiEmailInboundRoute,
@@ -474,6 +515,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiEmailSendRoute: ApiEmailSendRoute,
   ApiInvoicesExtractRoute: ApiInvoicesExtractRoute,
   ApiPricesCheckRoute: ApiPricesCheckRoute,
+  ApiReplyFileRoute: ApiReplyFileRoute,
   ApiScanIdentifyRoute: ApiScanIdentifyRoute,
   ApiAuthGoogleCallbackRoute: ApiAuthGoogleCallbackRoute,
   ApiAuthGoogleStartRoute: ApiAuthGoogleStartRoute,

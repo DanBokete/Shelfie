@@ -7,7 +7,15 @@ import {
   productNames,
 } from './pending-emails'
 import type { DraftRow, PendingEmails, ReplyRow } from './pending-emails'
+import { notHonoured } from './queries.server'
+import type { NotHonoured } from './queries.server'
 import { reminderEmail } from './reminders'
+import { notHonouredText } from './reply-review'
+import {
+  replyOutcomes,
+  replyStatuses,
+  requestAnswers,
+} from './reply-review.server'
 import { getSettings, replyCc, sendingStatus } from './settings.server'
 import { db, must, mustOne } from './supabase.server'
 
@@ -53,12 +61,38 @@ async function load(): Promise<{
 }
 
 export async function pendingEmails(): Promise<
-  PendingEmails & { reply_by_days: number }
+  PendingEmails & {
+    reply_by_days: number
+    not_honoured: Array<NotHonoured & { text: string }>
+  }
 > {
   const { drafts, replies, replyByDays } = await load()
+  const replyIds = replies.map((r) => r.id)
+  const [statuses, outcomes, answers, broken] = await Promise.all([
+    replyStatuses(replyIds),
+    replyOutcomes(replyIds),
+    requestAnswers(
+      drafts.filter((d) => d.sent_at && !d.follow_up_of).map((d) => d.id),
+    ),
+    notHonoured(),
+  ])
+  const withReview = replies.map((r) => ({
+    ...r,
+    to_review: statuses.get(r.id)?.proposed ?? 0,
+    outcome_label: outcomes.get(r.id)?.label ?? null,
+  }))
   return {
-    ...groupPendingEmails(drafts, replies, { replyByDays, now: Date.now() }),
+    ...groupPendingEmails(drafts, withReview, {
+      replyByDays,
+      now: Date.now(),
+      answers,
+      notHonoured: broken.length,
+    }),
     reply_by_days: replyByDays,
+    not_honoured: broken.map((b) => ({
+      ...b,
+      text: notHonouredText(b, b.product_name),
+    })),
   }
 }
 

@@ -7,10 +7,12 @@
 // - from the address the request went to (when "match plain replies by sender" is on).
 // The rest of the mailbox is never fetched, and nothing is marked as read.
 // Each reply goes through the normal reader (lib/inbound.server.ts), so quotes become
-// prices, invoices are read and better quotes alert, exactly as before.
+// prices and invoices are read, exactly as before; then the owner gets one Telegram message
+// about it (notifyReply in lib/alerts.server.ts). Bounces are not replies and send nothing.
 import { ImapFlow } from 'imapflow'
 import type { SearchObject } from 'imapflow'
 import { simpleParser } from 'mailparser'
+import { notifyReply } from './alerts.server'
 import {
   GmailApiError,
   getAttachment,
@@ -176,7 +178,10 @@ async function run(force: boolean): Promise<ReplyCheck> {
     for (const msg of found) {
       try {
         const res = await receiveInbound(msg)
-        if (!('ignored' in res) && !('duplicate' in res)) read++
+        if ('ignored' in res) continue
+        if (!res.duplicate) read++
+        // One Telegram message per reply, sent once (keyed by the reply).
+        await notifyReply(res.id)
       } catch (err) {
         console.error(`[gmail] could not read reply ${msg.message_id}`, err)
       }

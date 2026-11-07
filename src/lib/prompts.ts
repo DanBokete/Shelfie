@@ -112,18 +112,38 @@ Ask for a reply by a date: write the literal placeholder {reply_by_date} where t
 Sign off as {owner_name}, {business_name}, {town}.
 Return subject and body.`
 
-export const P12_REPLY_READ = `A supplier or seller replied to a cafe owner in Ireland. You get the email text and any attachments.
-Return one document per source: the email body (source 'email body') and each attachment (source = its file name exactly as given).
-- kind: 'quote' for a price quote, 'price_list' for a general price list, 'invoice' for a bill for goods already delivered (an invoice is read separately: return no lines), 'other' for anything else (a greeting, a refusal, a delivery note, a logo). A body that only says "see attached" or declines is 'other'.
+export const P12_REPLY_READ = `A supplier or seller replied to a cafe owner in Ireland. You get the request the owner sent (when known), the reply's email text and any attachments.
+
+First, the answer to the request.
+- The request lists the products asked about as R1, R2..., each with its pack and the price the owner asked for (an "Ask to match" request) or saw online (an "Ask for a quote" request).
+- overall: the answer of the reply as a whole. overall_said: one short sentence saying what the reply says, in plain words.
+- answers: one per requested product the reply answers, with request_item set to its R number. If the request is not known, add one answer per product the reply names, with request_item null and product_hint the product's name as the reply or the subject says it.
+- outcome:
+  - 'accepted': they agree to the price asked, as asked. A bare "yes", "that's fine", "no problem", "done" or "we can do that" to the request is accepted.
+  - 'counter_offer': they offer a different price. Put it in offer_price exactly as they wrote it (9.50 for "9.50" or "€9.50"); never work it out from anything else.
+  - 'declined': they say no, cannot, or keep their price.
+  - 'needs_info': they ask something before deciding (for example quantities or delivery). Put the question in question.
+  - 'unclear': none of these can be told from the reply.
+- said: the supplier's own words about it, at most 25 words, copied.
+- offer_pack, for a counter_offer only (otherwise null):
+  - 'stated' when they name a unit or pack: "per kg" = pack_size 1, pack_unit 'kg'; "per litre" = pack_size 1, pack_unit 'l'; "each" = pack_size 1, pack_unit 'each'; "per case of 6 x 2L" = units_per_case 6, pack_size 2, pack_unit 'l'.
+  - 'requested' when they say "per pack", "per case", "per tub" or the like for the pack the request was about. When the request is not known (request_item null) and the subject or the quoted request names that pack (for example "Chicken breast fillets, 2kg"), use 'stated' with that pack instead.
+  - 'unknown' when they give a bare price with no pack.
+  - units_per_case 1 unless they name a case. pack_size, pack_unit and units_per_case are null unless offer_pack is 'stated'.
+- price_includes_vat: true only if they say the price includes VAT.
+
+Then the documents: one per source, the email body (source 'email body') and each attachment (source = its file name exactly as given).
+- kind: 'quote' for a price quote, 'price_list' for a general price list, 'invoice' for a bill for goods already delivered (an invoice is read separately: return no lines), 'other' for anything else (a greeting, a refusal, a delivery note, a logo).
+- The email body is 'other' with no lines when it only answers the request (yes, no, a counter-offer, a question) or only says "see attached". That answer goes in answers, never in lines. A body is a 'quote' only when it lists prices for products beyond what the answers cover.
 - supplier_name: the business that sent it, as it names itself, or null.
 - document_date: the quote or list date as YYYY-MM-DD (Irish dates are day first), or null.
-- lines: one per product with a price. Copy description exactly as written. Do not add quantities or line totals: quotes have none.
+- lines: one per product with a price. Copy description exactly as written: a product name, never a sentence. Do not add quantities or line totals: quotes have none.
 - pack_price: the price for ONE pack or case as quoted. If the price is per kg, per litre or per item, set pack_size 1 with that pack_unit and use that price. Use null if the line has no price ("on request"), and never guess a price.
 - Parse sizes from the description: '12x2LTR' = units_per_case 12, pack_size 2, pack_unit 'l'. '500G' = pack_size 500, pack_unit 'g', units_per_case 1. '3KG BAG' = pack_size 3, pack_unit 'kg'. 'X30' or 'TRAY 30' of countable items = pack_size 30, pack_unit 'each'. A single countable item = pack_size 1, pack_unit 'each'. '6 x 2L' = units_per_case 6, pack_size 2, pack_unit 'l'.
 - Price tiers (for example 1-9 cases and 10+ cases): use the lowest quantity tier, and add the larger-quantity price as a separate line only if the description would otherwise be identical, naming the tier in the description.
 - prices_include_vat: true only if the prices already include VAT. If a single VAT rate is shown, set vat_rate_percent.
 - confidence: 0 to 1, how sure you are the whole line is read correctly. Under 0.7 for anything blurry, handwritten or partly hidden.
-- Ignore quoted earlier messages in the thread and email signatures.`
+- Ignore quoted earlier messages in the thread and email signatures: only the newest message is the reply.`
 
 export const BUSINESS = {
   name: 'The Corner Café',

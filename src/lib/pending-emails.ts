@@ -30,6 +30,22 @@ export interface ReplyRow {
   subject: string | null
   received_at: string
   supplier_name: string | null
+  /** Lines and invoices from it still waiting for the owner (reply review). */
+  to_review?: number
+  /** What the supplier answered, e.g. "Accepted €2.91". */
+  outcome_label?: string | null
+}
+
+/** What a request's newest reply answered, per requested product (lib/reply-review). */
+export interface RequestAnswer {
+  reply_id: string
+  answers: Array<{
+    product_name: string | null
+    outcome:
+      'accepted' | 'counter_offer' | 'declined' | 'needs_info' | 'unclear'
+    label: string
+    question: string | null
+  }>
 }
 
 export interface PendingDraft {
@@ -61,6 +77,16 @@ export interface WaitingEmail extends PendingDraft {
   overdue: boolean
 }
 
+/** A sent request with a reply, and what the supplier answered. */
+export interface AnsweredEmail extends PendingDraft {
+  sent_at: string
+  /** The newest reply tied to it. */
+  reply_id: string
+  replied_at: string
+  /** Null until the reply is read. */
+  answer: RequestAnswer | null
+}
+
 export interface FailedEmail extends PendingDraft {
   /** What went wrong, in the owner's words. */
   reason: string
@@ -70,17 +96,20 @@ export interface FailedEmail extends PendingDraft {
 
 export interface ReviewReply {
   id: string
-  status: 'failed' | 'unmatched'
+  /** 'proposed': read, with prices or invoices waiting for the owner. */
+  status: 'failed' | 'unmatched' | 'proposed'
   /** What the owner has to do, in their words. */
   reason: string
   from: string
   subject: string | null
   received_at: string
   supplier_name: string | null
+  outcome_label?: string | null
 }
 
 export interface PendingEmails {
   waiting: Array<WaitingEmail>
+  answered: Array<AnsweredEmail>
   drafts: Array<PendingDraft>
   failed: Array<FailedEmail>
   review: Array<ReviewReply>
@@ -93,6 +122,8 @@ export interface PendingCounts {
   drafts: number
   failed: number
   review: number
+  /** Agreed prices a later invoice did not honour. */
+  not_honoured: number
   /** What the nav badge shows: everything the owner has to act on now. */
   action: number
 }
@@ -122,23 +153,32 @@ export function isDeliveryProblem(sendError: string | null): boolean {
 }
 
 /**
- * Replies the owner has to deal with. Today: replies Shelfie could not tie to a request
- * (unmatched) or could not read (failed). When reviewing prices from a reply lands, its
- * waiting reviews plug in here.
+ * Replies the owner has to deal with: ones Shelfie could not tie to a request (unmatched) or
+ * could not read (failed), and read ones with prices or invoices waiting for review.
  */
 export function repliesToReview(replies: Array<ReplyRow>): Array<ReviewReply> {
   const out: Array<ReviewReply> = []
   for (const r of replies) {
-    if (r.status !== 'unmatched' && r.status !== 'failed') continue
+    const waiting = r.to_review ?? 0
+    const status =
+      r.status === 'unmatched' || r.status === 'failed'
+        ? r.status
+        : r.status === 'processed' && waiting > 0
+          ? 'proposed'
+          : null
+    if (!status) continue
     out.push({
       id: r.id,
-      status: r.status,
+      status,
+      outcome_label: r.outcome_label ?? null,
       reason:
-        r.status === 'unmatched'
-          ? 'Shelfie could not tell which supplier this is from. Pick the supplier.'
-          : r.error
-            ? `Shelfie could not read it: ${r.error}`
-            : 'Shelfie could not read it. Try again.',
+        status === 'proposed'
+          ? `${waiting} ${waiting === 1 ? 'price or invoice waits' : 'prices or invoices wait'} for you to apply or reject.`
+          : status === 'unmatched'
+            ? 'Shelfie could not tell which supplier this is from. Pick the supplier.'
+            : r.error
+              ? `Shelfie could not read it: ${r.error}`
+              : 'Shelfie could not read it. Try again.',
       from: r.from_name ? `${r.from_name} <${r.from_email}>` : r.from_email,
       subject: r.subject,
       received_at: r.received_at,
@@ -172,23 +212,34 @@ function base(d: DraftRow): PendingDraft {
  * - failed: a send error, or sent but Gmail could not deliver it;
  * - waiting: a sent request with no reply tied to it yet (any reply counts, read or not).
  *   A sent reminder is not listed on its own: it counts on the request it follows up;
+ * - answered: a sent request with a reply, with what the supplier answered (opts.answers);
  * - drafts: never sent and no send error, reminders included.
  * Replies to review come from the replies alone. Each section is newest first.
  */
 export function groupPendingEmails(
   drafts: Array<DraftRow>,
   replies: Array<ReplyRow>,
-  opts: { replyByDays: number; now: number },
+  opts: {
+    replyByDays: number
+    now: number
+    /** Each request's answer, by request id. */
+    answers?: Map<string, RequestAnswer>
+    /** Agreed prices not honoured, for the count. */
+    notHonoured?: number
+  },
 ): PendingEmails {
   // A reply tied to a reminder answers the request too.
   const rootOf = new Map(
     drafts.map((d) => [d.id, d.follow_up_of ?? d.id] as const),
   )
-  const answered = new Set(
-    replies
-      .map((r) => r.draft_id && (rootOf.get(r.draft_id) ?? r.draft_id))
-      .filter((x): x is string => Boolean(x)),
-  )
+  const newestReply = new Map<string, ReplyRow>()
+  for (const r of replies) {
+    const root = r.draft_id && (rootOf.get(r.draft_id) ?? r.draft_id)
+    if (!root) continue
+    const have = newestReply.get(root)
+    if (!have || Date.parse(r.received_at) > Date.parse(have.received_at))
+      newestReply.set(root, r)
+  }
   const sentReminders = new Map<string, Array<string>>()
   for (const d of drafts)
     if (d.follow_up_of && d.sent_at && !d.send_error)
@@ -198,6 +249,7 @@ export function groupPendingEmails(
       ])
 
   const waiting: Array<WaitingEmail> = []
+  const answeredList: Array<AnsweredEmail> = []
   const unsent: Array<PendingDraft> = []
   const failed: Array<FailedEmail> = []
 
@@ -209,7 +261,18 @@ export function groupPendingEmails(
         bounced: Boolean(d.sent_at) && isDeliveryProblem(d.send_error),
       })
     } else if (d.sent_at) {
-      if (d.follow_up_of || answered.has(d.id)) continue
+      if (d.follow_up_of) continue
+      const reply = newestReply.get(d.id)
+      if (reply) {
+        answeredList.push({
+          ...base(d),
+          sent_at: d.sent_at,
+          reply_id: reply.id,
+          replied_at: reply.received_at,
+          answer: opts.answers?.get(d.id) ?? null,
+        })
+        continue
+      }
       const reminders = (sentReminders.get(d.id) ?? []).sort(
         (a, b) => Date.parse(a) - Date.parse(b),
       )
@@ -228,15 +291,23 @@ export function groupPendingEmails(
   }
 
   waiting.sort(newest((w) => w.sent_at))
+  answeredList.sort(newest((a) => a.replied_at))
   unsent.sort(newest((d) => d.created_at))
   failed.sort(newest((f) => f.sent_at ?? f.created_at))
   const review = repliesToReview(replies)
   return {
     waiting,
+    answered: answeredList,
     drafts: unsent,
     failed,
     review,
-    counts: countPending({ waiting, drafts: unsent, failed, review }),
+    counts: countPending({
+      waiting,
+      drafts: unsent,
+      failed,
+      review,
+      notHonoured: opts.notHonoured ?? 0,
+    }),
   }
 }
 
@@ -246,14 +317,22 @@ export function countPending(p: {
   drafts: Array<unknown>
   failed: Array<unknown>
   review: Array<unknown>
+  notHonoured?: number
 }): PendingCounts {
   const overdue = p.waiting.filter((w) => w.overdue).length
+  const notHonoured = p.notHonoured ?? 0
   return {
     waiting: p.waiting.length,
     overdue,
     drafts: p.drafts.length,
     failed: p.failed.length,
     review: p.review.length,
-    action: overdue + p.drafts.length + p.failed.length + p.review.length,
+    not_honoured: notHonoured,
+    action:
+      overdue +
+      p.drafts.length +
+      p.failed.length +
+      p.review.length +
+      notHonoured,
   }
 }

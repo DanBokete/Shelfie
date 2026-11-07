@@ -1,0 +1,131 @@
+{
+  "name": "extract",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T16:49:20.827Z",
+  "output": {
+    "supplier_name": "Munster Fresh Foods",
+    "invoice_number": "MFF/8808",
+    "invoice_date": "2026-09-02",
+    "prices_include_vat": false,
+    "vat_rate_percent": null,
+    "subtotal_ex_vat": 688.84,
+    "adjustments": [
+      {
+        "description": "Delivery charge",
+        "amount": 6.5
+      }
+    ],
+    "lines": [
+      {
+        "description": "Sourdough Loaf 800g",
+        "quantity": 65,
+        "pack_price": 3.2,
+        "line_total": 208,
+        "pack_size": 800,
+        "pack_unit": "g",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "Fruit Scones (12)",
+        "quantity": 8,
+        "pack_price": 6,
+        "line_total": 48,
+        "pack_size": 12,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "Chicken Breast Fillets 2kg",
+        "quantity": 6,
+        "pack_price": 17.8,
+        "line_total": 106.8,
+        "pack_size": 2,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "Vine Tomatoes 6kg Box",
+        "quantity": 4,
+        "pack_price": 13.8,
+        "line_total": 55.2,
+        "pack_size": 6,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "Baby Gem Lettuce (12)",
+        "quantity": 7,
+        "pack_price": 7.2,
+        "line_total": 50.4,
+        "pack_size": 12,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "Hass Avocados Ready to Eat x20",
+        "quantity": 7,
+        "pack_price": 17,
+        "line_total": 119,
+        "pack_size": 20,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "Baby Spinach 1kg",
+        "quantity": 4,
+        "pack_price": 6.8,
+        "line_total": 27.2,
+        "pack_size": 1,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "Bananas (per kg)",
+        "quantity": 24,
+        "pack_price": 1.6,
+        "line_total": 38.4,
+        "pack_size": 1,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "Lemons (each)",
+        "quantity": 62,
+        "pack_price": 0.32,
+        "line_total": 19.84,
+        "pack_size": 1,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "Red Onions 10kg Sack",
+        "quantity": 1,
+        "pack_price": 9.5,
+        "line_total": 9.5,
+        "pack_size": 10,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      }
+    ]
+  }
+}
