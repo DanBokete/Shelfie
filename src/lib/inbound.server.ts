@@ -54,6 +54,11 @@ export interface InboundMessage {
   received_at: string
   mailbox_hash: string | null
   attachments: Array<{ name: string; type: string; bytes: Uint8Array }>
+  /**
+   * The request this answers, when the mailbox already knows it: a Gmail reply names the
+   * sent request's Message-ID in In-Reply-To or References (lib/gmail-replies.server.ts).
+   */
+  draft_id?: string | null
 }
 
 // --- Postmark inbound webhook payload -------------------------------------------------
@@ -202,11 +207,14 @@ export async function receiveInbound(
   ) as Array<SupplierRef>
 
   const settings = await getSettings()
-  const plusDraftId = draftIdFromRecipients(
-    msg.recipients,
-    inboundAddress(settings),
-    msg.mailbox_hash,
-  )
+  // A known request (from the reply's thread headers) is as certain as a plus-address.
+  const plusDraftId =
+    msg.draft_id ??
+    draftIdFromRecipients(
+      msg.recipients,
+      inboundAddress(settings),
+      msg.mailbox_hash,
+    )
   const plusDraft = drafts.find((d) => d.id === plusDraftId)
   if (
     plusDraft &&

@@ -70,17 +70,17 @@ Real crumpled photos are still worth adding by hand before the pitch.
 ## Reading supplier replies
 
 When a supplier or seller replies to an "Ask to match" or "Ask for a quote" email with a quote, price list or invoice, Shelfie reads it and updates prices.
-Shelfie sends the email itself, through the owner's Gmail account or Postmark (chosen in Settings), and CCs a per-request Shelfie address.
-Reply-all copies Shelfie, and the address names the request, so the reply is tied to the right supplier and product.
-If the supplier hits plain Reply instead, Shelfie falls back to the sender's email address, then their company domain.
-A reply nothing matches is kept and shown under "Replies" on the Invoices page, where you pick the supplier to read it.
+Everything goes through the owner's own Gmail account: Shelfie sends the request from it (SMTP) and reads the replies from it (IMAP), with the same app password.
 
-Setup. Everything except passwords and tokens is on the Settings page:
+- While the app is open, it checks Gmail every 2 minutes; "Check Gmail now" on the Invoices page and "Check now" in Settings run a check at once.
+- Only replies to requests Shelfie sent are opened: emails in the same thread (their `In-Reply-To` or `References` names the request's Message-ID), and, if "Also read emails from the supplier's address" is on, new emails from the address the request went to. Nothing else in the mailbox is fetched, and emails stay unread.
+- A Gmail "could not deliver" notice is not a reply: it is noted on the request and shown at the top of Replies (for example a mistyped address).
+- Requests are watched for 45 days. The code is in `src/lib/gmail-replies.server.ts`.
 
-1. Sending, with Gmail (a personal `@gmail.com` address): turn on 2-Step Verification, create an app password at myaccount.google.com/apppasswords, put it in `GMAIL_APP_PASSWORD` and restart. In Settings choose "My Gmail account" and enter that Gmail address. Sent emails appear in your Gmail Sent folder.
-   Or with Postmark (an address on your own domain; Postmark cannot send from `@gmail.com`): put the server's API token in `POSTMARK_SERVER_TOKEN` and restart, add the address as a confirmed Sender Signature, then choose "Postmark" in Settings. Until Postmark approves the account, it only sends to your own verified domains.
-2. Inbound (Postmark, works without a domain): open the server's Inbound stream. Its inbound address looks like `abc123@inbound.postmarkapp.com`. Enter it as the Shelfie reply address in Settings (or `INBOUND_EMAIL_ADDRESS`).
-3. In Settings, make a webhook secret and copy the webhook URL into Postmark's Inbound webhook. Locally, expose port 3000 with a tunnel (for example `cloudflared tunnel --url http://localhost:3000`) and use the tunnel URL.
+Setup (Settings page, plus one line in `.env`):
+
+1. Turn on 2-Step Verification for the Google account, create an app password at myaccount.google.com/apppasswords, put it in `GMAIL_APP_PASSWORD` and restart.
+2. In Settings, enter that Gmail address under "Your Gmail address". Sending and reading replies both show "Ready".
 
 What happens to a reply:
 
@@ -88,7 +88,7 @@ What happens to a reply:
 - Quotes and price lists (an attachment or the email body) become prices with source `quote`. They are matched to products like any other price, so the item screen and savings use them straight away.
 - A line that is hard to read, or has no usable pack size, waits in "Check matches" and stays out of savings until you confirm it.
 - When a quote is below what the owner pays now, `notifyBetterQuote` in `src/lib/alerts.server.ts` sends a Telegram alert (see below).
-- Postmark may retry a webhook: each message is read once.
+- Each email is read once, however many times Gmail is checked.
 
 ## Telegram alerts
 

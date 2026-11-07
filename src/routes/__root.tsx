@@ -7,9 +7,11 @@ import {
   useRouter,
 } from '@tanstack/react-router'
 import type { ErrorComponentProps } from '@tanstack/react-router'
+import { useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { Icon } from '#/components/Icon'
 import type { IconName } from '#/components/Icon'
+import { postJSON } from '#/lib/api'
 import { getBusiness } from '#/server/fns'
 
 import appCss from '../styles.css?url'
@@ -109,8 +111,38 @@ function Logo() {
   )
 }
 
+/** How often the open app checks Gmail for supplier replies. */
+const REPLY_CHECK_MS = 2 * 60_000
+
+/**
+ * While the app is open and visible, checks Gmail for replies to sent requests, and
+ * refreshes the page when one was read so new prices show. The server skips a check made
+ * within a minute of the last one, so several open tabs do not multiply the work.
+ */
+function useReplyChecks() {
+  const router = useRouter()
+  useEffect(() => {
+    const check = () => {
+      if (document.hidden) return
+      void postJSON<{ read: number }>('/api/email/replies', {})
+        .then((r) => {
+          if (r.read > 0) void router.invalidate()
+        })
+        .catch(() => undefined)
+    }
+    check()
+    const timer = setInterval(check, REPLY_CHECK_MS)
+    document.addEventListener('visibilitychange', check)
+    return () => {
+      clearInterval(timer)
+      document.removeEventListener('visibilitychange', check)
+    }
+  }, [router])
+}
+
 function RootComponent() {
   const business = Route.useLoaderData()
+  useReplyChecks()
   return (
     <div className="min-h-dvh pb-24 md:flex md:pb-0">
       {/* Desktop: grey sidebar */}

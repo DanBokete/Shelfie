@@ -23,13 +23,16 @@ export interface Settings {
   match_by_sender: boolean
   alerts_enabled: boolean
   alert_min_saving: number
+  /** When Gmail was last checked for replies, and what went wrong if it failed. */
+  replies_checked_at: string | null
+  replies_check_error: string | null
   updated_at: string
 }
 
 export type SendVia = 'gmail' | 'postmark'
 
 const COLS =
-  'business_name, owner_name, town, reply_by_days, cc_shelfie, bcc_email, send_via, from_email, reply_scanning, inbound_address, webhook_secret, match_by_sender, alerts_enabled, alert_min_saving, updated_at'
+  'business_name, owner_name, town, reply_by_days, cc_shelfie, bcc_email, send_via, from_email, reply_scanning, inbound_address, webhook_secret, match_by_sender, alerts_enabled, alert_min_saving, replies_checked_at, replies_check_error, updated_at'
 
 export async function getSettings(): Promise<Settings> {
   const row = mustOne(
@@ -169,24 +172,16 @@ export async function revealWebhookSecret(): Promise<string | null> {
   return webhookSecret(await getSettings())
 }
 
-/** What the settings page shows: everything except the secret, plus where each value comes from. */
+/** What the settings page shows: everything except the secret, plus whether each part is ready. */
 export async function settingsView() {
   const s = await getSettings()
   const { webhook_secret: _secret, ...rest } = s
-  const address = inboundAddress(s)
-  const secret = webhookSecret(s)
+  const sending = sendingStatus(s)
   return {
     ...rest,
-    env_inbound_address: process.env.INBOUND_EMAIL_ADDRESS || null,
-    inbound_address_in_use: address,
-    webhook_secret_source: s.webhook_secret
-      ? ('settings' as const)
-      : process.env.INBOUND_WEBHOOK_SECRET
-        ? ('env' as const)
-        : null,
-    // Replies can only arrive when there is an address to CC and a secret to check.
-    reply_scanning_ready: s.reply_scanning && Boolean(address && secret),
-    sending: sendingStatus(s),
+    sending,
+    // Replies are read from the same Gmail account emails are sent from.
+    reply_scanning_ready: s.reply_scanning && sending.ready,
   }
 }
 export type SettingsView = Awaited<ReturnType<typeof settingsView>>

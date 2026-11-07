@@ -22,6 +22,7 @@ import { Route as ItemProductIdRouteImport } from './routes/item.$productId'
 import { Route as ApiAlertsSendRouteImport } from './routes/api/alerts.send'
 import { Route as ApiEmailDraftRouteImport } from './routes/api/email.draft'
 import { Route as ApiEmailInboundRouteImport } from './routes/api/email.inbound'
+import { Route as ApiEmailRepliesRouteImport } from './routes/api/email.replies'
 import { Route as ApiEmailSendRouteImport } from './routes/api/email.send'
 import { Route as ApiInvoicesExtractRouteImport } from './routes/api/invoices.extract'
 import { Route as ApiPricesCheckRouteImport } from './routes/api/prices.check'
@@ -92,6 +93,11 @@ const ApiEmailInboundRoute = ApiEmailInboundRouteImport.update({
   path: '/api/email/inbound',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEmailRepliesRoute = ApiEmailRepliesRouteImport.update({
+  id: '/api/email/replies',
+  path: '/api/email/replies',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiEmailSendRoute = ApiEmailSendRouteImport.update({
   id: '/api/email/send',
   path: '/api/email/send',
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/api/alerts/send': typeof ApiAlertsSendRoute
   '/api/email/draft': typeof ApiEmailDraftRoute
   '/api/email/inbound': typeof ApiEmailInboundRoute
+  '/api/email/replies': typeof ApiEmailRepliesRoute
   '/api/email/send': typeof ApiEmailSendRoute
   '/api/invoices/extract': typeof ApiInvoicesExtractRoute
   '/api/prices/check': typeof ApiPricesCheckRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByTo {
   '/api/alerts/send': typeof ApiAlertsSendRoute
   '/api/email/draft': typeof ApiEmailDraftRoute
   '/api/email/inbound': typeof ApiEmailInboundRoute
+  '/api/email/replies': typeof ApiEmailRepliesRoute
   '/api/email/send': typeof ApiEmailSendRoute
   '/api/invoices/extract': typeof ApiInvoicesExtractRoute
   '/api/prices/check': typeof ApiPricesCheckRoute
@@ -166,6 +174,7 @@ export interface FileRoutesById {
   '/api/alerts/send': typeof ApiAlertsSendRoute
   '/api/email/draft': typeof ApiEmailDraftRoute
   '/api/email/inbound': typeof ApiEmailInboundRoute
+  '/api/email/replies': typeof ApiEmailRepliesRoute
   '/api/email/send': typeof ApiEmailSendRoute
   '/api/invoices/extract': typeof ApiInvoicesExtractRoute
   '/api/prices/check': typeof ApiPricesCheckRoute
@@ -187,6 +196,7 @@ export interface FileRouteTypes {
     | '/api/alerts/send'
     | '/api/email/draft'
     | '/api/email/inbound'
+    | '/api/email/replies'
     | '/api/email/send'
     | '/api/invoices/extract'
     | '/api/prices/check'
@@ -206,6 +216,7 @@ export interface FileRouteTypes {
     | '/api/alerts/send'
     | '/api/email/draft'
     | '/api/email/inbound'
+    | '/api/email/replies'
     | '/api/email/send'
     | '/api/invoices/extract'
     | '/api/prices/check'
@@ -225,6 +236,7 @@ export interface FileRouteTypes {
     | '/api/alerts/send'
     | '/api/email/draft'
     | '/api/email/inbound'
+    | '/api/email/replies'
     | '/api/email/send'
     | '/api/invoices/extract'
     | '/api/prices/check'
@@ -245,6 +257,7 @@ export interface RootRouteChildren {
   ApiAlertsSendRoute: typeof ApiAlertsSendRoute
   ApiEmailDraftRoute: typeof ApiEmailDraftRoute
   ApiEmailInboundRoute: typeof ApiEmailInboundRoute
+  ApiEmailRepliesRoute: typeof ApiEmailRepliesRoute
   ApiEmailSendRoute: typeof ApiEmailSendRoute
   ApiInvoicesExtractRoute: typeof ApiInvoicesExtractRoute
   ApiPricesCheckRoute: typeof ApiPricesCheckRoute
@@ -344,6 +357,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEmailInboundRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/email/replies': {
+      id: '/api/email/replies'
+      path: '/api/email/replies'
+      fullPath: '/api/email/replies'
+      preLoaderRoute: typeof ApiEmailRepliesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/email/send': {
       id: '/api/email/send'
       path: '/api/email/send'
@@ -389,6 +409,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAlertsSendRoute: ApiAlertsSendRoute,
   ApiEmailDraftRoute: ApiEmailDraftRoute,
   ApiEmailInboundRoute: ApiEmailInboundRoute,
+  ApiEmailRepliesRoute: ApiEmailRepliesRoute,
   ApiEmailSendRoute: ApiEmailSendRoute,
   ApiInvoicesExtractRoute: ApiInvoicesExtractRoute,
   ApiPricesCheckRoute: ApiPricesCheckRoute,

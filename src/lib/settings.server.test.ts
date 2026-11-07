@@ -29,6 +29,8 @@ const base: Settings = {
   match_by_sender: true,
   alerts_enabled: true,
   alert_min_saving: 0,
+  replies_checked_at: null,
+  replies_check_error: null,
   updated_at: '2026-11-07T12:00:00Z',
 }
 

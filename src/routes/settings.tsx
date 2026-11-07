@@ -1,14 +1,10 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { ReactNode } from 'react'
-import { Icon } from '#/components/Icon'
-import { dateTime } from '#/lib/format'
-import {
-  getSettingsPage,
-  getWebhookSecret,
-  newWebhookSecret,
-  updateSettings,
-} from '#/server/fns'
+import { Icon, Spinner } from '#/components/Icon'
+import { postJSON } from '#/lib/api'
+import { dateTime, timeAgo } from '#/lib/format'
+import { getSettingsPage, updateSettings } from '#/server/fns'
 
 export const Route = createFileRoute('/settings')({
   loader: () => getSettingsPage(),
@@ -27,7 +23,8 @@ function formOf(v: View) {
     reply_by_days: String(v.reply_by_days),
     cc_shelfie: v.cc_shelfie,
     bcc_email: v.bcc_email ?? '',
-    send_via: v.send_via,
+    // Gmail only: sending and reading replies both use the owner's Gmail account.
+    send_via: 'gmail' as const,
     from_email: v.from_email ?? '',
     reply_scanning: v.reply_scanning,
     inbound_address: v.inbound_address ?? '',
@@ -46,11 +43,7 @@ function SettingsPage() {
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(
     null,
   )
-  const [secretBusy, setSecretBusy] = useState(false)
-  const [copied, setCopied] = useState(false)
-  // The page's own address, known only in the browser.
-  const [origin, setOrigin] = useState('')
-  useEffect(() => setOrigin(window.location.origin), [])
+  const [checking, setChecking] = useState(false)
 
   const set = <TKey extends keyof Form>(key: TKey, value: Form[TKey]) => {
     setForm((f) => ({ ...f, [key]: value }))
@@ -79,36 +72,32 @@ function SettingsPage() {
     }
   }
 
-  async function rotate() {
-    const replacing = view.webhook_secret_source !== null
-    if (
-      replacing &&
-      !window.confirm(
-        'Make a new webhook secret? The webhook URL in Postmark stops working until you paste in the new one.',
-      )
-    )
-      return
-    setSecretBusy(true)
+  async function checkNow() {
+    setChecking(true)
+    setMessage(null)
     try {
-      await newWebhookSecret()
+      const r = await postJSON<{
+        status: 'checked' | 'skipped' | 'failed'
+        reason: string | null
+        new_replies: number
+      }>('/api/email/replies', { force: true })
       await router.invalidate()
-      setMessage({
-        ok: true,
-        text: 'New webhook secret made. Copy the webhook URL into Postmark.',
-      })
+      setMessage(
+        r.status === 'checked'
+          ? {
+              ok: true,
+              text:
+                r.new_replies > 0
+                  ? `Found ${r.new_replies} new repl${r.new_replies === 1 ? 'y' : 'ies'}. See Invoices → Replies.`
+                  : 'Checked Gmail: no new replies.',
+            }
+          : { ok: false, text: r.reason ?? 'Could not check Gmail.' },
+      )
     } catch (err) {
       setMessage({ ok: false, text: readError(err) })
     } finally {
-      setSecretBusy(false)
+      setChecking(false)
     }
-  }
-
-  async function copyWebhookUrl() {
-    const secret = await getWebhookSecret()
-    if (!secret) return
-    await navigator.clipboard.writeText(webhookUrl(origin, secret))
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
   }
 
   return (
@@ -155,7 +144,7 @@ function SettingsPage() {
 
       <Section
         title="Sending requests"
-        hint="The 'Ask to match' and 'Ask for a quote' emails. Shelfie sends them for you, without opening your mail app."
+        hint="The 'Ask to match' and 'Ask for a quote' emails. Shelfie sends them from your Gmail, without opening a mail app, and they show in your Gmail Sent folder."
         badge={
           view.sending.ready ? (
             <span className="chip bg-good-soft text-good">
@@ -171,37 +160,14 @@ function SettingsPage() {
             {view.sending.problem}
           </p>
         )}
-        <fieldset className="space-y-2">
-          <legend className="mb-1.5 text-sm font-medium">Send with</legend>
-          <Choice
-            name="send_via"
-            checked={form.send_via === 'gmail'}
-            onChange={() => set('send_via', 'gmail')}
-            label="My Gmail account"
-            hint="Sent as you, from your Gmail, and kept in your Gmail Sent folder. Needs a Google app password in .env (GMAIL_APP_PASSWORD)."
-          />
-          <Choice
-            name="send_via"
-            checked={form.send_via === 'postmark'}
-            onChange={() => set('send_via', 'postmark')}
-            label="Postmark"
-            hint="For an address on your own domain, e.g. orders@yourcafe.ie. Needs POSTMARK_SERVER_TOKEN in .env and a confirmed sender in Postmark."
-          />
-        </fieldset>
         <Field
-          label="Send emails from"
-          hint={
-            form.send_via === 'gmail'
-              ? 'Your Gmail address: the account the app password belongs to. Suppliers reply to it.'
-              : 'Suppliers see this address and reply to it. It must be a confirmed sender in Postmark (Sender Signatures).'
-          }
+          label="Your Gmail address"
+          hint="Emails are sent from it and suppliers reply to it. It must be the account your app password (GMAIL_APP_PASSWORD in .env) belongs to."
         >
           <input
             className="input"
             type="email"
-            placeholder={
-              form.send_via === 'gmail' ? 'you@gmail.com' : 'orders@yourcafe.ie'
-            }
+            placeholder="you@gmail.com"
             value={form.from_email}
             onChange={(e) => set('from_email', e.target.value)}
           />
@@ -222,17 +188,6 @@ function SettingsPage() {
             <span className="text-sm text-muted">days</span>
           </div>
         </Field>
-        <Toggle
-          label="CC Shelfie on requests"
-          hint="Adds Shelfie's reply address in CC, so when the supplier hits Reply all, their quote is read automatically."
-          checked={form.cc_shelfie}
-          onChange={(v) => set('cc_shelfie', v)}
-          note={
-            form.cc_shelfie && !view.reply_scanning_ready
-              ? 'Not added until reply scanning below is set up.'
-              : null
-          }
-        />
         <Field
           label="BCC me a copy"
           hint="Your own email address. Leave empty for no copy."
@@ -249,7 +204,7 @@ function SettingsPage() {
 
       <Section
         title="Reading replies"
-        hint="Supplier replies reach Shelfie through a Postmark inbound address. Quotes and price lists in them become prices; invoices are read like any upload."
+        hint="Shelfie checks your Gmail every couple of minutes while the app is open, and reads replies to the emails it sent: quotes and price lists become prices, invoices are read like any upload. It opens nothing else in your inbox and leaves emails unread."
         badge={
           view.reply_scanning_ready ? (
             <span className="chip bg-good-soft text-good">
@@ -262,88 +217,57 @@ function SettingsPage() {
           )
         }
       >
+        {view.reply_scanning && !view.sending.ready && (
+          <p className="rounded-lg bg-warn-soft px-3 py-2 text-sm text-warn">
+            Uses the same Gmail login as sending: set that up above first.
+          </p>
+        )}
         <Toggle
           label="Read supplier replies"
-          hint="When off, replies that reach Shelfie are dropped and requests don't CC Shelfie."
           checked={form.reply_scanning}
           onChange={(v) => set('reply_scanning', v)}
         />
-        <Field
-          label="Shelfie reply address"
-          hint={
-            view.env_inbound_address
-              ? `Leave empty to use the address in .env (${view.env_inbound_address}).`
-              : 'Your Postmark inbound address, e.g. abc123@inbound.postmarkapp.com.'
-          }
-        >
-          <input
-            className="input"
-            type="email"
-            placeholder={
-              view.env_inbound_address ?? 'abc123@inbound.postmarkapp.com'
-            }
-            value={form.inbound_address}
-            onChange={(e) => set('inbound_address', e.target.value)}
-          />
-        </Field>
         <Toggle
-          label="Match plain replies by sender"
-          hint="If a supplier hits Reply instead of Reply all, match the reply by their email address, then their company's domain. Off: only replies that keep Shelfie's address are matched, and the rest wait under Replies for you to pick the supplier."
+          label="Also read emails from the supplier's address"
+          hint="Replies in the same email thread are always read. On: a new email from the address you wrote to is read too, even if it is not a reply in the thread."
           checked={form.match_by_sender}
           onChange={(v) => set('match_by_sender', v)}
         />
-
-        <div className="space-y-3 rounded-lg border border-line bg-bg/60 p-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <p className="text-sm font-medium">Webhook secret</p>
-              <p className="text-xs text-muted">
-                {view.webhook_secret_source === 'settings'
-                  ? 'Set here. It is never shown.'
-                  : view.webhook_secret_source === 'env'
-                    ? 'Set in .env. Make a new one to manage it here.'
-                    : 'Not set: Postmark cannot deliver replies yet.'}
-              </p>
-            </div>
-            <button
-              className="btn-secondary"
-              disabled={secretBusy}
-              onClick={() => void rotate()}
-            >
-              {view.webhook_secret_source ? 'Make a new secret' : 'Make secret'}
-            </button>
-          </div>
-          <div>
-            <p className="text-sm font-medium">Webhook URL</p>
-            <p className="text-xs text-muted">
-              Paste this into Postmark as the inbound webhook. Postmark can't
-              reach localhost: run a tunnel (e.g.{' '}
-              <code>cloudflared tunnel --url http://localhost:3000</code>) and
-              swap in its address.
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-bg/60 px-4 py-3">
+          <div className="text-sm">
+            <p className="font-medium">
+              {view.replies_checked_at
+                ? `Gmail last checked ${timeAgo(view.replies_checked_at)}`
+                : 'Gmail not checked yet'}
             </p>
-            <div className="mt-2 flex items-center gap-2">
-              <code className="min-w-0 flex-1 truncate rounded-md bg-soft px-2.5 py-2 text-xs">
-                {webhookUrl(
-                  origin,
-                  view.webhook_secret_source ? '••••••••' : '',
-                )}
-              </code>
-              <button
-                className="btn-secondary shrink-0"
-                disabled={!view.webhook_secret_source}
-                onClick={() => void copyWebhookUrl()}
-              >
-                <Icon name="copy" className="h-4 w-4" />
-                {copied ? 'Copied' : 'Copy'}
-              </button>
-            </div>
+            {view.replies_check_error ? (
+              <p className="text-xs text-rust">{view.replies_check_error}</p>
+            ) : (
+              view.replies_checked_at && (
+                <p className="text-xs text-muted">
+                  {dateTime(view.replies_checked_at)}
+                </p>
+              )
+            )}
           </div>
+          <button
+            className="btn-secondary"
+            disabled={checking || !view.reply_scanning_ready}
+            onClick={() => void checkNow()}
+          >
+            {checking ? (
+              <Spinner className="h-4 w-4" />
+            ) : (
+              <Icon name="mail" className="h-4 w-4" />
+            )}
+            {checking ? 'Checking…' : 'Check now'}
+          </button>
         </div>
       </Section>
 
       <Section
         title="Better-quote alerts"
-        hint="When a reply quotes less than you pay now. Alerts are logged for now; Telegram sending is being built."
+        hint="When a reply quotes less than you pay now. Alerts go to Telegram once it is set up (see the README)."
       >
         <Toggle
           label="Alert me about better quotes"
@@ -401,10 +325,6 @@ function SettingsPage() {
       </div>
     </div>
   )
-}
-
-function webhookUrl(origin: string, secret: string): string {
-  return `${origin}/api/email/inbound?secret=${secret}`
 }
 
 /** Validation errors come back as a JSON list of issues; show their messages. */
@@ -492,38 +412,6 @@ function Toggle({
         />
         <span className="h-6 w-10 rounded-full bg-line transition-colors peer-checked:bg-brand peer-focus-visible:ring-2 peer-focus-visible:ring-brand/40" />
         <span className="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-card shadow transition-transform peer-checked:translate-x-4" />
-      </span>
-    </label>
-  )
-}
-
-function Choice({
-  name,
-  label,
-  hint,
-  checked,
-  onChange,
-}: {
-  name: string
-  label: string
-  hint: string
-  checked: boolean
-  onChange: () => void
-}) {
-  return (
-    <label
-      className={`flex cursor-pointer gap-3 rounded-lg border px-3 py-2.5 ${checked ? 'border-brand bg-brand-soft/60' : 'border-line hover:bg-soft/60'}`}
-    >
-      <input
-        type="radio"
-        name={name}
-        className="mt-1 h-4 w-4 shrink-0 accent-brand"
-        checked={checked}
-        onChange={onChange}
-      />
-      <span>
-        <span className="block text-sm font-medium">{label}</span>
-        <span className="block text-xs text-muted">{hint}</span>
       </span>
     </label>
   )

@@ -1,0 +1,27 @@
+{
+  "name": "reply",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T13:56:44.402Z",
+  "output": {
+    "documents": [
+      {
+        "source": "email body",
+        "kind": "other",
+        "supplier_name": null,
+        "document_date": null,
+        "prices_include_vat": false,
+        "vat_rate_percent": null,
+        "lines": []
+      },
+      {
+        "source": "icon.png",
+        "kind": "other",
+        "supplier_name": null,
+        "document_date": null,
+        "prices_include_vat": false,
+        "vat_rate_percent": null,
+        "lines": []
+      }
+    ]
+  }
+}

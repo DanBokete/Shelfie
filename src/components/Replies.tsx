@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Icon, Spinner } from '#/components/Icon'
+import { postJSON } from '#/lib/api'
 import { getReplies, retryReply } from '#/server/fns'
 
 type Overview = Awaited<ReturnType<typeof getReplies>>
@@ -19,6 +20,7 @@ function ago(iso: string): string {
 }
 
 const HOW: Record<string, string> = {
+  // Also used for Gmail replies tied to a request by their thread.
   plus_address: 'matched to your request',
   sender_email: 'matched by sender address',
   sender_domain: 'matched by sender company',
@@ -37,9 +39,17 @@ function summary(r: Reply): string {
   return bits.join(' · ')
 }
 
+interface ReplyCheck {
+  status: 'checked' | 'skipped' | 'failed'
+  reason: string | null
+  checked_at: string | null
+  new_replies: number
+}
+
 /**
- * Supplier replies that reached the Shelfie inbound address. Refreshes itself so a reply
- * sent from a phone shows up within seconds, and tells the page when one was read.
+ * Supplier replies to requests Shelfie sent, read from the owner's Gmail. The app checks
+ * Gmail every few minutes (see __root); this list refreshes itself from the database so a
+ * reply shows up as soon as it is read, and tells the page when one was.
  */
 export function Replies({
   initial,
@@ -81,20 +91,89 @@ export function Replies({
   }, [])
 
   const { replies, suppliers } = data
+  const [check, setCheck] = useState<ReplyCheck | null>(null)
+  const [checking, setChecking] = useState(false)
+
+  async function checkNow() {
+    setChecking(true)
+    try {
+      const res = await postJSON<ReplyCheck>('/api/email/replies', {
+        force: true,
+      })
+      setCheck(res)
+      setData(await getReplies())
+    } catch (e) {
+      setCheck({
+        status: 'failed',
+        reason: e instanceof Error ? e.message : 'Could not check Gmail',
+        checked_at: null,
+        new_replies: 0,
+      })
+    } finally {
+      setChecking(false)
+    }
+  }
 
   return (
     <section id="replies" className="scroll-mt-20 space-y-3">
-      <div>
-        <h2 className="text-lg font-bold">Replies</h2>
-        <p className="text-sm text-muted">
-          When a supplier answers a quote or match request with a quote, price
-          list or invoice, Shelfie reads it and updates your prices.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-bold">Replies</h2>
+          <p className="text-sm text-muted">
+            When a supplier answers a quote or match request with a quote, price
+            list or invoice, Shelfie reads it from your Gmail and updates your
+            prices.
+          </p>
+        </div>
+        <button
+          className="btn-secondary"
+          disabled={checking}
+          onClick={() => void checkNow()}
+        >
+          {checking ? (
+            <Spinner className="h-4 w-4" />
+          ) : (
+            <Icon name="mail" className="h-4 w-4" />
+          )}
+          {checking ? 'Checking Gmail…' : 'Check Gmail now'}
+        </button>
       </div>
+      {check && (
+        <p
+          role="status"
+          className={`text-sm ${check.status === 'failed' ? 'text-rust' : 'text-muted'}`}
+        >
+          {check.status === 'checked'
+            ? check.new_replies > 0
+              ? `Found ${check.new_replies} new repl${check.new_replies === 1 ? 'y' : 'ies'}.`
+              : 'Checked Gmail: no new replies.'
+            : check.reason}
+        </p>
+      )}
+      {data.undelivered.length > 0 && (
+        <ul className="space-y-1.5">
+          {data.undelivered.map((u) => (
+            <li
+              key={u.id}
+              className="flex gap-2 rounded-xl bg-warn-soft px-3 py-2.5 text-sm text-warn"
+            >
+              <Icon name="alert" className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>
+                <b className="font-semibold">
+                  {u.subject ? `“${u.subject}”` : 'A request'}
+                  {u.suppliers ? ` to ${u.suppliers.name}` : ''}
+                </b>
+                : {u.send_error} Check the address in Settings or on the
+                supplier.
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
       {replies.length === 0 ? (
         <p className="card px-4 py-5 text-sm text-muted">
-          No replies yet. Send a request with the email button on an item and
-          keep Shelfie in CC.
+          No replies yet. Send a request with the email button on an item: when
+          the supplier answers, their reply shows up here.
         </p>
       ) : (
         <ul className="card divide-y divide-line">

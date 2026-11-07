@@ -11,6 +11,7 @@ import {
 import { lastAlert, telegramStatus } from '#/lib/alerts.server'
 import { demoMode, model } from '#/lib/claude.server'
 import { updateDraft } from '#/lib/email.server'
+import { deliveryProblems } from '#/lib/gmail-replies.server'
 import { inboundOverview, reprocessInbound } from '#/lib/inbound.server'
 import { livePricesOverview, productPriceChecks } from '#/lib/market.server'
 import {
@@ -127,8 +128,12 @@ export const saveDraft = createServerFn({ method: 'POST' })
   )
   .handler(({ data }) => updateDraft(data.id, data))
 
-export const getReplies = createServerFn({ method: 'GET' }).handler(() =>
-  inboundOverview(),
+export const getReplies = createServerFn({ method: 'GET' }).handler(
+  async () => ({
+    ...(await inboundOverview()),
+    // Requests Gmail could not deliver, found while checking for replies.
+    undelivered: await deliveryProblems(),
+  }),
 )
 
 export const retryReply = createServerFn({ method: 'POST' })
