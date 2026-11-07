@@ -126,6 +126,22 @@ function ItemPage() {
         ]
       : []
 
+  // The other sellers listed under Online prices, with the price shown there: every fresh
+  // offer that is cheaper than what the owner pays (or when there is no current price).
+  const quoteRequests: Array<EmailRequest> = live.offers
+    .filter((o) => {
+      const fresh =
+        Date.now() - Date.parse(o.observed_at) <= live.max_age_days * 86_400_000
+      return fresh && (cur == null || o.ppu < cur.ppu)
+    })
+    .map((o) => ({
+      kind: 'quote',
+      offer_id: o.id,
+      seller_name: o.seller,
+      product_name: product.canonical_name,
+      price_seen: `${euro(o.pack_price, { cents: true })} ex VAT per ${pack(o)}`,
+    }))
+
   return (
     <div className="mx-auto max-w-2xl space-y-4">
       <div>
@@ -314,6 +330,18 @@ function ItemPage() {
         >
           <Icon name="mail" className="h-5 w-5 shrink-0" /> Ask{' '}
           {cur.supplier_name} to match {euro(bestInMyPack, { cents: true })}
+        </button>
+      )}
+      {quoteRequests.length > 0 && (
+        <button
+          className="btn-secondary w-full py-3 text-center whitespace-normal"
+          onClick={() => setEmail(quoteRequests)}
+        >
+          <Icon name="mail" className="h-5 w-5 shrink-0" /> Or ask{' '}
+          {quoteRequests.length === 1
+            ? 'the cheaper online seller'
+            : `all ${quoteRequests.length} cheaper online sellers`}{' '}
+          for a quote at the prices shown
         </button>
       )}
 
