@@ -1,22 +1,33 @@
 @import 'tailwindcss';
 
+/* Shelfie "Shelf label" theme: warm cream paper, deep green as the primary
+   colour, and a yellow shelf-edge tag reserved for money the owner can save.
+   Token names are unchanged so every page picks up the new look. */
 @theme {
-  --color-bg: #faf6f0;
-  --color-card: #ffffff;
-  --color-ink: #2b2118;
-  --color-muted: #7a6a5c;
-  --color-line: #eadfd2;
-  --color-soft: #f3ece2;
-  --color-brand: #1f6f4a;
-  --color-brand-dark: #165338;
-  --color-brand-soft: #e3f1e9;
-  --color-rust: #b4441b;
-  --color-rust-soft: #fbe9e1;
-  --color-warn: #a35a06;
-  --color-warn-soft: #fdf1d8;
+  --color-bg: #f7f1e3;
+  --color-card: #fffaf0;
+  --color-side: #efe6d2;
+  --color-ink: #1d1a14;
+  --color-muted: #6b6456;
+  --color-line: #e3d8bf;
+  --color-soft: #efe6d2;
+  /* Primary actions are deep green; "brand" stays the action colour. */
+  --color-brand: #1f5f4a;
+  --color-brand-dark: #174a39;
+  --color-brand-soft: #dfeee6;
+  /* Savings tag, best price, price rises, needs-a-look. */
+  --color-tag: #ffe135;
+  --color-good: #127a4b;
+  --color-good-soft: #eaf6ef;
+  --color-rust: #b42318;
+  --color-rust-soft: #fdecea;
+  --color-warn: #8a5a00;
+  --color-warn-soft: #fff4d6;
   --font-sans:
-    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif;
+  --font-mono:
+    'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 html,
@@ -31,26 +42,38 @@ body {
   margin: 0;
   font-family: var(--font-sans);
   font-feature-settings: 'tnum' 1;
+  -webkit-font-smoothing: antialiased;
 }
 
 @utility card {
-  @apply rounded-2xl border border-line bg-card;
+  @apply rounded-xl border border-line bg-card shadow-[0_1px_2px_rgba(14,17,22,0.04)];
 }
 @utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50;
 }
 @utility btn-primary {
   @apply btn bg-brand text-white hover:bg-brand-dark;
 }
 @utility btn-secondary {
-  @apply btn border border-line bg-card text-ink hover:bg-soft;
+  @apply btn bg-soft text-ink hover:bg-line;
 }
 @utility btn-ghost {
   @apply btn text-muted hover:bg-soft hover:text-ink;
 }
 @utility input {
-  @apply w-full rounded-xl border border-line bg-card px-3 py-2.5 text-base text-ink outline-none placeholder:text-muted/70 focus:border-brand focus:ring-2 focus:ring-brand/20;
+  @apply w-full rounded-lg border border-line bg-card px-3 py-2.5 text-base text-ink outline-none placeholder:text-muted/70 focus:border-ink focus:ring-2 focus:ring-ink/10;
 }
 @utility label {
-  @apply text-xs font-semibold tracking-wide text-muted uppercase;
+  @apply text-xs font-medium text-muted;
+}
+/* The yellow shelf-edge price tag. Use only for money the owner can save. */
+@utility tag {
+  @apply inline-flex items-center rounded-[4px] bg-tag px-2 py-0.5 font-mono font-semibold text-ink;
+}
+/* Small status chip: pair with a coloured dot and a *-soft background. */
+@utility chip {
+  @apply inline-flex h-[22px] items-center gap-1.5 rounded-full bg-soft px-2 text-xs font-medium text-ink;
+}
+@utility num {
+  @apply font-mono tabular-nums;
 }

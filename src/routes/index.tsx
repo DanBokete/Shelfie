@@ -1,6 +1,14 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import {
+  PriceSparkline,
+  SavingBar,
+  SupplierSplit,
+  WeeklySpendChart,
+} from '#/components/Charts'
 import { Icon } from '#/components/Icon'
-import { euro, pct } from '#/lib/format'
+import { euro, pct, shortDate } from '#/lib/format'
+import { standardQuantity } from '#/lib/units'
+import type { BaseUnit } from '#/lib/units'
 import { getHome } from '#/server/fns'
 
 export const Route = createFileRoute('/')({
@@ -11,6 +19,9 @@ export const Route = createFileRoute('/')({
 function Home() {
   const d = Route.useLoaderData()
   const empty = d.invoices === 0
+  const weeks = d.spend.weeks
+  const supplierNames = d.spend.suppliers.map((s) => s.name)
+  const spendTotal = d.spend.suppliers.reduce((s, x) => s + x.total, 0)
 
   return (
     <div className="space-y-6">
@@ -73,63 +84,119 @@ function Home() {
         </Link>
       )}
 
-      {d.top.length > 0 && (
-        <section>
-          <h2 className="mb-3 text-lg font-bold">Biggest savings</h2>
-          <ul className="card divide-y divide-line">
-            {d.top.map((o) => (
-              <li key={o.product_id}>
-                <Link
-                  to="/item/$productId"
-                  params={{ productId: o.product_id }}
-                  className="flex items-center gap-3 px-4 py-3.5 hover:bg-soft/60"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold">{o.name}</p>
-                    <p className="truncate text-sm text-muted">
-                      {pct(o.pct_cheaper)} cheaper at {o.cheapest_supplier} than{' '}
-                      {o.current_supplier}
-                    </p>
-                  </div>
-                  <span className="text-right">
-                    <span className="block font-bold text-brand">
-                      {euro(o.annual_saving, { cents: false })}
-                    </span>
-                    <span className="block text-xs text-muted">a year</span>
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+      {weeks.length > 0 && (
+        <section className="card p-4 md:p-6">
+          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+            <div>
+              <h2 className="text-lg font-bold">Weekly spend</h2>
+              <p className="text-sm text-muted">
+                Invoice totals ex VAT, by supplier. Hover a week for the split.
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-2xl font-bold tracking-tight">
+                {euro(spendTotal / weeks.length, { cents: false })}
+              </p>
+              <p className="text-xs text-muted">average a week</p>
+            </div>
+          </div>
+          <div className="mt-5">
+            <WeeklySpendChart weeks={weeks} suppliers={supplierNames} />
+          </div>
+          <div className="mt-5 border-t border-line pt-4">
+            <SupplierSplit suppliers={d.spend.suppliers} />
+          </div>
+          <details className="mt-4 text-sm">
+            <summary className="cursor-pointer text-muted hover:text-ink">
+              Show as a table
+            </summary>
+            <table className="mt-2 w-full text-left">
+              <thead className="text-xs text-muted">
+                <tr>
+                  <th className="py-1 font-medium">Week of</th>
+                  {supplierNames.map((s) => (
+                    <th key={s} className="py-1 text-right font-medium">
+                      {s}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="num divide-y divide-line">
+                {weeks.map((w) => (
+                  <tr key={w.week}>
+                    <td className="py-1">{shortDate(w.week)}</td>
+                    {supplierNames.map((s) => (
+                      <td key={s} className="py-1 text-right">
+                        {w.by_supplier[s]
+                          ? euro(w.by_supplier[s], { cents: false })
+                          : '-'}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </details>
         </section>
       )}
 
-      {d.creeps.length > 0 && (
-        <section>
-          <h2 className="mb-3 text-lg font-bold">Prices creeping up</h2>
-          <ul className="grid gap-3 md:grid-cols-3">
-            {d.creeps.map((o) => (
-              <li key={o.product_id}>
-                <Link
-                  to="/item/$productId"
-                  params={{ productId: o.product_id }}
-                  className="card flex items-center gap-3 px-4 py-3.5 hover:bg-soft/60"
-                >
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-rust-soft text-rust">
-                    <Icon name="arrowUp" className="h-4 w-4" />
-                  </span>
-                  <div className="min-w-0">
+      <div className="grid gap-6 lg:grid-cols-5">
+        {d.top.length > 0 && (
+          <section className="min-w-0 lg:col-span-3">
+            <h2 className="mb-3 text-lg font-bold">Biggest savings</h2>
+            <ul className="card divide-y divide-line">
+              {d.top.map((o) => (
+                <li key={o.product_id}>
+                  <Link
+                    to="/item/$productId"
+                    params={{ productId: o.product_id }}
+                    className="block px-4 py-3.5 hover:bg-soft/60"
+                  >
                     <p className="truncate font-semibold">{o.name}</p>
-                    <p className="text-sm text-muted">
-                      Up {pct(o.creep_pct)} at {o.current_supplier}
+                    <p className="mb-2 truncate text-sm text-muted">
+                      {pct(o.pct_cheaper)} cheaper at {o.cheapest_supplier} than{' '}
+                      {o.current_supplier}
                     </p>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+                    <SavingBar
+                      value={o.annual_saving ?? 0}
+                      max={d.top[0].annual_saving ?? 0}
+                    />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {d.creeps.length > 0 && (
+          <section className="min-w-0 lg:col-span-2">
+            <h2 className="mb-3 text-lg font-bold">Prices creeping up</h2>
+            <ul className="grid gap-3">
+              {d.creeps.map((o) => (
+                <li key={o.product_id}>
+                  <Link
+                    to="/item/$productId"
+                    params={{ productId: o.product_id }}
+                    className="card block px-4 py-3.5 hover:bg-soft/60"
+                  >
+                    <div className="mb-2 flex items-start justify-between gap-3">
+                      <p className="min-w-0 truncate font-semibold">{o.name}</p>
+                      <span className="chip shrink-0 bg-rust-soft text-rust">
+                        <Icon name="arrowUp" className="h-3 w-3" />
+                        {pct(o.creep_pct)}
+                      </span>
+                    </div>
+                    <PriceSparkline
+                      points={o.history}
+                      unit={unitSuffix(o.base_unit)}
+                    />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
     </div>
   )
 }
@@ -152,4 +219,10 @@ function ActionLink({
       {label}
     </Link>
   )
+}
+
+/** "/L", "/kg" or " each", for prices per standard unit. */
+function unitSuffix(unit: BaseUnit) {
+  const { short } = standardQuantity(unit)
+  return short ? `/${short}` : ' each'
 }

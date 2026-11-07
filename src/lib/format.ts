@@ -69,3 +69,32 @@ export function monthName(d: string): string {
     month: 'long',
   })
 }
+
+/** "just now", "12 min ago", "3 hours ago", "yesterday", "5 days ago", then a date. */
+export function timeAgo(
+  iso: string | null | undefined,
+  now = Date.now(),
+): string {
+  if (!iso) return 'never'
+  const mins = Math.round((now - Date.parse(iso)) / 60_000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins} min ago`
+  const hours = Math.round(mins / 60)
+  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`
+  const days = Math.round(hours / 24)
+  if (days === 1) return 'yesterday'
+  if (days < 14) return `${days} days ago`
+  return shortDate(iso)
+}
+
+/** "7 Nov, 14:32", in Irish time. */
+export function dateTime(iso: string | null | undefined): string {
+  if (!iso) return '-'
+  return new Date(iso).toLocaleString('en-IE', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Europe/Dublin',
+  })
+}

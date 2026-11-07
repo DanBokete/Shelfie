@@ -1,9 +1,16 @@
-import { Link, createFileRoute, notFound } from '@tanstack/react-router'
+import {
+  Link,
+  createFileRoute,
+  notFound,
+  useRouter,
+} from '@tanstack/react-router'
 import { useState } from 'react'
 import { EmailModal } from '#/components/EmailModal'
 import type { EmailGroup } from '#/components/EmailModal'
 import { Icon } from '#/components/Icon'
+import { postJSON } from '#/lib/api'
 import {
+  dateTime,
   euro,
   monthName,
   pack,
@@ -11,16 +18,20 @@ import {
   perStandard,
   perStandardShort,
   shortDate,
+  timeAgo,
 } from '#/lib/format'
 import { baseUnitsPerPack, isRawUnit, standardQuantity } from '#/lib/units'
 import type { BaseUnit } from '#/lib/units'
-import { getProduct } from '#/server/fns'
+import { getProduct, getProductPriceChecks } from '#/server/fns'
 
 export const Route = createFileRoute('/item/$productId')({
   loader: async ({ params }) => {
-    const d = await getProduct({ data: { id: params.productId } })
+    const [d, live] = await Promise.all([
+      getProduct({ data: { id: params.productId } }),
+      getProductPriceChecks({ data: { id: params.productId } }),
+    ])
     if (!d) throw notFound()
-    return d
+    return { ...d, live }
   },
   head: ({ loaderData }) => ({
     meta: [
@@ -67,7 +78,7 @@ function maths(packPrice: number, baseAmount: number, unit: BaseUnit): string {
 }
 
 function ItemPage() {
-  const { product, insight, names, supplier } = Route.useLoaderData()
+  const { product, insight, names, supplier, live } = Route.useLoaderData()
   const [emailOpen, setEmailOpen] = useState(false)
   const unit = product.base_unit
   const cur = insight.current
@@ -217,6 +228,13 @@ function ItemPage() {
         </button>
       )}
 
+      <OnlinePrices
+        productId={product.id}
+        live={live}
+        unit={unit}
+        yourPpu={cur?.ppu ?? null}
+      />
+
       {/* 4. All suppliers */}
       {insight.suppliers.length > 0 && (
         <section className="card overflow-hidden">
@@ -244,8 +262,19 @@ function ItemPage() {
                   <td className="px-5 py-2.5">
                     <p className="font-medium">{s.supplier_name}</p>
                     <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
-                      {s.source === 'price_list' ? 'Price list' : 'Invoice'} ·{' '}
-                      {shortDate(s.observed_on)}
+                      {s.source === 'web' && s.source_url ? (
+                        <a
+                          href={s.source_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline underline-offset-2 hover:text-ink"
+                        >
+                          Online
+                        </a>
+                      ) : (
+                        SOURCE_LABEL[s.source]
+                      )}{' '}
+                      · {shortDate(s.observed_on)}
                       {i === 0 && (
                         <span className="rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand">
                           cheapest
@@ -319,5 +348,185 @@ function ItemPage() {
         <EmailModal groups={emailGroups} onClose={() => setEmailOpen(false)} />
       )}
     </div>
+  )
+}
+
+const SOURCE_LABEL = {
+  invoice: 'Invoice',
+  price_list: 'Price list',
+  web: 'Online',
+} as const
+
+type Live = Awaited<ReturnType<typeof getProductPriceChecks>>
+
+/** Competitor prices from the latest web search, with a button to search again now. */
+function OnlinePrices({
+  productId,
+  live,
+  unit,
+  yourPpu,
+}: {
+  productId: string
+  live: Live
+  unit: BaseUnit
+  yourPpu: number | null
+}) {
+  const router = useRouter()
+  const [running, setRunning] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const last = live.checks.at(0) ?? null
+  const lastDone = live.checks.find((c) => c.status === 'done') ?? null
+
+  async function check() {
+    setRunning(true)
+    setError(null)
+    try {
+      await postJSON('/api/prices/check', { product_id: productId })
+      await router.invalidate()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+      await router.invalidate()
+    } finally {
+      setRunning(false)
+    }
+  }
+
+  return (
+    <section className="card overflow-hidden">
+      <div className="flex flex-wrap items-start justify-between gap-3 px-5 pt-4 pb-3">
+        <div>
+          <h2 className="font-bold">Online prices</h2>
+          <p
+            className="text-xs text-muted"
+            title={last ? dateTime(last.started_at) : undefined}
+          >
+            {last
+              ? `Last checked ${timeAgo(last.started_at)} · ${dateTime(last.started_at)}`
+              : 'Not checked yet'}
+          </p>
+        </div>
+        <button
+          className="btn-primary"
+          disabled={running}
+          onClick={() => void check()}
+        >
+          {running ? (
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+          ) : (
+            <Icon name="search" className="h-4 w-4" />
+          )}
+          {running ? 'Searching…' : 'Check now'}
+        </button>
+      </div>
+
+      {running && (
+        <p className="border-t border-line bg-brand-soft px-5 py-3 text-sm text-brand-dark">
+          Searching the web for what other sellers in Ireland charge. This can
+          take up to a minute.
+        </p>
+      )}
+      {(error ?? (last?.status === 'failed' ? last.error : null)) && (
+        <p className="border-t border-line bg-rust-soft px-5 py-3 text-sm text-rust">
+          The last check failed: {error ?? last?.error}
+        </p>
+      )}
+      {lastDone?.summary && (
+        <p className="border-t border-line px-5 py-3 text-sm">
+          {lastDone.summary}
+        </p>
+      )}
+
+      {live.offers.length > 0 ? (
+        <ul className="divide-y divide-line border-t border-line">
+          {live.offers.map((o) => {
+            const diff = yourPpu ? (o.ppu - yourPpu) / yourPpu : null
+            const equivalent = o.review_reasons.some((r) =>
+              r.startsWith('Match: close equivalent'),
+            )
+            const vatUnknown = o.review_reasons.some((r) =>
+              r.startsWith('Web: shelf price incl. VAT'),
+            )
+            return (
+              <li
+                key={o.id}
+                className="flex items-start justify-between gap-4 px-5 py-3"
+              >
+                <div className="min-w-0">
+                  <p className="font-medium">{o.seller}</p>
+                  {o.url ? (
+                    <a
+                      href={o.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block truncate text-sm text-muted underline decoration-line underline-offset-2 hover:text-ink"
+                    >
+                      {o.title}
+                    </a>
+                  ) : (
+                    <p className="truncate text-sm text-muted">{o.title}</p>
+                  )}
+                  <p className="mt-1 flex flex-wrap gap-1.5 text-xs text-muted">
+                    <span>
+                      {euro(o.pack_price, { cents: true })} per {pack(o)}
+                    </span>
+                    {equivalent && (
+                      <span className="chip">Similar product</span>
+                    )}
+                    {vatUnknown && <span className="chip">Incl. VAT</span>}
+                  </p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className="font-semibold tabular-nums">
+                    {perStandardShort(o.ppu, unit)}
+                  </p>
+                  {diff != null && (
+                    <span
+                      className={`chip mt-1 ${diff < 0 ? 'bg-good-soft text-good' : ''}`}
+                    >
+                      {diff < 0 ? `${pct(-diff)} less` : `${pct(diff)} more`}
+                    </span>
+                  )}
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+      ) : (
+        lastDone && (
+          <p className="border-t border-line px-5 py-3 text-sm text-muted">
+            No like-for-like prices found online on{' '}
+            {dateTime(lastDone.started_at)}.
+          </p>
+        )
+      )}
+
+      <div className="border-t border-line px-5 py-3 text-xs text-muted">
+        <p>
+          Prices are ex VAT, read from each seller's own page. They count
+          towards your savings for {live.max_age_days} days after the check.
+        </p>
+        {live.checks.length > 0 && (
+          <details className="mt-2">
+            <summary className="cursor-pointer hover:text-ink">
+              Check history
+            </summary>
+            <ul className="mt-2 space-y-1">
+              {live.checks.map((c) => (
+                <li key={c.id} className="flex justify-between gap-3">
+                  <span className="tabular-nums">{dateTime(c.started_at)}</span>
+                  <span className={c.status === 'failed' ? 'text-rust' : ''}>
+                    {c.status === 'done'
+                      ? `${c.offers_found} price${c.offers_found === 1 ? '' : 's'} found`
+                      : c.status === 'running'
+                        ? 'Searching…'
+                        : 'Failed'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
+      </div>
+    </section>
   )
 }

@@ -284,6 +284,7 @@ export async function finalize(uploadId: string): Promise<AuditReport> {
           observed_on: period?.last ?? new Date().toISOString().slice(0, 10),
           source: 'invoice',
           raw_description: r.raw_name,
+          source_url: null,
         }
         base.used_stock_price = true
       }

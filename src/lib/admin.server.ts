@@ -15,6 +15,7 @@ const TABLES = [
   'products',
   'invoices',
   'product_aliases',
+  'price_checks',
   'price_observations',
   'stock_uploads',
   'stock_items',
@@ -73,11 +74,14 @@ export async function snapshotInfo(): Promise<{
   if (!hasSnapshot()) return null
   const snap = JSON.parse(await readFile(SNAPSHOT_FILE, 'utf8')) as {
     saved_at: string
-    data: Record<string, Array<unknown>>
+    data: Partial<Record<string, Array<unknown>>>
   }
   return {
     saved_at: snap.saved_at,
-    counts: Object.fromEntries(TABLES.map((t) => [t, snap.data[t].length])),
+    // Snapshots saved before live prices existed have no price_checks.
+    counts: Object.fromEntries(
+      TABLES.map((t) => [t, snap.data[t]?.length ?? 0]),
+    ),
   }
 }
 

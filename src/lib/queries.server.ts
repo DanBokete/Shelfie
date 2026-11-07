@@ -1,7 +1,13 @@
 // Read models for the pages. All numbers come from lib/savings.ts.
 import { classify, productInsight } from './savings'
-import type { FindingGroup, Observation, ProductInsight } from './savings'
+import type {
+  FindingGroup,
+  Observation,
+  PriceSource,
+  ProductInsight,
+} from './savings'
 import { db, must } from './supabase.server'
+import { perStandardUnit } from './units'
 import type { BaseUnit } from './units'
 
 export interface Product {
@@ -43,12 +49,17 @@ interface ObsRow {
   price_per_base_unit: number | null
   quantity: number | null
   observed_on: string
-  source: 'invoice' | 'price_list'
+  observed_at: string
+  source: PriceSource
   raw_description: string
+  source_url: string | null
   invoice_id: string | null
   review_reasons: Array<string>
   suppliers: { name: string } | null
 }
+
+/** Web prices older than this stop counting towards savings: re-check to refresh them. */
+export const WEB_PRICE_MAX_AGE_DAYS = 14
 
 /** All matched observations, grouped by product. Pages through results (PostgREST caps at 1000). */
 export async function observationsByProduct(
@@ -64,7 +75,7 @@ export async function observationsByProduct(
     let q = db()
       .from('price_observations')
       .select(
-        'product_id, supplier_id, pack_price, pack_size, pack_unit, units_per_case, price_per_base_unit, quantity, observed_on, source, raw_description, invoice_id, review_reasons, suppliers(name)',
+        'product_id, supplier_id, pack_price, pack_size, pack_unit, units_per_case, price_per_base_unit, quantity, observed_on, observed_at, source, raw_description, source_url, invoice_id, review_reasons, suppliers(name)',
       )
       .not('product_id', 'is', null)
       .order('id')
@@ -77,6 +88,12 @@ export async function observationsByProduct(
       if (
         !includeUntrusted &&
         r.review_reasons.some((x) => !x.startsWith('Match:'))
+      )
+        continue
+      if (
+        r.source === 'web' &&
+        Date.now() - Date.parse(r.observed_at) >
+          WEB_PRICE_MAX_AGE_DAYS * 86_400_000
       )
         continue
       const list = out.get(r.product_id) ?? []
@@ -93,6 +110,7 @@ export async function observationsByProduct(
         observed_on: r.observed_on,
         source: r.source,
         raw_description: r.raw_description,
+        source_url: r.source_url,
         invoice_id: r.invoice_id,
       })
       out.set(r.product_id, list)
@@ -127,15 +145,84 @@ export async function allOpportunities(): Promise<Array<Opportunity>> {
   })
 }
 
+/** Monday of the week a YYYY-MM-DD date falls in. */
+function weekStart(date: string): string {
+  const d = new Date(`${date.slice(0, 10)}T12:00:00Z`)
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7))
+  return d.toISOString().slice(0, 10)
+}
+
+/** Invoice spend per week, and in total per supplier. Lines still needing a check are left out. */
+export async function spendSummary() {
+  const rows = must(
+    await db()
+      .from('price_observations')
+      .select('observed_on, line_total, suppliers(name)')
+      .eq('source', 'invoice')
+      .eq('needs_review', false)
+      .not('line_total', 'is', null),
+    'load spend',
+  ) as unknown as Array<{
+    observed_on: string
+    line_total: number
+    suppliers: { name: string } | null
+  }>
+  const byWeek = new Map<string, Record<string, number>>()
+  const bySupplier = new Map<string, number>()
+  for (const r of rows) {
+    const week = weekStart(r.observed_on)
+    const supplier = r.suppliers?.name ?? 'Unknown supplier'
+    const amount = Number(r.line_total)
+    const row = byWeek.get(week) ?? {}
+    row[supplier] = (row[supplier] ?? 0) + amount
+    byWeek.set(week, row)
+    bySupplier.set(supplier, (bySupplier.get(supplier) ?? 0) + amount)
+  }
+  return {
+    weeks: [...byWeek.keys()]
+      .sort()
+      .map((week) => ({ week, by_supplier: byWeek.get(week)! })),
+    // Biggest first: the main supplier takes the first chart colour.
+    suppliers: [...bySupplier.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, total]) => ({ name, total })),
+  }
+}
+
+/** Price per litre / kg / each over time, at the supplier whose price crept up. */
+async function creepHistory(opps: Array<Opportunity>) {
+  const obs = await observationsByProduct(opps.map((o) => o.product.id))
+  return new Map(
+    opps.map((o) => {
+      const creep = o.insight.creep!
+      const points = (obs.get(o.product.id) ?? [])
+        .filter(
+          (x) =>
+            x.supplier_id === creep.supplier_id &&
+            x.price_per_base_unit != null,
+        )
+        .sort((a, b) => a.observed_on.localeCompare(b.observed_on))
+        .map((x) => ({
+          date: x.observed_on,
+          price: perStandardUnit(x.price_per_base_unit!, o.product.base_unit),
+        }))
+      return [o.product.id, points]
+    }),
+  )
+}
+
 export async function homeSummary() {
-  const [opps, counts, review] = await Promise.all([
+  const [opps, counts, review, spend] = await Promise.all([
     allOpportunities(),
     Promise.all([
       db()
         .from('invoices')
         .select('id', { count: 'exact', head: true })
         .eq('status', 'done'),
-      db().from('suppliers').select('id', { count: 'exact', head: true }),
+      db()
+        .from('suppliers')
+        .select('id', { count: 'exact', head: true })
+        .eq('kind', 'supplier'),
       db()
         .from('price_observations')
         .select('id', { count: 'exact', head: true }),
@@ -144,6 +231,7 @@ export async function homeSummary() {
       .from('price_observations')
       .select('id', { count: 'exact', head: true })
       .eq('needs_review', true),
+    spendSummary(),
   ])
   const switches = opps
     .filter((o) => o.group === 'switch' && (o.insight.annual_saving ?? 0) > 0)
@@ -153,18 +241,24 @@ export async function homeSummary() {
   const creeps = opps
     .filter((o) => o.insight.creep)
     .sort((a, b) => b.insight.creep!.pct - a.insight.creep!.pct)
+    .slice(0, 3)
+  const history = await creepHistory(creeps)
   return {
     total_annual_saving: switches.reduce(
       (s, o) => s + (o.insight.annual_saving ?? 0),
       0,
     ),
     top: switches.slice(0, 5).map(summarise),
-    creeps: creeps.slice(0, 3).map(summarise),
+    creeps: creeps.map((o) => ({
+      ...summarise(o),
+      history: history.get(o.product.id) ?? [],
+    })),
     invoices: counts[0].count ?? 0,
     suppliers: counts[1].count ?? 0,
     prices: counts[2].count ?? 0,
     products: opps.length,
     needs_review: review.count ?? 0,
+    spend,
   }
 }
 

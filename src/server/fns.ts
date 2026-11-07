@@ -10,6 +10,7 @@ import {
 } from '#/lib/admin.server'
 import { demoMode, model } from '#/lib/claude.server'
 import { updateDraft } from '#/lib/email.server'
+import { livePricesOverview, productPriceChecks } from '#/lib/market.server'
 import {
   findByBarcode,
   homeSummary,
@@ -48,6 +49,14 @@ export const getReviewQueue = createServerFn({ method: 'GET' }).handler(() =>
 export const getProduct = createServerFn({ method: 'GET' })
   .validator(id)
   .handler(({ data }) => productDetail(data.id))
+
+export const getLivePrices = createServerFn({ method: 'GET' }).handler(() =>
+  livePricesOverview(),
+)
+
+export const getProductPriceChecks = createServerFn({ method: 'GET' })
+  .validator(id)
+  .handler(({ data }) => productPriceChecks(data.id))
 
 export const lookupBarcode = createServerFn({ method: 'GET' })
   .validator(z.object({ code: z.string().min(4).max(20) }))

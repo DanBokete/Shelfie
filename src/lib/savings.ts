@@ -14,9 +14,13 @@ export interface Observation {
   price_per_base_unit: number | null
   quantity: number | null
   observed_on: string // YYYY-MM-DD
-  source: 'invoice' | 'price_list'
+  source: PriceSource
   raw_description: string
+  source_url?: string | null // the product page, for web prices
 }
+
+/** Where a price came from. 'web' is a competitor's live price found online. */
+export type PriceSource = 'invoice' | 'price_list' | 'web'
 
 export interface SupplierPrice {
   supplier_id: string
@@ -27,8 +31,9 @@ export interface SupplierPrice {
   pack_unit: string | null
   units_per_case: number | null
   observed_on: string
-  source: 'invoice' | 'price_list'
+  source: PriceSource
   raw_description: string
+  source_url: string | null
 }
 
 export interface PriceCreep {
@@ -80,6 +85,7 @@ function toSupplierPrice(o: Observation): SupplierPrice | null {
     observed_on: o.observed_on,
     source: o.source,
     raw_description: o.raw_description,
+    source_url: o.source_url ?? null,
   }
 }
 

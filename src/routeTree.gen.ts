@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuditRouteImport } from './routes/audit'
 import { Route as InvoicesRouteImport } from './routes/invoices'
+import { Route as PricesRouteImport } from './routes/prices'
 import { Route as ScanRouteImport } from './routes/scan'
 import { Route as AdminResetRouteImport } from './routes/admin.reset'
 import { Route as ApiAuditRouteImport } from './routes/api/audit'
@@ -19,6 +20,7 @@ import { Route as ApiMatchRouteImport } from './routes/api/match'
 import { Route as ItemProductIdRouteImport } from './routes/item.$productId'
 import { Route as ApiEmailDraftRouteImport } from './routes/api/email.draft'
 import { Route as ApiInvoicesExtractRouteImport } from './routes/api/invoices.extract'
+import { Route as ApiPricesCheckRouteImport } from './routes/api/prices.check'
 import { Route as ApiScanIdentifyRouteImport } from './routes/api/scan.identify'
 
 const IndexRoute = IndexRouteImport.update({
@@ -34,6 +36,11 @@ const AuditRoute = AuditRouteImport.update({
 const InvoicesRoute = InvoicesRouteImport.update({
   id: '/invoices',
   path: '/invoices',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricesRoute = PricesRouteImport.update({
+  id: '/prices',
+  path: '/prices',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ScanRoute = ScanRouteImport.update({
@@ -71,6 +78,11 @@ const ApiInvoicesExtractRoute = ApiInvoicesExtractRouteImport.update({
   path: '/api/invoices/extract',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPricesCheckRoute = ApiPricesCheckRouteImport.update({
+  id: '/api/prices/check',
+  path: '/api/prices/check',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiScanIdentifyRoute = ApiScanIdentifyRouteImport.update({
   id: '/api/scan/identify',
   path: '/api/scan/identify',
@@ -81,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
   '/invoices': typeof InvoicesRoute
+  '/prices': typeof PricesRoute
   '/scan': typeof ScanRoute
   '/admin/reset': typeof AdminResetRoute
   '/api/audit': typeof ApiAuditRoute
@@ -88,12 +101,14 @@ export interface FileRoutesByFullPath {
   '/item/$productId': typeof ItemProductIdRoute
   '/api/email/draft': typeof ApiEmailDraftRoute
   '/api/invoices/extract': typeof ApiInvoicesExtractRoute
+  '/api/prices/check': typeof ApiPricesCheckRoute
   '/api/scan/identify': typeof ApiScanIdentifyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
   '/invoices': typeof InvoicesRoute
+  '/prices': typeof PricesRoute
   '/scan': typeof ScanRoute
   '/admin/reset': typeof AdminResetRoute
   '/api/audit': typeof ApiAuditRoute
@@ -101,6 +116,7 @@ export interface FileRoutesByTo {
   '/item/$productId': typeof ItemProductIdRoute
   '/api/email/draft': typeof ApiEmailDraftRoute
   '/api/invoices/extract': typeof ApiInvoicesExtractRoute
+  '/api/prices/check': typeof ApiPricesCheckRoute
   '/api/scan/identify': typeof ApiScanIdentifyRoute
 }
 export interface FileRoutesById {
@@ -108,6 +124,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
   '/invoices': typeof InvoicesRoute
+  '/prices': typeof PricesRoute
   '/scan': typeof ScanRoute
   '/admin/reset': typeof AdminResetRoute
   '/api/audit': typeof ApiAuditRoute
@@ -115,6 +132,7 @@ export interface FileRoutesById {
   '/item/$productId': typeof ItemProductIdRoute
   '/api/email/draft': typeof ApiEmailDraftRoute
   '/api/invoices/extract': typeof ApiInvoicesExtractRoute
+  '/api/prices/check': typeof ApiPricesCheckRoute
   '/api/scan/identify': typeof ApiScanIdentifyRoute
 }
 export interface FileRouteTypes {
@@ -123,6 +141,7 @@ export interface FileRouteTypes {
     | '/'
     | '/audit'
     | '/invoices'
+    | '/prices'
     | '/scan'
     | '/admin/reset'
     | '/api/audit'
@@ -130,12 +149,14 @@ export interface FileRouteTypes {
     | '/item/$productId'
     | '/api/email/draft'
     | '/api/invoices/extract'
+    | '/api/prices/check'
     | '/api/scan/identify'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/audit'
     | '/invoices'
+    | '/prices'
     | '/scan'
     | '/admin/reset'
     | '/api/audit'
@@ -143,12 +164,14 @@ export interface FileRouteTypes {
     | '/item/$productId'
     | '/api/email/draft'
     | '/api/invoices/extract'
+    | '/api/prices/check'
     | '/api/scan/identify'
   id:
     | '__root__'
     | '/'
     | '/audit'
     | '/invoices'
+    | '/prices'
     | '/scan'
     | '/admin/reset'
     | '/api/audit'
@@ -156,6 +179,7 @@ export interface FileRouteTypes {
     | '/item/$productId'
     | '/api/email/draft'
     | '/api/invoices/extract'
+    | '/api/prices/check'
     | '/api/scan/identify'
   fileRoutesById: FileRoutesById
 }
@@ -163,6 +187,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuditRoute: typeof AuditRoute
   InvoicesRoute: typeof InvoicesRoute
+  PricesRoute: typeof PricesRoute
   ScanRoute: typeof ScanRoute
   AdminResetRoute: typeof AdminResetRoute
   ApiAuditRoute: typeof ApiAuditRoute
@@ -170,6 +195,7 @@ export interface RootRouteChildren {
   ItemProductIdRoute: typeof ItemProductIdRoute
   ApiEmailDraftRoute: typeof ApiEmailDraftRoute
   ApiInvoicesExtractRoute: typeof ApiInvoicesExtractRoute
+  ApiPricesCheckRoute: typeof ApiPricesCheckRoute
   ApiScanIdentifyRoute: typeof ApiScanIdentifyRoute
 }
 
@@ -194,6 +220,13 @@ declare module '@tanstack/react-router' {
       path: '/invoices'
       fullPath: '/invoices'
       preLoaderRoute: typeof InvoicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prices': {
+      id: '/prices'
+      path: '/prices'
+      fullPath: '/prices'
+      preLoaderRoute: typeof PricesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/scan': {
@@ -245,6 +278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiInvoicesExtractRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/prices/check': {
+      id: '/api/prices/check'
+      path: '/api/prices/check'
+      fullPath: '/api/prices/check'
+      preLoaderRoute: typeof ApiPricesCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/scan/identify': {
       id: '/api/scan/identify'
       path: '/api/scan/identify'
@@ -259,6 +299,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuditRoute: AuditRoute,
   InvoicesRoute: InvoicesRoute,
+  PricesRoute: PricesRoute,
   ScanRoute: ScanRoute,
   AdminResetRoute: AdminResetRoute,
   ApiAuditRoute: ApiAuditRoute,
@@ -266,6 +307,7 @@ const rootRouteChildren: RootRouteChildren = {
   ItemProductIdRoute: ItemProductIdRoute,
   ApiEmailDraftRoute: ApiEmailDraftRoute,
   ApiInvoicesExtractRoute: ApiInvoicesExtractRoute,
+  ApiPricesCheckRoute: ApiPricesCheckRoute,
   ApiScanIdentifyRoute: ApiScanIdentifyRoute,
 }
 export const routeTree = rootRouteImport

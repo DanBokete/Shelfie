@@ -145,24 +145,8 @@ export async function askJSON<T>(opts: {
         fallbacks: 'default',
       })
     } catch (err) {
-      if (err instanceof AIError) throw err
-      if (
-        err instanceof Anthropic.APIError &&
-        err.status &&
-        err.status < 500 &&
-        err.status !== 429
-      ) {
-        throw new AIError(
-          `Claude API error ${err.status}: ${err.message}`,
-          'api',
-        )
-      }
-      if (
-        err instanceof Anthropic.APIError ||
-        err instanceof Anthropic.APIConnectionError
-      ) {
-        throw new AIError(`Claude API unavailable: ${err.message}`, 'api')
-      }
+      const apiErr = toAIError(err)
+      if (apiErr) throw apiErr
       // The SDK throws when the output fails the zod schema: retry once with the error.
       lastError = err instanceof Error ? err.message : String(err)
       console.warn(
@@ -191,4 +175,134 @@ export async function askJSON<T>(opts: {
     )
   }
   throw new AIError(`Invalid AI output: ${lastError}`, 'invalid_output')
+}
+
+/** API and connection failures as an AIError; null for anything else. */
+function toAIError(err: unknown): AIError | null {
+  if (err instanceof AIError) return err
+  if (
+    err instanceof Anthropic.APIError &&
+    err.status &&
+    err.status < 500 &&
+    err.status !== 429
+  ) {
+    return new AIError(`Claude API error ${err.status}: ${err.message}`, 'api')
+  }
+  if (
+    err instanceof Anthropic.APIError ||
+    err instanceof Anthropic.APIConnectionError
+  ) {
+    return new AIError(`Claude API unavailable: ${err.message}`, 'api')
+  }
+  return null
+}
+
+export interface WebSource {
+  url: string
+  title: string
+}
+
+/** Server tool loops stop after 10 steps with pause_turn; resume this many times at most. */
+const MAX_RESUMES = 4
+
+/**
+ * One research turn with live web search and page fetch, searched as if from Ireland.
+ * Returns Claude's written findings and every page the tools returned, so callers can
+ * reject any link Claude did not actually see. Never cached: the point is fresh data.
+ */
+export async function searchWeb(opts: {
+  /** Short name for logs, e.g. 'prices'. */
+  name: string
+  system: string
+  prompt: string
+  maxSearches?: number
+  maxFetches?: number
+  effort?: Effort
+}): Promise<{ text: string; sources: Array<WebSource> }> {
+  if (demoMode()) {
+    throw new AIError(
+      'Live price search needs the internet. Set DEMO_MODE=false.',
+      'demo_cache_miss',
+    )
+  }
+  const messages: Array<Anthropic.Beta.BetaMessageParam> = [
+    { role: 'user', content: opts.prompt },
+  ]
+  const sources = new Map<string, string>()
+  const text: Array<string> = []
+  const started = Date.now()
+
+  for (let turn = 0; turn <= MAX_RESUMES; turn++) {
+    let res: Anthropic.Beta.BetaMessage
+    try {
+      res = await getClient().beta.messages.create({
+        model: model(),
+        max_tokens: 16000,
+        system: opts.system,
+        messages,
+        tools: [
+          {
+            type: 'web_search_20260209',
+            name: 'web_search',
+            max_uses: opts.maxSearches ?? 5,
+            user_location: {
+              type: 'approximate',
+              country: 'IE',
+              city: 'Cork',
+              timezone: 'Europe/Dublin',
+            },
+          },
+          {
+            type: 'web_fetch_20260209',
+            name: 'web_fetch',
+            max_uses: opts.maxFetches ?? 8,
+          },
+        ],
+        output_config: { effort: opts.effort ?? 'medium' },
+        betas: ['server-side-fallback-2026-07-01'],
+        fallbacks: 'default',
+      })
+    } catch (err) {
+      throw (
+        toAIError(err) ??
+        new AIError(err instanceof Error ? err.message : String(err), 'api')
+      )
+    }
+
+    for (const block of res.content) {
+      if (block.type === 'text') text.push(block.text)
+      // Errors come back as a result block with an error object, not as a thrown error.
+      if (
+        block.type === 'web_search_tool_result' &&
+        Array.isArray(block.content)
+      ) {
+        for (const r of block.content) sources.set(r.url, r.title)
+      }
+      if (
+        block.type === 'web_fetch_tool_result' &&
+        block.content.type === 'web_fetch_result'
+      ) {
+        sources.set(
+          block.content.url,
+          block.content.content.title ??
+            sources.get(block.content.url) ??
+            block.content.url,
+        )
+      }
+    }
+    console.info(
+      `[claude:${opts.name}] ${res.model} turn ${turn + 1} ${Date.now() - started}ms in=${res.usage.input_tokens} out=${res.usage.output_tokens} stop=${res.stop_reason} sources=${sources.size}`,
+    )
+    if (res.stop_reason === 'refusal') {
+      throw new AIError('Claude declined this request.', 'refusal')
+    }
+    if (res.stop_reason !== 'pause_turn') break
+    // Send the paused turn back unchanged and the server carries on where it stopped.
+    messages.push({ role: 'assistant', content: res.content })
+  }
+
+  return {
+    text: text.join('\n').trim(),
+    sources: [...sources].map(([url, title]) => ({ url, title })),
+  }
 }

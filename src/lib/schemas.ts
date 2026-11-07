@@ -96,3 +96,25 @@ export type StockMatchResult = z.infer<typeof StockMatchResult>
 // P6: negotiation email
 export const EmailDraft = z.object({ subject: z.string(), body: z.string() })
 export type EmailDraft = z.infer<typeof EmailDraft>
+
+// P7/P8: live competitor prices, read from web research notes
+export const WebOffer = z.object({
+  seller: z.string(), // shop name only, e.g. 'Tesco'
+  title: z.string(), // product name as listed on the page
+  url: z.string(), // the product page, copied from the notes
+  price: z.number(), // EUR for one listing as sold, as shown on the page
+  vat_included: z.boolean(),
+  vat_rate_percent: z.number().nullable(), // Irish rate for this product when vat_included
+  pack_size: z.number().nullable(),
+  pack_unit: z.enum(['ml', 'cl', 'l', 'g', 'kg', 'each']).nullable(),
+  units_per_case: z.number().int().nullable(),
+  match: z.enum(['exact', 'equivalent', 'different']),
+  match_note: z.string(), // at most 12 words
+  promo: z.boolean(),
+  confidence,
+})
+export type WebOffer = z.infer<typeof WebOffer>
+export const WebOffers = z.object({
+  offers: z.array(WebOffer),
+  summary: z.string(), // one sentence for the owner
+})
