@@ -1,0 +1,9 @@
+{
+  "name": "email",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T13:25:16.835Z",
+  "output": {
+    "subject": "Request to match a lower price on whole milk",
+    "body": "Hi Lee Valley Wholesale team,\n\nThank you for looking after The Corner Café so well. We really value our relationship with you and would like to keep buying from you.\n\nI'm writing about our whole milk (2L). We currently pay €4.20 per pack, but I have found it elsewhere for €2.69. We order around 43 packs a week, so the difference matters to us.\n\nCould you match the €2.69 price? If you can, we'll happily keep our regular weekly order with you.\n\nCould you please reply by {reply_by_date}? I'm glad to talk it through by phone if that's easier.\n\nThanks very much,\n\nAoife\nThe Corner Café"
+  }
+}

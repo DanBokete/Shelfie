@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute, useLoaderData } from '@tanstack/react-router'
 import {
   PriceSparkline,
   SavingBar,
@@ -18,6 +18,7 @@ export const Route = createFileRoute('/')({
 
 function Home() {
   const d = Route.useLoaderData()
+  const business = useLoaderData({ from: '__root__' })
   const empty = d.invoices === 0
   const weeks = d.spend.weeks
   const supplierNames = d.spend.suppliers.map((s) => s.name)
@@ -28,7 +29,7 @@ function Home() {
       <section className="card overflow-hidden">
         <div className="bg-gradient-to-br from-brand to-brand-dark px-5 py-7 text-white md:px-8 md:py-10">
           <p className="text-sm font-medium text-white/80">
-            The Corner Café, Cork
+            {business.name}, {business.town}
           </p>
           {empty ? (
             <>

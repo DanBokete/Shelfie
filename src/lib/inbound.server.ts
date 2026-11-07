@@ -20,6 +20,7 @@ import { quoteRows, quoteSaving } from './quote-lines'
 import { invoicePeriod, observationsByProduct } from './queries.server'
 import { productInsight } from './savings'
 import { ReplyRead } from './schemas'
+import { getSettings, inboundAddress } from './settings.server'
 import {
   INVOICE_BUCKET,
   db,
@@ -200,9 +201,10 @@ export async function receiveInbound(
     'load suppliers',
   ) as Array<SupplierRef>
 
+  const settings = await getSettings()
   const plusDraftId = draftIdFromRecipients(
     msg.recipients,
-    process.env.INBOUND_EMAIL_ADDRESS,
+    inboundAddress(settings),
     msg.mailbox_hash,
   )
   const plusDraft = drafts.find((d) => d.id === plusDraftId)
@@ -223,6 +225,7 @@ export async function receiveInbound(
     plus_draft_id: plusDraftId,
     drafts,
     suppliers,
+    by_sender: settings.match_by_sender,
   })
 
   const id = randomUUID()
@@ -525,9 +528,10 @@ async function alertBetterQuotes(
   }
   if (cheapest.size === 0) return 0
 
-  const [obsMap, period] = await Promise.all([
+  const [obsMap, period, settings] = await Promise.all([
     observationsByProduct([...cheapest.keys()]),
     invoicePeriod(),
+    getSettings(),
   ])
   let count = 0
   for (const [productId, q] of cheapest) {
@@ -536,7 +540,19 @@ async function alertBetterQuotes(
     const current = insight.current
     const quotePpu = Number(q.price_per_base_unit)
     if (!current || !(quotePpu < current.ppu)) continue
+    // Every better quote is counted on the reply; only alert when Settings asks for it.
     count++
+    const annualSaving = quoteSaving(
+      current.ppu,
+      quotePpu,
+      insight.annual_base_units,
+    )
+    if (
+      !settings.alerts_enabled ||
+      (settings.alert_min_saving > 0 &&
+        annualSaving < settings.alert_min_saving)
+    )
+      continue
     try {
       await notifyBetterQuote({
         supplier_name: supplierName,
@@ -544,11 +560,7 @@ async function alertBetterQuotes(
         your_ppu: current.ppu,
         quote_ppu: quotePpu,
         base_unit: q.products.base_unit,
-        annual_saving: quoteSaving(
-          current.ppu,
-          quotePpu,
-          insight.annual_base_units,
-        ),
+        annual_saving: annualSaving,
         product_id: productId,
       })
     } catch (err) {

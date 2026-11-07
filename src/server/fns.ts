@@ -28,6 +28,14 @@ import {
   editLine,
 } from '#/lib/review.server'
 import { setBarcode } from '#/lib/scan.server'
+import {
+  SettingsInput,
+  getSettings,
+  revealWebhookSecret,
+  rotateWebhookSecret,
+  saveSettings,
+  settingsView,
+} from '#/lib/settings.server'
 
 const id = z.object({ id: z.uuid() })
 
@@ -125,6 +133,31 @@ export const getReplies = createServerFn({ method: 'GET' }).handler(() =>
 export const retryReply = createServerFn({ method: 'POST' })
   .validator(z.object({ id: z.uuid(), supplier_id: z.uuid().optional() }))
   .handler(({ data }) => reprocessInbound(data.id, data.supplier_id))
+
+export const getSettingsPage = createServerFn({ method: 'GET' }).handler(() =>
+  settingsView(),
+)
+
+export const updateSettings = createServerFn({ method: 'POST' })
+  .validator(SettingsInput)
+  .handler(({ data }) => saveSettings(data))
+
+export const newWebhookSecret = createServerFn({ method: 'POST' }).handler(() =>
+  rotateWebhookSecret(),
+)
+
+/** Only the secret, for the "Copy webhook URL" button. */
+export const getWebhookSecret = createServerFn({ method: 'POST' }).handler(() =>
+  revealWebhookSecret(),
+)
+
+/** The business name and town shown in the app's header and on the home page. */
+export const getBusiness = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const s = await getSettings()
+    return { name: s.business_name, town: s.town }
+  },
+)
 
 export const getAdminStatus = createServerFn({ method: 'GET' }).handler(
   async () => ({

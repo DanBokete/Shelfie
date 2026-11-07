@@ -46,6 +46,8 @@ interface DraftResponse {
   supplier: { email: string | null }
   /** Shelfie's inbound address for this draft, CC'd so the reply reaches the app. */
   reply_cc?: string | null
+  /** The owner's own address from Settings, BCC'd so they keep a copy. */
+  reply_bcc?: string | null
   contact?: Contact
 }
 
@@ -56,6 +58,7 @@ interface Draft {
   subject: string
   body: string
   cc?: string | null
+  bcc?: string | null
   contact?: Contact
   error?: string
   sent?: boolean
@@ -98,6 +101,7 @@ export function EmailModal({
           body: r.body,
           to: r.supplier.email ?? '',
           cc: r.reply_cc ?? null,
+          bcc: r.reply_bcc ?? null,
           contact: r.contact,
         }),
       )
@@ -143,7 +147,8 @@ export function EmailModal({
     patch(tab, { sent: true })
     // The CC copies Shelfie in, so a reply-all lands in the app as well as the owner's inbox.
     const cc = d.cc ? `&cc=${encodeURIComponent(d.cc)}` : ''
-    window.location.href = `mailto:${encodeURIComponent(d.to.trim())}?subject=${encodeURIComponent(d.subject)}&body=${encodeURIComponent(d.body)}${cc}`
+    const bcc = d.bcc ? `&bcc=${encodeURIComponent(d.bcc)}` : ''
+    window.location.href = `mailto:${encodeURIComponent(d.to.trim())}?subject=${encodeURIComponent(d.subject)}&body=${encodeURIComponent(d.body)}${cc}${bcc}`
   }
 
   async function copy() {

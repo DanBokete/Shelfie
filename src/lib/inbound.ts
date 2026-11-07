@@ -142,6 +142,8 @@ export function matchReply(input: {
   plus_draft_id: string | null
   drafts: Array<DraftRef>
   suppliers: Array<SupplierRef>
+  /** Fall back to the sender's email, then domain, for a plain Reply. On unless false. */
+  by_sender?: boolean
 }): ReplyMatch | null {
   const from = emailOf(input.from)
   const { drafts, suppliers } = input
@@ -156,7 +158,7 @@ export function matchReply(input: {
         method: 'plus_address',
       }
   }
-  if (!from) return null
+  if (!from || input.by_sender === false) return null
 
   // 2. The sender is exactly the address on a supplier or on a draft.
   const byDraftEmail = drafts.filter(

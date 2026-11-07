@@ -10,10 +10,13 @@ import type { ErrorComponentProps } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { Icon } from '#/components/Icon'
 import type { IconName } from '#/components/Icon'
+import { getBusiness } from '#/server/fns'
 
 import appCss from '../styles.css?url'
 
 export const Route = createRootRoute({
+  // The business name and town from Settings, shown in the header and on the home page.
+  loader: () => getBusiness(),
   head: () => ({
     meta: [
       { charSet: 'utf-8' },
@@ -107,6 +110,7 @@ function Logo() {
 }
 
 function RootComponent() {
+  const business = Route.useLoaderData()
   return (
     <div className="min-h-dvh pb-24 md:flex md:pb-0">
       {/* Desktop: grey sidebar */}
@@ -115,7 +119,7 @@ function RootComponent() {
           <Logo />
           <span className="flex min-w-0 flex-col leading-tight">
             <span className="text-sm font-semibold">Shelfie</span>
-            <span className="truncate text-xs text-muted">The Corner Café</span>
+            <span className="truncate text-xs text-muted">{business.name}</span>
           </span>
         </Link>
         <nav aria-label="Main" className="flex flex-col gap-px">
@@ -132,13 +136,23 @@ function RootComponent() {
             </Link>
           ))}
         </nav>
-        <Link
-          to="/scan"
-          className="mt-auto flex h-10 items-center gap-2.5 rounded-lg border border-line bg-card px-2.5 text-sm hover:bg-soft"
-        >
-          <Icon name="scan" className="h-4 w-4" />
-          Scan with your phone
-        </Link>
+        <div className="mt-auto flex flex-col gap-2">
+          <Link
+            to="/settings"
+            className="flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-sm text-ink hover:bg-soft"
+            activeProps={{ className: 'bg-line font-semibold' }}
+          >
+            <Icon name="settings" className="h-4 w-4" />
+            Settings
+          </Link>
+          <Link
+            to="/scan"
+            className="flex h-10 items-center gap-2.5 rounded-lg border border-line bg-card px-2.5 text-sm hover:bg-soft"
+          >
+            <Icon name="scan" className="h-4 w-4" />
+            Scan with your phone
+          </Link>
+        </div>
       </aside>
 
       <div className="min-w-0 flex-1">
@@ -152,7 +166,18 @@ function RootComponent() {
               <Logo />
               Shelfie
             </Link>
-            <span className="text-sm text-muted">The Corner Café</span>
+            <span className="flex min-w-0 items-center gap-1">
+              <span className="truncate text-sm text-muted">
+                {business.name}
+              </span>
+              <Link
+                to="/settings"
+                aria-label="Settings"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-muted hover:bg-soft hover:text-ink"
+              >
+                <Icon name="settings" className="h-5 w-5" />
+              </Link>
+            </span>
           </div>
         </header>
         <main className="mx-auto max-w-6xl px-4 py-5 md:px-8 md:py-8">

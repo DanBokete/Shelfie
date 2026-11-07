@@ -1,8 +1,9 @@
 // Feature 5: negotiation email drafts. Claude writes the words; the figures come from our code.
 import { askJSON } from './claude.server'
 import { inboundAddressFor } from './inbound'
-import { BUSINESS, P6_NEGOTIATION_EMAIL } from './prompts'
+import { P6_NEGOTIATION_EMAIL } from './prompts'
 import { EmailDraft } from './schemas'
+import { getSettings, replyCc, withBusiness } from './settings.server'
 import { db, must } from './supabase.server'
 
 export interface EmailItem {
@@ -17,9 +18,9 @@ function euro(n: number): string {
   return `€${n.toFixed(2)}`
 }
 
-/** A reply date a week out, written out in full so the email is unambiguous. */
-export function replyByDate(from: Date = new Date()): string {
-  const d = new Date(from.getTime() + 7 * 86_400_000)
+/** A reply date `days` out (a week by default), written out in full so the email is unambiguous. */
+export function replyByDate(days = 7, from: Date = new Date()): string {
+  const d = new Date(from.getTime() + days * 86_400_000)
   return d.toLocaleDateString('en-IE', {
     weekday: 'long',
     day: 'numeric',
@@ -38,10 +39,8 @@ export async function draftEmail(supplierId: string, items: Array<EmailItem>) {
   ) as { id: string; name: string; email: string | null }
 
   // The reply date is filled in after generation so cached drafts stay correct on any day.
-  const system = P6_NEGOTIATION_EMAIL.replace(
-    '{owner_name}',
-    BUSINESS.owner,
-  ).replace('{business_name}', BUSINESS.name)
+  const settings = await getSettings()
+  const system = withBusiness(P6_NEGOTIATION_EMAIL, settings)
   const facts = {
     supplier: supplier.name,
     items: items.map((i) => ({
@@ -63,7 +62,7 @@ export async function draftEmail(supplierId: string, items: Array<EmailItem>) {
     effort: 'low',
     maxTokens: 4000,
   })
-  const date = replyByDate()
+  const date = replyByDate(settings.reply_by_days)
   const draft = {
     subject: raw.subject.replaceAll('{reply_by_date}', date),
     body: raw.body.replaceAll('{reply_by_date}', date),
@@ -87,7 +86,8 @@ export async function draftEmail(supplierId: string, items: Array<EmailItem>) {
   return {
     id: row.id,
     supplier,
-    reply_cc: inboundAddressFor(process.env.INBOUND_EMAIL_ADDRESS, row.id),
+    reply_cc: replyCc(settings, inboundAddressFor, row.id),
+    reply_bcc: settings.bcc_email,
     ...draft,
   }
 }

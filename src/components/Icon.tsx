@@ -23,6 +23,7 @@ const PATHS = {
   spark:
     'M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6',
   pencil: 'M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4',
+  settings: 'M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4',
 } as const
 
 export type IconName = keyof typeof PATHS

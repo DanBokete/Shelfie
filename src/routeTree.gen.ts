@@ -14,6 +14,7 @@ import { Route as AuditRouteImport } from './routes/audit'
 import { Route as InvoicesRouteImport } from './routes/invoices'
 import { Route as PricesRouteImport } from './routes/prices'
 import { Route as ScanRouteImport } from './routes/scan'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as AdminResetRouteImport } from './routes/admin.reset'
 import { Route as ApiAuditRouteImport } from './routes/api/audit'
 import { Route as ApiMatchRouteImport } from './routes/api/match'
@@ -47,6 +48,11 @@ const PricesRoute = PricesRouteImport.update({
 const ScanRoute = ScanRouteImport.update({
   id: '/scan',
   path: '/scan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminResetRoute = AdminResetRouteImport.update({
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/invoices': typeof InvoicesRoute
   '/prices': typeof PricesRoute
   '/scan': typeof ScanRoute
+  '/settings': typeof SettingsRoute
   '/admin/reset': typeof AdminResetRoute
   '/api/audit': typeof ApiAuditRoute
   '/api/match': typeof ApiMatchRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/invoices': typeof InvoicesRoute
   '/prices': typeof PricesRoute
   '/scan': typeof ScanRoute
+  '/settings': typeof SettingsRoute
   '/admin/reset': typeof AdminResetRoute
   '/api/audit': typeof ApiAuditRoute
   '/api/match': typeof ApiMatchRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/invoices': typeof InvoicesRoute
   '/prices': typeof PricesRoute
   '/scan': typeof ScanRoute
+  '/settings': typeof SettingsRoute
   '/admin/reset': typeof AdminResetRoute
   '/api/audit': typeof ApiAuditRoute
   '/api/match': typeof ApiMatchRoute
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/invoices'
     | '/prices'
     | '/scan'
+    | '/settings'
     | '/admin/reset'
     | '/api/audit'
     | '/api/match'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/invoices'
     | '/prices'
     | '/scan'
+    | '/settings'
     | '/admin/reset'
     | '/api/audit'
     | '/api/match'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/invoices'
     | '/prices'
     | '/scan'
+    | '/settings'
     | '/admin/reset'
     | '/api/audit'
     | '/api/match'
@@ -201,6 +213,7 @@ export interface RootRouteChildren {
   InvoicesRoute: typeof InvoicesRoute
   PricesRoute: typeof PricesRoute
   ScanRoute: typeof ScanRoute
+  SettingsRoute: typeof SettingsRoute
   AdminResetRoute: typeof AdminResetRoute
   ApiAuditRoute: typeof ApiAuditRoute
   ApiMatchRoute: typeof ApiMatchRoute
@@ -247,6 +260,13 @@ declare module '@tanstack/react-router' {
       path: '/scan'
       fullPath: '/scan'
       preLoaderRoute: typeof ScanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/reset': {
@@ -321,6 +341,7 @@ const rootRouteChildren: RootRouteChildren = {
   InvoicesRoute: InvoicesRoute,
   PricesRoute: PricesRoute,
   ScanRoute: ScanRoute,
+  SettingsRoute: SettingsRoute,
   AdminResetRoute: AdminResetRoute,
   ApiAuditRoute: ApiAuditRoute,
   ApiMatchRoute: ApiMatchRoute,

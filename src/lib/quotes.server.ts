@@ -7,7 +7,6 @@ import { inboundAddressFor } from './inbound'
 import type { VerifiedContact } from './contact'
 import { replyByDate } from './email.server'
 import {
-  BUSINESS,
   P10_SELLER_CONTACT_READ,
   P11_QUOTE_REQUEST,
   P9_SELLER_CONTACT,
@@ -15,6 +14,7 @@ import {
 import { invoicePeriod, observationsByProduct } from './queries.server'
 import { productInsight } from './savings'
 import { EmailDraft, SellerContact } from './schemas'
+import { getSettings, replyCc, withBusiness } from './settings.server'
 import { db, mustOne } from './supabase.server'
 import { baseUnitsPerPack, describePack, isRawUnit } from './units'
 
@@ -67,7 +67,7 @@ export async function sellerContact(supplierId: string): Promise<QuoteContact> {
   try {
     research = await searchWeb({
       name: 'contact',
-      system: P9_SELLER_CONTACT,
+      system: withBusiness(P9_SELLER_CONTACT, await getSettings()),
       prompt: [
         `Seller: ${seller.name}`,
         seller.website ? `Website: ${seller.website}` : null,
@@ -202,10 +202,8 @@ export async function draftQuoteRequest(offerId: string) {
       weekly != null && ownerPack ? `about ${weekly} x ${ownerPack}` : null,
   }
 
-  const system = P11_QUOTE_REQUEST.replace(
-    '{owner_name}',
-    BUSINESS.owner,
-  ).replace('{business_name}', BUSINESS.name)
+  const settings = await getSettings()
+  const system = withBusiness(P11_QUOTE_REQUEST, settings)
   const raw = await askJSON({
     name: 'quote',
     system,
@@ -214,7 +212,7 @@ export async function draftQuoteRequest(offerId: string) {
     effort: 'low',
     maxTokens: 4000,
   })
-  const date = replyByDate()
+  const date = replyByDate(settings.reply_by_days)
   const draft = {
     subject: raw.subject.replaceAll('{reply_by_date}', date),
     body: raw.body.replaceAll('{reply_by_date}', date),
@@ -239,7 +237,8 @@ export async function draftQuoteRequest(offerId: string) {
   return {
     id: row.id,
     supplier: { name: seller.name, email: contact.email },
-    reply_cc: inboundAddressFor(process.env.INBOUND_EMAIL_ADDRESS, row.id),
+    reply_cc: replyCc(settings, inboundAddressFor, row.id),
+    reply_bcc: settings.bcc_email,
     contact,
     ...draft,
   }

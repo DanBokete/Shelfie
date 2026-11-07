@@ -90,7 +90,7 @@ export const P8_WEB_PRICE_READ = `Turn these price research notes into offers. U
 - promo: true when the price is a temporary offer.
 - confidence: 0 to 1, how sure you are that the price, pack size and match are right.`
 
-export const P9_SELLER_CONTACT = `A cafe owner in Cork, Ireland found a seller online and wants to ask them for a trade quote.
+export const P9_SELLER_CONTACT = `A cafe owner in {town}, Ireland found a seller online and wants to ask them for a trade quote.
 Find out, from the seller's own website, whether they sell to businesses (trade accounts, wholesale, catering, cash and carry, business delivery) and how a business gets in touch: a sales or trade email address, a phone number, or a business enquiry page.
 Search, then open the seller's pages to read the details. Only report an email or phone number you read on a page in this session. Never guess one from the domain name, and never use a personal email.
 Prefer a trade, sales, wholesale or business email over a general customer-service one.
@@ -105,10 +105,10 @@ export const P10_SELLER_CONTACT_READ = `Turn these notes about a seller into con
 export const P11_QUOTE_REQUEST = `Write a short email from a cafe owner to a seller they have never bought from, asking for a trade quote.
 Friendly and businesslike, under 150 words, plain English, no subject line inside the body.
 Introduce the business in one line. Name each product with the pack and the typical weekly quantity given, and say the owner saw it listed at the price given (use that exact figure).
-Ask for their trade price list or a quote, delivery to Cork and any minimum order, and how to open an account.
+Ask for their trade price list or a quote, delivery to {town} and any minimum order, and how to open an account.
 Do NOT name the owner's current supplier or what the owner pays now.
 Ask for a reply by a date: write the literal placeholder {reply_by_date} where the date goes, and it will be filled in.
-Sign off as {owner_name}, {business_name}, Cork.
+Sign off as {owner_name}, {business_name}, {town}.
 Return subject and body.`
 
 export const P12_REPLY_READ = `A supplier or seller replied to a cafe owner in Ireland. You get the email text and any attachments.

@@ -2,6 +2,7 @@ import { timingSafeEqual } from 'node:crypto'
 import { createFileRoute } from '@tanstack/react-router'
 import { handle, jsonError } from '#/lib/http.server'
 import { parsePostmark, receiveInbound } from '#/lib/inbound.server'
+import { getSettings, webhookSecret } from '#/lib/settings.server'
 
 function same(a: string, b: string): boolean {
   const x = Buffer.from(a)
@@ -10,9 +11,7 @@ function same(a: string, b: string): boolean {
 }
 
 /** The webhook URL carries the secret: https://user:SECRET@host/api/email/inbound, or ?secret=SECRET. */
-function authorised(request: Request): boolean {
-  const secret = process.env.INBOUND_WEBHOOK_SECRET
-  if (!secret) return false
+function authorised(request: Request, secret: string): boolean {
   const url = new URL(request.url)
   const query = url.searchParams.get('secret')
   if (query && same(query, secret)) return true
@@ -27,17 +26,24 @@ function authorised(request: Request): boolean {
 
 // POST: Postmark's inbound webhook. Keeps the reply, ties it to the request it answers and
 // reads it. Always answers 200 for a message it has stored, so Postmark does not retry it.
+// The secret and the on/off switch come from Settings, with .env as the fallback secret.
 export const Route = createFileRoute('/api/email/inbound')({
   server: {
     handlers: {
       POST: ({ request }) =>
         handle(async () => {
-          if (!process.env.INBOUND_WEBHOOK_SECRET)
+          const settings = await getSettings()
+          const secret = webhookSecret(settings)
+          if (!secret)
             return jsonError(
               503,
-              'Reply scanning is not set up: INBOUND_WEBHOOK_SECRET is missing.',
+              'Reply scanning is not set up: generate a webhook secret in Settings.',
             )
-          if (!authorised(request)) return jsonError(401, 'Unauthorised')
+          if (!authorised(request, secret))
+            return jsonError(401, 'Unauthorised')
+          // Turned off: accept and drop, so Postmark does not keep retrying.
+          if (!settings.reply_scanning)
+            return Response.json({ ignored: 'reply scanning is off' })
           const msg = parsePostmark(await request.json())
           return Response.json(await receiveInbound(msg))
         }),

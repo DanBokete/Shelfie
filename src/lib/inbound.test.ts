@@ -179,6 +179,21 @@ describe('matchReply', () => {
     expect(m?.draft_id).toBe(D2)
   })
 
+  it('matches only by plus-address when matching by sender is turned off', () => {
+    const off = { plus_draft_id: null, drafts, suppliers, by_sender: false }
+    expect(matchReply({ ...off, from: 'sales@munster-fresh.ie' })).toBeNull()
+    expect(matchReply({ ...off, from: 'anna@leevalley.ie' })).toBeNull()
+    expect(
+      matchReply({
+        from: 'sales@munster-fresh.ie',
+        plus_draft_id: D2,
+        drafts,
+        suppliers,
+        by_sender: false,
+      })?.method,
+    ).toBe('plus_address')
+  })
+
   it('matches a colleague by company domain (supplier website)', () => {
     expect(
       matchReply({
