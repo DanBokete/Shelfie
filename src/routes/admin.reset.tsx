@@ -1,6 +1,8 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Icon, Spinner } from '#/components/Icon'
+import { postJSON } from '#/lib/api'
+import { dateTime } from '#/lib/format'
 import { adminAction, getAdminStatus } from '#/server/fns'
 
 export const Route = createFileRoute('/admin/reset')({
@@ -14,7 +16,7 @@ export const Route = createFileRoute('/admin/reset')({
   }),
 })
 
-type Action = 'restore' | 'wipe' | 'snapshot'
+type Action = 'restore' | 'wipe' | 'snapshot' | 'telegram'
 
 function AdminReset() {
   const status = Route.useLoaderData()
@@ -24,7 +26,21 @@ function AdminReset() {
     null,
   )
 
-  async function act(action: Action) {
+  async function sendTest() {
+    setBusy('telegram')
+    setResult(null)
+    try {
+      await postJSON('/api/alerts/send', { kind: 'test' })
+      setResult({ ok: true, text: 'Test message sent to Telegram.' })
+    } catch (e) {
+      setResult({ ok: false, text: e instanceof Error ? e.message : 'Failed' })
+    } finally {
+      setBusy(null)
+      await router.invalidate()
+    }
+  }
+
+  async function act(action: Exclude<Action, 'telegram'>) {
     if (
       action === 'wipe' &&
       !window.confirm(
@@ -107,7 +123,43 @@ function AdminReset() {
           value={status.has_api_key ? 'Set' : 'Missing'}
           warn={!status.has_api_key && !status.demo_mode}
         />
+        <Row
+          label="Telegram alerts"
+          value={
+            status.telegram.configured
+              ? 'Set up'
+              : `Missing ${status.telegram.missing.join(', ')}`
+          }
+          warn={!status.telegram.configured}
+        />
+        <Row
+          label="Last alert"
+          value={
+            status.last_alert
+              ? `${status.last_alert.ok === false ? 'Failed' : status.last_alert.ok ? 'Sent' : 'Sending'}, ${dateTime(status.last_alert.sent_at)}`
+              : 'None yet'
+          }
+          warn={status.last_alert?.ok === false}
+        />
+        {status.last_alert?.ok === false && status.last_alert.error && (
+          <p className="px-4 py-3 text-sm text-rust">
+            {status.last_alert.error}
+          </p>
+        )}
       </section>
+
+      <button
+        className="btn-secondary w-full"
+        disabled={busy != null}
+        onClick={() => void sendTest()}
+      >
+        {busy === 'telegram' ? (
+          <Spinner className="h-4 w-4" />
+        ) : (
+          <Icon name="mail" className="h-4 w-4" />
+        )}{' '}
+        Send test message
+      </button>
 
       <div className="grid grid-cols-2 gap-2">
         <button
@@ -139,9 +191,11 @@ function Row({
   warn?: boolean
 }) {
   return (
-    <div className="flex items-center justify-between px-4 py-3 text-sm">
-      <span className="text-muted">{label}</span>
-      <span className={`font-medium ${warn ? 'text-rust' : ''}`}>{value}</span>
+    <div className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
+      <span className="shrink-0 text-muted">{label}</span>
+      <span className={`text-right font-medium ${warn ? 'text-rust' : ''}`}>
+        {value}
+      </span>
     </div>
   )
 }

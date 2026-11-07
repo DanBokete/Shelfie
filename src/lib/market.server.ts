@@ -1,6 +1,7 @@
 // Live competitor prices. One check searches the web for one product, keeps the offers
 // that are the same product or a close equivalent, and stores each as a dated 'web' price.
 // The model only reads what the pages say: every stored number comes from lib/units.ts.
+import { notifyWebDeal } from './alerts.server'
 import { askJSON, searchWeb } from './claude.server'
 import { pageKey } from './contact'
 import type { WebSource } from './claude.server'
@@ -263,6 +264,20 @@ export async function checkProductPrices(
         'save web prices',
       )
 
+    // Tell the owner on Telegram when a price that counts is 5% or more below theirs.
+    // notifyWebDeal never throws, so a failed alert cannot fail the check.
+    const counting = rows.filter(countsTowardSavings)
+    if (current && counting.length)
+      await notifyWebDeal({
+        product,
+        current,
+        offers: counting.map((r) => ({
+          seller: sellers.get(r.supplier_id) ?? 'another seller',
+          ppu: r.price_per_base_unit,
+        })),
+        observations: obs,
+      })
+
     return must(
       await db()
         .from('price_checks')
@@ -294,6 +309,18 @@ export async function checkProductPrices(
       .eq('id', check.id)
     throw err
   }
+}
+
+/** A web price counts towards savings once its VAT is known and the page copy is fresh. */
+function countsTowardSavings(r: {
+  observed_at: string
+  review_reasons: Array<string>
+}): boolean {
+  return (
+    r.review_reasons.every((x) => x.startsWith('Match:')) &&
+    Date.now() - Date.parse(r.observed_at) <=
+      WEB_PRICE_MAX_AGE_DAYS * 86_400_000
+  )
 }
 
 /** A check still 'running' after this long died with the server. */
@@ -443,9 +470,7 @@ function summarise(
 ): string {
   const isOld = (r: (typeof rows)[number]) =>
     Date.now() - Date.parse(r.observed_at) > WEB_PRICE_MAX_AGE_DAYS * 86_400_000
-  const fresh = rows.filter(
-    (r) => r.review_reasons.every((x) => x.startsWith('Match:')) && !isOld(r),
-  )
+  const fresh = rows.filter(countsTowardSavings)
   if (fresh.length === 0) {
     const old = rows.filter(isOld)
     if (old.length === rows.length) {

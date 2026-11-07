@@ -86,8 +86,44 @@ What happens to a reply:
 - Invoice attachments go through the normal invoice reader.
 - Quotes and price lists (an attachment or the email body) become prices with source `quote`. They are matched to products like any other price, so the item screen and savings use them straight away.
 - A line that is hard to read, or has no usable pack size, waits in "Check matches" and stays out of savings until you confirm it.
-- When a quote is below what the owner pays now, `notifyBetterQuote` in `src/lib/alerts.server.ts` is called.
+- When a quote is below what the owner pays now, `notifyBetterQuote` in `src/lib/alerts.server.ts` sends a Telegram alert (see below).
 - Postmark may retry a webhook: each message is read once.
+
+## Telegram alerts
+
+The owner hears about better deals on Telegram without opening the app.
+Every message is a fixed template in `src/lib/alerts.ts`, never written by a model, and every number in it comes from `src/lib/savings.ts`.
+
+- A supplier's emailed quote is below what the owner pays.
+- A web price check finds a price 5% or more below what the owner pays.
+- The weekly summary: prices that went up 3% or more on this week's invoices, and the biggest saving not yet acted on (no email drafted about it since the current price).
+  With the mock data, "this week" is the 7 days up to the latest invoice date, not up to today.
+  The hidden "Send this week's alert" link at the bottom of the home page sends it now (`POST /api/alerts/send`); a real product would send it on a schedule.
+
+Every attempt is recorded in `alerts_sent`, including failed ones.
+The same deal (product, seller and price to the cent per litre, kg or item) is only sent once; a failed send can go again.
+The weekly summary and test messages can be re-sent on purpose.
+Sending never breaks the caller: with Telegram not set up or offline, reply scanning and price checks carry on, and `/admin/reset` shows the last failure.
+
+Setup:
+
+1. In Telegram, open a chat with [@BotFather](https://t.me/BotFather), send `/newbot` and follow the prompts.
+   It replies with a token like `123456789:AA...`.
+   Put it in `TELEGRAM_BOT_TOKEN`.
+2. On the demo phone, open the new bot (BotFather links to it) and press Start, or send it any message.
+   A bot can only message someone who has started a chat with it.
+3. Find the chat id:
+
+   ```bash
+   curl -s "https://api.telegram.org/bot<token>/getUpdates" | grep -oE '"chat":\{"id":-?[0-9]+'
+   ```
+
+   Put the number in `TELEGRAM_CHAT_ID`.
+   If nothing comes back, send the bot another message and try again.
+
+4. Set `APP_URL` to where the owner opens Shelfie, for example the deployed URL or a tunnel.
+   Links in alerts point there.
+5. Restart the dev server, open `/admin/reset` and press "Send test message".
 
 ## How it works
 
@@ -128,6 +164,7 @@ barcode/photo ─────┘   (Claude)   (aliases,         └─> email dr
 
 ### Not built yet
 
-- Telegram weekly alert, price history chart (stretch goals).
+- Price history chart (stretch goal).
+- Sending the weekly Telegram summary on a schedule.
 - Vercel deployment.
   On Vercel, `data/cache` and `data/snapshot` are read-only, so demo mode and reset are meant for the local laptop setup.

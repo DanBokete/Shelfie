@@ -21,6 +21,7 @@ const TABLES = [
   'stock_uploads',
   'stock_items',
   'email_drafts',
+  'alerts_sent',
 ] as const
 
 async function selectAll(

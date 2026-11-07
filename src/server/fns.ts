@@ -8,6 +8,7 @@ import {
   snapshotInfo,
   wipe,
 } from '#/lib/admin.server'
+import { lastAlert, telegramStatus } from '#/lib/alerts.server'
 import { demoMode, model } from '#/lib/claude.server'
 import { updateDraft } from '#/lib/email.server'
 import { inboundOverview, reprocessInbound } from '#/lib/inbound.server'
@@ -165,6 +166,8 @@ export const getAdminStatus = createServerFn({ method: 'GET' }).handler(
     demo_mode: demoMode(),
     model: model(),
     has_api_key: Boolean(process.env.ANTHROPIC_API_KEY),
+    telegram: telegramStatus(),
+    last_alert: await lastAlert(),
   }),
 )
 

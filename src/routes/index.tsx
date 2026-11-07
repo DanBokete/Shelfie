@@ -1,11 +1,13 @@
 import { Link, createFileRoute, useLoaderData } from '@tanstack/react-router'
+import { useState } from 'react'
 import {
   PriceSparkline,
   SavingBar,
   SupplierSplit,
   WeeklySpendChart,
 } from '#/components/Charts'
-import { Icon } from '#/components/Icon'
+import { Icon, Spinner } from '#/components/Icon'
+import { postJSON } from '#/lib/api'
 import { euro, pct, shortDate } from '#/lib/format'
 import { standardQuantity } from '#/lib/units'
 import type { BaseUnit } from '#/lib/units'
@@ -198,6 +200,56 @@ function Home() {
           </section>
         )}
       </div>
+
+      {!empty && <WeeklyAlertButton />}
+    </div>
+  )
+}
+
+/**
+ * Sends this week's Telegram summary now. Kept out of the way on purpose: a real product
+ * would send it on a schedule, this is for showing it on stage.
+ */
+function WeeklyAlertButton() {
+  const [busy, setBusy] = useState(false)
+  const [result, setResult] = useState<{ ok: boolean; text: string } | null>(
+    null,
+  )
+
+  async function send() {
+    setBusy(true)
+    setResult(null)
+    try {
+      await postJSON('/api/alerts/send', { kind: 'weekly' })
+      setResult({ ok: true, text: 'Sent to Telegram.' })
+    } catch (e) {
+      setResult({
+        ok: false,
+        text: e instanceof Error ? e.message : 'Not sent.',
+      })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-1 pt-2 pb-4 text-xs">
+      <button
+        className="inline-flex items-center gap-1.5 rounded px-2 py-1 text-muted/60 hover:text-muted disabled:opacity-60"
+        disabled={busy}
+        onClick={() => void send()}
+      >
+        {busy && <Spinner className="h-3 w-3" />}
+        Send this week's alert
+      </button>
+      {result && (
+        <p
+          role="status"
+          className={`max-w-md text-center ${result.ok ? 'text-brand-dark' : 'text-rust'}`}
+        >
+          {result.text}
+        </p>
+      )}
     </div>
   )
 }
