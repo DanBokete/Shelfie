@@ -67,6 +67,28 @@ Real crumpled photos are still worth adding by hand before the pitch.
 - Run the whole flow once with the API key, then set `DEMO_MODE=true` to serve every Claude answer from `data/cache` with no network.
   Photo identification of a new photo can't be cached, so rehearse scanning with barcodes.
 
+## Reading supplier replies
+
+When a supplier or seller replies to an "Ask to match" or "Ask for a quote" email with a quote, price list or invoice, Shelfie reads it and updates prices.
+The email still goes out from the owner's own mail app (a `mailto:` link), so the link also CCs a per-request Shelfie address.
+Reply-all copies Shelfie, and the address names the request, so the reply is tied to the right supplier and product.
+If the supplier hits plain Reply instead, Shelfie falls back to the sender's email address, then their company domain.
+A reply nothing matches is kept and shown under "Replies" on the Invoices page, where you pick the supplier to read it.
+
+Setup (Postmark inbound):
+
+1. In Postmark, open a server's Inbound stream. Its inbound address looks like `abc123@inbound.postmarkapp.com`. Put it in `INBOUND_EMAIL_ADDRESS`.
+2. Set `INBOUND_WEBHOOK_SECRET` to a long random string.
+3. Set the Inbound webhook URL to `https://<your-host>/api/email/inbound?secret=<that string>`. Locally, expose port 3000 with a tunnel (for example `cloudflared tunnel --url http://localhost:3000`) and use the tunnel URL.
+
+What happens to a reply:
+
+- Invoice attachments go through the normal invoice reader.
+- Quotes and price lists (an attachment or the email body) become prices with source `quote`. They are matched to products like any other price, so the item screen and savings use them straight away.
+- A line that is hard to read, or has no usable pack size, waits in "Check matches" and stays out of savings until you confirm it.
+- When a quote is below what the owner pays now, `notifyBetterQuote` in `src/lib/alerts.server.ts` is called.
+- Postmark may retry a webhook: each message is read once.
+
 ## How it works
 
 ```

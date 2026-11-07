@@ -116,6 +116,31 @@ export const WebOffer = z.object({
 export type WebOffer = z.infer<typeof WebOffer>
 export const WebOffers = z.object({ offers: z.array(WebOffer) })
 
+// P12: a supplier's reply. Quotes and price lists have no quantities or line totals.
+export const QuoteLine = z.object({
+  description: z.string(), // exactly as written
+  pack_price: z.number().nullable(), // price for ONE pack as quoted; null when there is no price
+  pack_size: z.number().nullable(),
+  pack_unit: z.enum(['ml', 'cl', 'l', 'g', 'kg', 'each']).nullable(),
+  units_per_case: z.number().int().nullable(),
+  confidence,
+})
+export type QuoteLine = z.infer<typeof QuoteLine>
+
+export const ReplyDocument = z.object({
+  source: z.string(), // 'email body', or the attachment file name exactly as given
+  kind: z.enum(['quote', 'price_list', 'invoice', 'other']),
+  supplier_name: z.string().nullable(),
+  document_date: z.string().nullable(), // YYYY-MM-DD, or null
+  prices_include_vat: z.boolean(),
+  vat_rate_percent: z.number().nullable(),
+  lines: z.array(QuoteLine), // empty for invoices and 'other'
+})
+export type ReplyDocument = z.infer<typeof ReplyDocument>
+
+export const ReplyRead = z.object({ documents: z.array(ReplyDocument) })
+export type ReplyRead = z.infer<typeof ReplyRead>
+
 // P10: how to reach a seller found online
 export const SellerContact = z.object({
   sells_to_trade: z.enum(['yes', 'no', 'unknown']),

@@ -2,18 +2,25 @@ import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { Icon, Spinner } from '#/components/Icon'
 import { LineFixer } from '#/components/LineFixer'
+import { Replies } from '#/components/Replies'
 import { pool, postFile, postJSON } from '#/lib/api'
 import { prepareUpload } from '#/lib/client-files'
 import { euro, pack, pct, shortDate } from '#/lib/format'
-import { getInvoiceLines, getInvoices, getReviewQueue } from '#/server/fns'
+import {
+  getInvoiceLines,
+  getInvoices,
+  getReplies,
+  getReviewQueue,
+} from '#/server/fns'
 
 export const Route = createFileRoute('/invoices')({
   loader: async () => {
-    const [invoices, review] = await Promise.all([
+    const [invoices, review, replies] = await Promise.all([
       getInvoices(),
       getReviewQueue(),
+      getReplies(),
     ])
-    return { invoices, review }
+    return { invoices, review, replies }
   },
   component: InvoicesPage,
   head: () => ({ meta: [{ title: 'Invoices - Shelfie' }] }),
@@ -40,7 +47,7 @@ const ACCEPT =
   'application/pdf,image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif'
 
 function InvoicesPage() {
-  const { invoices, review } = Route.useLoaderData()
+  const { invoices, review, replies } = Route.useLoaderData()
   const router = useRouter()
   const [queue, setQueue] = useState<Array<QueueItem>>([])
   const [dragging, setDragging] = useState(false)
@@ -229,6 +236,8 @@ function InvoicesPage() {
           </ul>
         )}
       </section>
+
+      <Replies initial={replies} onRead={() => void router.invalidate()} />
 
       <section className="space-y-3">
         <h2 className="text-lg font-bold">All invoices</h2>
@@ -457,7 +466,9 @@ function ReviewCard({ row, onDone }: { row: ReviewRow; onDone: () => void }) {
           {row.suppliers?.name} ·{' '}
           {row.source === 'price_list'
             ? 'Price list'
-            : `Invoice ${row.invoices?.invoice_number ?? ''}`}{' '}
+            : row.source === 'quote'
+              ? 'Quote'
+              : `Invoice ${row.invoices?.invoice_number ?? ''}`}{' '}
           · {shortDate(row.observed_on)}
         </p>
       </div>

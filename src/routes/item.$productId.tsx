@@ -356,6 +356,7 @@ const SOURCE_LABEL = {
   invoice: 'Invoice',
   price_list: 'Price list',
   web: 'Online',
+  quote: 'Quote',
 } as const
 
 type Live = Awaited<ReturnType<typeof getProductPriceChecks>>

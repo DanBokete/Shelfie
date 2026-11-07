@@ -16,6 +16,7 @@ const TABLES = [
   'invoices',
   'product_aliases',
   'price_checks',
+  'inbound_emails',
   'price_observations',
   'stock_uploads',
   'stock_items',

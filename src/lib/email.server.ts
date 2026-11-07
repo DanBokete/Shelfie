@@ -1,5 +1,6 @@
 // Feature 5: negotiation email drafts. Claude writes the words; the figures come from our code.
 import { askJSON } from './claude.server'
+import { inboundAddressFor } from './inbound'
 import { BUSINESS, P6_NEGOTIATION_EMAIL } from './prompts'
 import { EmailDraft } from './schemas'
 import { db, must } from './supabase.server'
@@ -83,7 +84,12 @@ export async function draftEmail(supplierId: string, items: Array<EmailItem>) {
       .single(),
     'save draft',
   ) as { id: string }
-  return { id: row.id, supplier, ...draft }
+  return {
+    id: row.id,
+    supplier,
+    reply_cc: inboundAddressFor(process.env.INBOUND_EMAIL_ADDRESS, row.id),
+    ...draft,
+  }
 }
 
 export async function updateDraft(

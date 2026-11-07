@@ -19,8 +19,8 @@ export interface Observation {
   source_url?: string | null // the product page, for web prices
 }
 
-/** Where a price came from. 'web' is a competitor's live price found online. */
-export type PriceSource = 'invoice' | 'price_list' | 'web'
+/** Where a price came from. 'web' is a competitor's live price found online; 'quote' is one a seller sent in an email reply. */
+export type PriceSource = 'invoice' | 'price_list' | 'web' | 'quote'
 
 export interface SupplierPrice {
   supplier_id: string

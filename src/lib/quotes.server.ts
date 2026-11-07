@@ -3,6 +3,7 @@
 // search read (lib/contact.ts). The figures in the email come from our code, not the model.
 import { AIError, askJSON, searchWeb } from './claude.server'
 import { verifyContact } from './contact'
+import { inboundAddressFor } from './inbound'
 import type { VerifiedContact } from './contact'
 import { replyByDate } from './email.server'
 import {
@@ -238,6 +239,7 @@ export async function draftQuoteRequest(offerId: string) {
   return {
     id: row.id,
     supplier: { name: seller.name, email: contact.email },
+    reply_cc: inboundAddressFor(process.env.INBOUND_EMAIL_ADDRESS, row.id),
     contact,
     ...draft,
   }

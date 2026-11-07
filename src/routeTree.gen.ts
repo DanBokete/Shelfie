@@ -19,6 +19,7 @@ import { Route as ApiAuditRouteImport } from './routes/api/audit'
 import { Route as ApiMatchRouteImport } from './routes/api/match'
 import { Route as ItemProductIdRouteImport } from './routes/item.$productId'
 import { Route as ApiEmailDraftRouteImport } from './routes/api/email.draft'
+import { Route as ApiEmailInboundRouteImport } from './routes/api/email.inbound'
 import { Route as ApiInvoicesExtractRouteImport } from './routes/api/invoices.extract'
 import { Route as ApiPricesCheckRouteImport } from './routes/api/prices.check'
 import { Route as ApiScanIdentifyRouteImport } from './routes/api/scan.identify'
@@ -73,6 +74,11 @@ const ApiEmailDraftRoute = ApiEmailDraftRouteImport.update({
   path: '/api/email/draft',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEmailInboundRoute = ApiEmailInboundRouteImport.update({
+  id: '/api/email/inbound',
+  path: '/api/email/inbound',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiInvoicesExtractRoute = ApiInvoicesExtractRouteImport.update({
   id: '/api/invoices/extract',
   path: '/api/invoices/extract',
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/api/match': typeof ApiMatchRoute
   '/item/$productId': typeof ItemProductIdRoute
   '/api/email/draft': typeof ApiEmailDraftRoute
+  '/api/email/inbound': typeof ApiEmailInboundRoute
   '/api/invoices/extract': typeof ApiInvoicesExtractRoute
   '/api/prices/check': typeof ApiPricesCheckRoute
   '/api/scan/identify': typeof ApiScanIdentifyRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/api/match': typeof ApiMatchRoute
   '/item/$productId': typeof ItemProductIdRoute
   '/api/email/draft': typeof ApiEmailDraftRoute
+  '/api/email/inbound': typeof ApiEmailInboundRoute
   '/api/invoices/extract': typeof ApiInvoicesExtractRoute
   '/api/prices/check': typeof ApiPricesCheckRoute
   '/api/scan/identify': typeof ApiScanIdentifyRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/api/match': typeof ApiMatchRoute
   '/item/$productId': typeof ItemProductIdRoute
   '/api/email/draft': typeof ApiEmailDraftRoute
+  '/api/email/inbound': typeof ApiEmailInboundRoute
   '/api/invoices/extract': typeof ApiInvoicesExtractRoute
   '/api/prices/check': typeof ApiPricesCheckRoute
   '/api/scan/identify': typeof ApiScanIdentifyRoute
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/api/match'
     | '/item/$productId'
     | '/api/email/draft'
+    | '/api/email/inbound'
     | '/api/invoices/extract'
     | '/api/prices/check'
     | '/api/scan/identify'
@@ -163,6 +173,7 @@ export interface FileRouteTypes {
     | '/api/match'
     | '/item/$productId'
     | '/api/email/draft'
+    | '/api/email/inbound'
     | '/api/invoices/extract'
     | '/api/prices/check'
     | '/api/scan/identify'
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/api/match'
     | '/item/$productId'
     | '/api/email/draft'
+    | '/api/email/inbound'
     | '/api/invoices/extract'
     | '/api/prices/check'
     | '/api/scan/identify'
@@ -194,6 +206,7 @@ export interface RootRouteChildren {
   ApiMatchRoute: typeof ApiMatchRoute
   ItemProductIdRoute: typeof ItemProductIdRoute
   ApiEmailDraftRoute: typeof ApiEmailDraftRoute
+  ApiEmailInboundRoute: typeof ApiEmailInboundRoute
   ApiInvoicesExtractRoute: typeof ApiInvoicesExtractRoute
   ApiPricesCheckRoute: typeof ApiPricesCheckRoute
   ApiScanIdentifyRoute: typeof ApiScanIdentifyRoute
@@ -271,6 +284,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEmailDraftRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/email/inbound': {
+      id: '/api/email/inbound'
+      path: '/api/email/inbound'
+      fullPath: '/api/email/inbound'
+      preLoaderRoute: typeof ApiEmailInboundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/invoices/extract': {
       id: '/api/invoices/extract'
       path: '/api/invoices/extract'
@@ -306,6 +326,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMatchRoute: ApiMatchRoute,
   ItemProductIdRoute: ItemProductIdRoute,
   ApiEmailDraftRoute: ApiEmailDraftRoute,
+  ApiEmailInboundRoute: ApiEmailInboundRoute,
   ApiInvoicesExtractRoute: ApiInvoicesExtractRoute,
   ApiPricesCheckRoute: ApiPricesCheckRoute,
   ApiScanIdentifyRoute: ApiScanIdentifyRoute,

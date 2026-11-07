@@ -10,6 +10,7 @@ import {
 } from '#/lib/admin.server'
 import { demoMode, model } from '#/lib/claude.server'
 import { updateDraft } from '#/lib/email.server'
+import { inboundOverview, reprocessInbound } from '#/lib/inbound.server'
 import { livePricesOverview, productPriceChecks } from '#/lib/market.server'
 import {
   findByBarcode,
@@ -116,6 +117,14 @@ export const saveDraft = createServerFn({ method: 'POST' })
     }),
   )
   .handler(({ data }) => updateDraft(data.id, data))
+
+export const getReplies = createServerFn({ method: 'GET' }).handler(() =>
+  inboundOverview(),
+)
+
+export const retryReply = createServerFn({ method: 'POST' })
+  .validator(z.object({ id: z.uuid(), supplier_id: z.uuid().optional() }))
+  .handler(({ data }) => reprocessInbound(data.id, data.supplier_id))
 
 export const getAdminStatus = createServerFn({ method: 'GET' }).handler(
   async () => ({
