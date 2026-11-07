@@ -1,4 +1,5 @@
 // Feature 5: negotiation email drafts. Claude writes the words; the figures come from our code.
+import { reductionPercent } from './ask'
 import { askJSON } from './claude.server'
 import { inboundAddressFor } from './inbound'
 import { P6_NEGOTIATION_EMAIL } from './prompts'
@@ -17,10 +18,6 @@ export interface EmailItem {
   your_price: number
   best_price: number
   weekly_quantity: number | null
-}
-
-function euro(n: number): string {
-  return `€${n.toFixed(2)}`
 }
 
 /** A reply date `days` out (a week by default), written out in full so the email is unambiguous. */
@@ -46,13 +43,21 @@ export async function draftEmail(supplierId: string, items: Array<EmailItem>) {
   // The reply date is filled in after generation so cached drafts stay correct on any day.
   const settings = await getSettings()
   const system = withBusiness(P6_NEGOTIATION_EMAIL, settings)
+  // Only products where a lower price was found, each with the percentage to ask for.
+  const asks = items
+    .map((i) => ({
+      ...i,
+      percent: reductionPercent(i.your_price, i.best_price),
+    }))
+    .filter((i) => i.percent > 0)
+  if (asks.length === 0)
+    throw new Error('There is no lower price to ask this supplier to match.')
   const facts = {
     supplier: supplier.name,
-    items: items.map((i) => ({
+    items: asks.map((i) => ({
       product: i.product_name,
       pack: i.pack_label,
-      current_price: euro(i.your_price),
-      price_found_elsewhere: euro(i.best_price),
+      reduction_percent: i.percent,
       typical_weekly_quantity:
         i.weekly_quantity == null
           ? null

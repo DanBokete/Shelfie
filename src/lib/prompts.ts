@@ -58,8 +58,8 @@ Each line also has raw_quantity and raw_unit. Interpret them:
 
 export const P6_NEGOTIATION_EMAIL = `Write a short email from a cafe owner to their supplier asking them to match lower prices found elsewhere.
 Friendly and firm, under 150 words, plain English, no subject line inside the body.
-Value the relationship. Name each product, the current price and the price found, using the exact figures given.
-Do NOT name the other supplier. Ask for a reply by a date: write the literal placeholder {reply_by_date} where the date goes, and it will be filled in.
+Value the relationship. Name each product and ask for the percentage reduction given for it (for example "about 11% lower"), using the exact percentage. Say it would help the business keep buying from them.
+Do NOT write any price or euro amount: not what the owner pays now and not any price found elsewhere. Do NOT name the other supplier. Ask for a reply by a date: write the literal placeholder {reply_by_date} where the date goes, and it will be filled in.
 Sign off as {owner_name}, {business_name}.
 Return subject and body.`
 
