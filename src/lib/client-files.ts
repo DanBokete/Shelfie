@@ -9,25 +9,16 @@ export function isHeic(file: File): boolean {
 export async function prepareUpload(
   file: File,
 ): Promise<{ blob: Blob; name: string }> {
-  let blob: Blob = file
-  let name = file.name
-  if (isHeic(file)) {
-    const { default: heic2any } = await import('heic2any')
-    const out = await heic2any({
-      blob: file,
-      toType: 'image/jpeg',
-      quality: 0.9,
-    })
-    blob = Array.isArray(out) ? out[0] : out
-    name = name.replace(/\.(heic|heif)$/i, '.jpg')
-  }
-  if (!blob.type.startsWith('image/') || blob.type === 'image/gif')
-    return { blob, name }
-  const bitmap = await createImageBitmap(blob)
+  const heic = isHeic(file)
+  if (!heic && (!file.type.startsWith('image/') || file.type === 'image/gif'))
+    return { blob: file, name: file.name }
+
+  // Most browsers cannot decode HEIC themselves, so it is decoded with libheif (WASM).
+  const bitmap = heic ? await decodeHeic(file) : await createImageBitmap(file)
   const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height))
-  if (scale === 1 && blob.size < 3_000_000) {
+  if (!heic && scale === 1 && file.size < 3_000_000) {
     bitmap.close()
-    return { blob, name }
+    return { blob: file, name: file.name }
   }
   const canvas = document.createElement('canvas')
   canvas.width = Math.round(bitmap.width * scale)
@@ -42,5 +33,17 @@ export async function prepareUpload(
       0.85,
     ),
   )
-  return { blob: jpeg, name: name.replace(/\.[a-z0-9]+$/i, '') + '.jpg' }
+  return { blob: jpeg, name: file.name.replace(/\.[a-z0-9]+$/i, '') + '.jpg' }
+}
+
+async function decodeHeic(file: File): Promise<ImageBitmap> {
+  const { heicTo } = await import('heic-to')
+  try {
+    return await heicTo({ blob: file, type: 'bitmap' })
+  } catch (e) {
+    console.error('HEIC decode failed', e)
+    throw new Error(
+      "Couldn't read this HEIC photo. Try exporting it as JPEG and uploading that.",
+    )
+  }
 }

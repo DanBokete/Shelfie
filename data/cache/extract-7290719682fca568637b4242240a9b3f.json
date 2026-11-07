@@ -1,0 +1,313 @@
+{
+  "name": "extract",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T19:25:09.271Z",
+  "output": {
+    "supplier_name": "LEE VALLEY WHOLESALE",
+    "invoice_number": "LVW-104819",
+    "invoice_date": "2026-09-07",
+    "prices_include_vat": false,
+    "vat_rate_percent": null,
+    "subtotal_ex_vat": 1125.89,
+    "adjustments": [],
+    "lines": [
+      {
+        "description": "AVONM WHL 2LTR",
+        "quantity": 72,
+        "pack_price": 2.12,
+        "line_total": 152.64,
+        "pack_size": 2,
+        "pack_unit": "l",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "AVONM S/SKIM 2LTR",
+        "quantity": 10,
+        "pack_price": 2.05,
+        "line_total": 20.5,
+        "pack_size": 2,
+        "pack_unit": "l",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "OATLY BARISTA 1LTR X6",
+        "quantity": 5,
+        "pack_price": 15.9,
+        "line_total": 79.5,
+        "pack_size": 1,
+        "pack_unit": "l",
+        "units_per_case": 6,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "LVW ESPRESSO BEANS 1KG",
+        "quantity": 11,
+        "pack_price": 21.5,
+        "line_total": 236.5,
+        "pack_size": 1,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "LVW DECAF BEANS 500G",
+        "quantity": 1,
+        "pack_price": 13.2,
+        "line_total": 13.2,
+        "pack_size": 500,
+        "pack_unit": "g",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "KGOLD BUTTER 20X454G",
+        "quantity": 1,
+        "pack_price": 85.7,
+        "line_total": 85.7,
+        "pack_size": 454,
+        "pack_unit": "g",
+        "units_per_case": 20,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "CHEDDAR MATURE WHT 2.5KG",
+        "quantity": 2,
+        "pack_price": 25.5,
+        "line_total": 51,
+        "pack_size": 2.5,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "MOZZARELLA GRATED 2KG",
+        "quantity": 1,
+        "pack_price": 15.8,
+        "line_total": 15.8,
+        "pack_size": 2,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "CREAM CATERING 1LTR",
+        "quantity": 6,
+        "pack_price": 3.95,
+        "line_total": 23.7,
+        "pack_size": 1,
+        "pack_unit": "l",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "NAT YOGHURT 1KG",
+        "quantity": 5,
+        "pack_price": 3.1,
+        "line_total": 15.5,
+        "pack_size": 1,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "FR EGGS LGE X30",
+        "quantity": 6,
+        "pack_price": 8.4,
+        "line_total": 50.4,
+        "pack_size": 30,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "CASTER SUGAR 2KG",
+        "quantity": 2,
+        "pack_price": 3.3,
+        "line_total": 6.6,
+        "pack_size": 2,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "SUGAR STICKS WHT X1000",
+        "quantity": 1,
+        "pack_price": 11.8,
+        "line_total": 11.8,
+        "pack_size": 1000,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "BARRYS GOLD BLEND 600",
+        "quantity": 1,
+        "pack_price": 25.6,
+        "line_total": 25.6,
+        "pack_size": 600,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.6
+      },
+      {
+        "description": "HOT CHOC PWDR 1KG",
+        "quantity": 2,
+        "pack_price": 9.4,
+        "line_total": 18.8,
+        "pack_size": 1,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "PORRIDGE OATS 3KG",
+        "quantity": 1,
+        "pack_price": 5.9,
+        "line_total": 5.9,
+        "pack_size": 3,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "GRANOLA 1KG",
+        "quantity": 2,
+        "pack_price": 7.6,
+        "line_total": 15.2,
+        "pack_size": 1,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "JAM PORTIONS ASST X100",
+        "quantity": 1,
+        "pack_price": 9.9,
+        "line_total": 9.9,
+        "pack_size": 100,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "HAM COOKED SLCD 1KG",
+        "quantity": 4,
+        "pack_price": 12.4,
+        "line_total": 49.6,
+        "pack_size": 1,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "BACON RASHERS 2.27KG",
+        "quantity": 3,
+        "pack_price": 15.6,
+        "line_total": 46.8,
+        "pack_size": 2.27,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "CHICKEN BRST COOKED SLCD 1KG",
+        "quantity": 4,
+        "pack_price": 14.8,
+        "line_total": 59.2,
+        "pack_size": 1,
+        "pack_unit": "kg",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "COCA COLA 330ML CAN X24",
+        "quantity": 2,
+        "pack_price": 15.2,
+        "line_total": 30.4,
+        "pack_size": 330,
+        "pack_unit": "ml",
+        "units_per_case": 24,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "DIET COKE 330ML CAN X24",
+        "quantity": 2,
+        "pack_price": 15.2,
+        "line_total": 30.4,
+        "pack_size": 330,
+        "pack_unit": "ml",
+        "units_per_case": 24,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "BALLYGOWAN STILL 500ML X24",
+        "quantity": 2,
+        "pack_price": 9.8,
+        "line_total": 19.6,
+        "pack_size": 500,
+        "pack_unit": "ml",
+        "units_per_case": 24,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "BALLYGOWAN SPARK 500ML X24",
+        "quantity": 1,
+        "pack_price": 10.2,
+        "line_total": 10.2,
+        "pack_size": 500,
+        "pack_unit": "ml",
+        "units_per_case": 24,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "ORANGE JUICE NFC 1LTR",
+        "quantity": 11,
+        "pack_price": 2.45,
+        "line_total": 26.95,
+        "pack_size": 1,
+        "pack_unit": "l",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.95
+      },
+      {
+        "description": "BLUE ROLL 2PLY X6",
+        "quantity": 1,
+        "pack_price": 14.5,
+        "line_total": 14.5,
+        "pack_size": 6,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.9
+      }
+    ]
+  }
+}

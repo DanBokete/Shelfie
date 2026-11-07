@@ -32,9 +32,9 @@ importers:
       google-auth-library:
         specifier: 11.3.3
         version: 11.3.3(supports-color@7.2.0)
-      heic2any:
-        specifier: ^0.0.4
-        version: 0.0.4
+      heic-to:
+        specifier: ^1.6.7
+        version: 1.6.7
       html-to-text:
         specifier: 10.0.1
         version: 10.0.1
@@ -2120,8 +2120,8 @@ packages:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
 
-  heic2any@0.0.4:
-    resolution: {integrity: sha512-3lLnZiDELfabVH87htnRolZ2iehX9zwpRyGNz22GKXIu0fznlblf0/ftppXKNqS26dqFSeqfIBhAmAj/uSp0cA==}
+  heic-to@1.6.7:
+    resolution: {integrity: sha512-GCPYNl86u6eZ7mr2aa+uQB+PrQOVKSBYfH8esovr8kh2c6EYQSDYIJ6uhXSmM2hPC8PdBVJ/Trn0jnfM9H9gvg==}
 
   hookable@6.1.2:
     resolution: {integrity: sha512-+abwxtiEA52GCVIsQqut3S/uKTbUwYIp4Pe/vv+6py5XiXBCqMZHg6pA6Y5qhgLSEys0/cYuPbO0z1QFj5ZCmg==}
@@ -4837,7 +4837,7 @@ snapshots:
 
   he@1.2.0: {}
 
-  heic2any@0.0.4: {}
+  heic-to@1.6.7: {}
 
   hookable@6.1.2: {}
 

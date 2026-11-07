@@ -1,0 +1,18 @@
+{
+  "name": "columns",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T19:27:47.475Z",
+  "output": {
+    "is_stock_list": true,
+    "header_row_index": 0,
+    "columns": {
+      "product_name": 0,
+      "quantity": 1,
+      "unit": 2,
+      "price": 3,
+      "supplier": null
+    },
+    "quantity_period": "week",
+    "skip_rows": []
+  }
+}

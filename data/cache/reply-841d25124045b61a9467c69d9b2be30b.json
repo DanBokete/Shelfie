@@ -1,0 +1,35 @@
+{
+  "name": "reply",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T19:14:57.334Z",
+  "output": {
+    "overall": "accepted",
+    "overall_said": "The reply says \"Perfect\", agreeing to the requested price.",
+    "answers": [
+      {
+        "request_item": "R1",
+        "product_hint": "Salted butter",
+        "outcome": "accepted",
+        "said": "Perfect",
+        "question": null,
+        "offer_price": null,
+        "offer_pack": null,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null,
+        "price_includes_vat": false
+      }
+    ],
+    "documents": [
+      {
+        "source": "email body",
+        "kind": "other",
+        "supplier_name": null,
+        "document_date": null,
+        "prices_include_vat": false,
+        "vat_rate_percent": null,
+        "lines": []
+      }
+    ]
+  }
+}

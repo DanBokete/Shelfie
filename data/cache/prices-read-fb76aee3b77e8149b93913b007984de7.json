@@ -1,0 +1,24 @@
+{
+  "name": "prices-read",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T19:20:36.458Z",
+  "output": {
+    "offers": [
+      {
+        "seller": "Tesco",
+        "title": "Kerrygold Irish Creamery Salted Butter 454G",
+        "url": "https://www.tesco.ie/groceries/en-IE/products/312985140",
+        "price": 5.49,
+        "vat_included": true,
+        "vat_rate_percent": 0,
+        "pack_size": 454,
+        "pack_unit": "g",
+        "units_per_case": 1,
+        "match": "exact",
+        "match_note": "Kerrygold salted butter, single 454g pack; page showed out of stock",
+        "promo": false,
+        "confidence": 0.7
+      }
+    ]
+  }
+}

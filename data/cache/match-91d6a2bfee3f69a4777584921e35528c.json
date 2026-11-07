@@ -1,0 +1,232 @@
+{
+  "name": "match",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T19:25:18.455Z",
+  "output": {
+    "results": [
+      {
+        "line_id": "L1",
+        "product_id": "p1",
+        "new_product": null,
+        "confidence": 0.95,
+        "reason": "S/SKIM is semi-skimmed; brand irrelevant for milk."
+      },
+      {
+        "line_id": "L2",
+        "product_id": "p3",
+        "new_product": null,
+        "confidence": 0.95,
+        "reason": "Oatly Barista oat drink, same branded product."
+      },
+      {
+        "line_id": "L3",
+        "product_id": "p4",
+        "new_product": null,
+        "confidence": 0.85,
+        "reason": "Espresso beans match; brand irrelevant for staple beans."
+      },
+      {
+        "line_id": "L4",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Decaf Coffee Beans",
+          "brand": null,
+          "category": "dry goods",
+          "base_unit": "g"
+        },
+        "confidence": 0.9,
+        "reason": "Decaf is not the same as espresso beans."
+      },
+      {
+        "line_id": "L5",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Butter",
+          "brand": null,
+          "category": "dairy",
+          "base_unit": "g"
+        },
+        "confidence": 0.6,
+        "reason": "Salted or unsalted unspecified; unsure of match."
+      },
+      {
+        "line_id": "L6",
+        "product_id": "p7",
+        "new_product": null,
+        "confidence": 0.9,
+        "reason": "Mature cheddar, white; same product."
+      },
+      {
+        "line_id": "L7",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Catering Cream",
+          "brand": null,
+          "category": "dairy",
+          "base_unit": "ml"
+        },
+        "confidence": 0.95,
+        "reason": "Cream; candidates are tea bags, unrelated."
+      },
+      {
+        "line_id": "L8",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Natural Yoghurt",
+          "brand": null,
+          "category": "dairy",
+          "base_unit": "g"
+        },
+        "confidence": 0.95,
+        "reason": "No candidates; new product."
+      },
+      {
+        "line_id": "L9",
+        "product_id": "p10",
+        "new_product": null,
+        "confidence": 0.93,
+        "reason": "Free range large eggs; pack count differs only."
+      },
+      {
+        "line_id": "L10",
+        "product_id": "p11",
+        "new_product": null,
+        "confidence": 0.97,
+        "reason": "Caster sugar same product."
+      },
+      {
+        "line_id": "L11",
+        "product_id": "p12",
+        "new_product": null,
+        "confidence": 0.97,
+        "reason": "White sugar sticks same product."
+      },
+      {
+        "line_id": "L12",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Barry's Gold Blend Tea",
+          "brand": "Barry's",
+          "category": "drinks",
+          "base_unit": "each"
+        },
+        "confidence": 0.6,
+        "reason": "Gold Blend differs from catering tea bags; unsure."
+      },
+      {
+        "line_id": "L13",
+        "product_id": "p13",
+        "new_product": null,
+        "confidence": 0.93,
+        "reason": "Hot chocolate powder same product."
+      },
+      {
+        "line_id": "L14",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Porridge Oats",
+          "brand": null,
+          "category": "dry goods",
+          "base_unit": "g"
+        },
+        "confidence": 0.95,
+        "reason": "No candidates; new product."
+      },
+      {
+        "line_id": "L15",
+        "product_id": "p15",
+        "new_product": null,
+        "confidence": 0.92,
+        "reason": "Granola same product."
+      },
+      {
+        "line_id": "L16",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Jam Portions Assorted",
+          "brand": null,
+          "category": "dry goods",
+          "base_unit": "each"
+        },
+        "confidence": 0.95,
+        "reason": "No candidates; new product."
+      },
+      {
+        "line_id": "L17",
+        "product_id": "p16",
+        "new_product": null,
+        "confidence": 0.93,
+        "reason": "Cooked sliced ham same product."
+      },
+      {
+        "line_id": "L18",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Bacon Rashers",
+          "brand": null,
+          "category": "deli",
+          "base_unit": "g"
+        },
+        "confidence": 0.6,
+        "reason": "Back bacon not confirmed; could be streaky."
+      },
+      {
+        "line_id": "L19",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Cooked Chicken Breast, Sliced",
+          "brand": null,
+          "category": "deli",
+          "base_unit": "g"
+        },
+        "confidence": 0.85,
+        "reason": "Cooked sliced chicken differs from raw fillets or ham."
+      },
+      {
+        "line_id": "L20",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Diet Coke Can",
+          "brand": "Coca-Cola",
+          "category": "drinks",
+          "base_unit": "ml"
+        },
+        "confidence": 0.9,
+        "reason": "Diet Coke is not regular Coca-Cola or own-brand cola."
+      },
+      {
+        "line_id": "L21",
+        "product_id": "p21",
+        "new_product": null,
+        "confidence": 0.85,
+        "reason": "Still water 500ml; brand not critical for water."
+      },
+      {
+        "line_id": "L22",
+        "product_id": "p22",
+        "new_product": null,
+        "confidence": 0.85,
+        "reason": "Sparkling water 500ml; brand not critical for water."
+      },
+      {
+        "line_id": "L23",
+        "product_id": "p23",
+        "new_product": null,
+        "confidence": 0.8,
+        "reason": "Orange juice; NFC is a minor spec."
+      },
+      {
+        "line_id": "L24",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Blue Roll",
+          "brand": null,
+          "category": "disposables",
+          "base_unit": "each"
+        },
+        "confidence": 0.9,
+        "reason": "Blue roll differs from napkins."
+      }
+    ]
+  }
+}

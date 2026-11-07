@@ -169,16 +169,18 @@ function ScanPage() {
     const blob = await new Promise<Blob | null>((r) =>
       canvas.toBlob(r, 'image/jpeg', 0.9),
     )
-    if (blob) await identify(blob, 'frame.jpg')
+    if (blob)
+      await identify(new File([blob], 'frame.jpg', { type: 'image/jpeg' }))
   }
 
-  async function identify(blob: Blob, name: string) {
+  async function identify(file: File) {
     const code = 'code' in phase ? phase.code : null
     handled.current = true
     void stopCamera()
     setError(null)
     setPhase({ kind: 'identifying', code })
     try {
+      const { blob, name } = await prepareUpload(file)
       const r = await postFile<IdentifyResult>('/api/scan/identify', blob, name)
       if (r.product)
         setPhase({
@@ -264,9 +266,7 @@ function ScanPage() {
             hidden
             onChange={async (e) => {
               const f = e.target.files?.[0]
-              if (!f) return
-              const { blob, name } = await prepareUpload(f)
-              await identify(blob, name)
+              if (f) await identify(f)
             }}
           />
           <form
@@ -331,9 +331,7 @@ function ScanPage() {
             hidden
             onChange={async (e) => {
               const f = e.target.files?.[0]
-              if (!f) return
-              const { blob, name } = await prepareUpload(f)
-              await identify(blob, name)
+              if (f) await identify(f)
             }}
           />
         </div>

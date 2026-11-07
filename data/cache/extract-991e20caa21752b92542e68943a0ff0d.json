@@ -1,0 +1,82 @@
+{
+  "name": "extract",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T19:03:06.803Z",
+  "output": {
+    "supplier_name": "HARBOUR CATERING SUPPLIES",
+    "invoice_number": "1407",
+    "invoice_date": "2026-08-20",
+    "prices_include_vat": false,
+    "vat_rate_percent": null,
+    "subtotal_ex_vat": 314.5,
+    "adjustments": [],
+    "lines": [
+      {
+        "description": "12oz double wall cups 500",
+        "quantity": 3,
+        "pack_price": 62,
+        "line_total": 186,
+        "pack_size": 500,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.85
+      },
+      {
+        "description": "lids for 12oz cups 1000",
+        "quantity": 1,
+        "pack_price": 29,
+        "line_total": 29,
+        "pack_size": 1000,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.85
+      },
+      {
+        "description": "napkins 2ply white 4000",
+        "quantity": 1,
+        "pack_price": 38,
+        "line_total": 38,
+        "pack_size": 4000,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.85
+      },
+      {
+        "description": "kraft food boxes medium 200",
+        "quantity": 1,
+        "pack_price": 34,
+        "line_total": 34,
+        "pack_size": 200,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.85
+      },
+      {
+        "description": "cling film 450mm x 300m",
+        "quantity": 1,
+        "pack_price": 8.5,
+        "line_total": 8.5,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null,
+        "barcode": null,
+        "confidence": 0.8
+      },
+      {
+        "description": "refuse sacks black x200",
+        "quantity": 1,
+        "pack_price": 19,
+        "line_total": 19,
+        "pack_size": 200,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "barcode": null,
+        "confidence": 0.8
+      }
+    ]
+  }
+}
