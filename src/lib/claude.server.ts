@@ -207,6 +207,18 @@ export interface WebSource {
 /** Server tool loops stop after 10 steps with pause_turn; resume this many times at most. */
 const MAX_RESUMES = 4
 
+// Defaults for searchWeb. Every fetched page and search result is re-sent as input on each
+// later step and resume, so these limits set most of a research turn's cost.
+/** A price check needs a handful of shops, not every result: 5 searches finds 3 to 6 offers. */
+const DEFAULT_MAX_SEARCHES = 5
+/** One fetch per shop page Claude cites, with a little room for a page that fails to load. */
+const DEFAULT_MAX_FETCHES = 6
+/**
+ * Shop pages are mostly navigation, cookie banners and scripts, and the price sits near the
+ * top. Capping each fetch keeps one heavy page from costing tens of thousands of tokens.
+ */
+const DEFAULT_MAX_FETCH_TOKENS = 10_000
+
 /**
  * One research turn with live web search and page fetch, searched as if from Cork.
  * Returns Claude's written findings and every page the tools returned, so callers can
@@ -219,6 +231,8 @@ export async function searchWeb(opts: {
   prompt: string
   maxSearches?: number
   maxFetches?: number
+  /** Most tokens one fetched page may add to the conversation. */
+  maxFetchTokens?: number
   effort?: Effort
 }): Promise<{ text: string; sources: Array<WebSource> }> {
   if (demoMode()) {
@@ -242,12 +256,16 @@ export async function searchWeb(opts: {
         max_tokens: 16000,
         system: opts.system,
         messages,
+        // Each resume re-sends the whole conversation, fetched pages included. Automatic caching
+        // moves the breakpoint to the end of it, so a resume reads that prefix from cache, and
+        // the API caches each server tool result for the later steps inside one request.
+        cache_control: { type: 'ephemeral' },
         tools: [
           {
             type: 'web_search_20260209',
             name: 'web_search',
             // Searches run in code, several at a time, so a small limit is gone in one step.
-            max_uses: opts.maxSearches ?? 12,
+            max_uses: opts.maxSearches ?? DEFAULT_MAX_SEARCHES,
             // The API rejects country 'IE', so Ireland comes from the city and the prompt.
             user_location: {
               type: 'approximate',
@@ -258,7 +276,8 @@ export async function searchWeb(opts: {
           {
             type: 'web_fetch_20260209',
             name: 'web_fetch',
-            max_uses: opts.maxFetches ?? 12,
+            max_uses: opts.maxFetches ?? DEFAULT_MAX_FETCHES,
+            max_content_tokens: opts.maxFetchTokens ?? DEFAULT_MAX_FETCH_TOKENS,
           },
         ],
         output_config: { effort: opts.effort ?? 'medium' },
@@ -301,7 +320,7 @@ export async function searchWeb(opts: {
       }
     }
     console.info(
-      `[claude:${opts.name}] ${res.model} turn ${turn + 1} ${Date.now() - started}ms in=${res.usage.input_tokens} out=${res.usage.output_tokens} stop=${res.stop_reason} sources=${sources.size}`,
+      `[claude:${opts.name}] ${res.model} turn ${turn + 1} ${Date.now() - started}ms in=${res.usage.input_tokens} cache_write=${res.usage.cache_creation_input_tokens ?? 0} cache_read=${res.usage.cache_read_input_tokens ?? 0} out=${res.usage.output_tokens} searches=${res.usage.server_tool_use?.web_search_requests ?? 0} fetches=${res.usage.server_tool_use?.web_fetch_requests ?? 0} stop=${res.stop_reason} sources=${sources.size}`,
     )
     if (res.stop_reason === 'refusal') {
       throw new AIError('Claude declined this request.', 'refusal')
