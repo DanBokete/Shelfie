@@ -101,11 +101,14 @@ export async function gmail<T>(
 
 // --- Calls -----------------------------------------------------------------------------
 
-/** users.messages.send: the raw email, base64url. */
-export function sendMessage(raw: string) {
+/**
+ * users.messages.send: the raw email, base64url. With a threadId it joins that thread; Gmail
+ * also needs the In-Reply-To and References headers and the same subject (with "Re:").
+ */
+export function sendMessage(raw: string, threadId?: string | null) {
   return gmail<{ id: string; threadId: string }>('messages/send', {
     method: 'POST',
-    body: JSON.stringify({ raw }),
+    body: JSON.stringify(threadId ? { raw, threadId } : { raw }),
   })
 }
 

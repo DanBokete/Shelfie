@@ -20,6 +20,18 @@ export interface Outgoing {
   bcc: string | null
   subject: string
   text: string
+  /** A reminder: a reply in the thread of the request it follows up. */
+  thread?: Thread
+}
+
+/** Where a reply goes in an email thread. */
+export interface Thread {
+  /** The Message-ID answered: the latest email Shelfie sent in this thread. */
+  inReplyTo: string
+  /** Every Message-ID Shelfie sent in this thread, oldest first. */
+  references: Array<string>
+  /** Gmail's thread id, for the Gmail API. Null when the request was not sent through it. */
+  gmailThreadId: string | null
 }
 
 /**
@@ -35,6 +47,8 @@ export async function rawMessage(m: Outgoing): Promise<string> {
     bcc: m.bcc ?? undefined,
     subject: m.subject,
     text: m.text,
+    inReplyTo: m.thread?.inReplyTo,
+    references: m.thread?.references,
   }).compile()
   node.keepBcc = true
   return (await node.build()).toString('base64url')

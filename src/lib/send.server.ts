@@ -8,9 +8,12 @@
 import nodemailer from 'nodemailer'
 import { GmailApiError, messageHeaders, sendMessage } from './gmail-api.server'
 import { header, rawMessage } from './gmail-message.server'
-import type { Outgoing } from './gmail-message.server'
+import type { Outgoing, Thread } from './gmail-message.server'
 import { GmailReconnectError } from './google-auth.server'
 import { inboundAddressFor } from './inbound'
+import { isDeliveryProblem } from './pending-emails'
+import { threadHeaders } from './reminders'
+import type { SentInThread } from './reminders'
 import {
   getSettings,
   replyCc,
@@ -18,7 +21,7 @@ import {
   sendingStatus,
 } from './settings.server'
 import type { Settings } from './settings.server'
-import { db, mustOne } from './supabase.server'
+import { db, must, mustOne } from './supabase.server'
 
 /** '"Aoife at The Corner Café" <orders@example.ie>', quoted so commas in names are safe. */
 export function fromHeader(s: Settings): string {
@@ -28,21 +31,54 @@ export function fromHeader(s: Settings): string {
 
 /**
  * The email for a draft: the owner's edits, plus the CC (Shelfie's reply address) and BCC
- * (the owner's copy) from Settings, never from the browser.
+ * (the owner's copy) from Settings, never from the browser. `replyTo` is the request replies
+ * belong to: the draft itself, or for a reminder the request it follows up, which also puts
+ * the reminder in that request's thread.
  */
 export function composeOutgoing(
   s: Settings,
-  draftId: string,
+  replyTo: string,
   edits: { to: string; subject: string; body: string },
+  thread?: Thread | null,
 ): Outgoing {
   return {
     from: fromHeader(s),
     to: edits.to,
-    cc: replyCc(s, inboundAddressFor, draftId),
+    cc: replyCc(s, inboundAddressFor, replyTo),
     bcc: s.bcc_email,
     subject: edits.subject,
     text: edits.body,
+    ...(thread ? { thread } : {}),
   }
+}
+
+/**
+ * The thread a reminder replies in: the request it follows up and the reminders already
+ * sent for it. Null when there are no Message-IDs to reply to (then it goes as a new email).
+ */
+async function reminderThread(requestId: string): Promise<Thread | null> {
+  const cols = 'sent_at, provider_message_id, gmail_thread_id'
+  const request = mustOne(
+    await db()
+      .from('email_drafts')
+      .select(`id, ${cols}`)
+      .eq('id', requestId)
+      .maybeSingle<SentInThread & { id: string; sent_at: string | null }>(),
+    'load the request this reminder follows up',
+  )
+  if (!request.sent_at)
+    throw new SendError(
+      'The request this reminder follows up was never sent. Send that one instead.',
+    )
+  const reminders = must(
+    await db()
+      .from('email_drafts')
+      .select(cols)
+      .eq('follow_up_of', requestId)
+      .not('sent_at', 'is', null),
+    'load sent reminders',
+  ) as Array<SentInThread>
+  return threadHeaders([{ ...request, sent_at: request.sent_at }, ...reminders])
 }
 
 /** What a provider tells us about a sent email. */
@@ -58,7 +94,7 @@ interface Sent {
 async function sendWithGmailApi(m: Outgoing): Promise<Sent> {
   let sent: { id: string; threadId: string }
   try {
-    sent = await sendMessage(await rawMessage(m))
+    sent = await sendMessage(await rawMessage(m), m.thread?.gmailThreadId)
   } catch (err) {
     if (err instanceof GmailReconnectError || err instanceof GmailApiError)
       throw new SendError(err.message)
@@ -126,6 +162,8 @@ async function sendWithGmail(s: Settings, m: Outgoing): Promise<Sent> {
       bcc: m.bcc ?? undefined,
       subject: m.subject,
       text: m.text,
+      inReplyTo: m.thread?.inReplyTo,
+      references: m.thread?.references,
     })
     return { messageId: info.messageId }
   } catch (err) {
@@ -173,6 +211,12 @@ async function sendWithPostmark(m: Outgoing): Promise<Sent> {
       Bcc: m.bcc ?? undefined,
       Subject: m.subject,
       TextBody: m.text,
+      Headers: m.thread
+        ? [
+            { Name: 'In-Reply-To', Value: m.thread.inReplyTo },
+            { Name: 'References', Value: m.thread.references.join(' ') },
+          ]
+        : undefined,
       MessageStream: 'outbound',
       Tag: 'supplier-request',
     }),
@@ -200,18 +244,29 @@ export async function sendDraft(
   const draft = mustOne(
     await db()
       .from('email_drafts')
-      .select('id, sent_at')
+      .select('id, sent_at, send_error, follow_up_of')
       .eq('id', id)
-      .maybeSingle<{ id: string; sent_at: string | null }>(),
+      .maybeSingle<{
+        id: string
+        sent_at: string | null
+        send_error: string | null
+        follow_up_of: string | null
+      }>(),
     'load draft',
   )
-  if (draft.sent_at) throw new SendError('This email was already sent.')
+  // A request Gmail could not deliver can go again, to a corrected address.
+  if (draft.sent_at && !isDeliveryProblem(draft.send_error))
+    throw new SendError('This email was already sent.')
 
   const settings = await getSettings()
   const status = sendingStatus(settings)
   if (!status.ready) throw new SendError(status.problem!)
 
-  const message = composeOutgoing(settings, id, edits)
+  const replyTo = draft.follow_up_of ?? id
+  const thread = draft.follow_up_of
+    ? await reminderThread(draft.follow_up_of)
+    : null
+  const message = composeOutgoing(settings, replyTo, edits, thread)
 
   let sent: Sent
   try {

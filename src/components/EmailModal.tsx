@@ -3,12 +3,12 @@
 // found online for their trade prices. Each draft is written from the owner's template or by
 // Claude (the default is in Settings), and can be redone the other way.
 import { Link } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Icon, Spinner } from './Icon'
 import { postJSON } from '#/lib/api'
 import { dateTime } from '#/lib/format'
 import type { Writer } from '#/lib/templates'
-import { saveDraft } from '#/server/fns'
+import { openSavedDraft, saveDraft } from '#/server/fns'
 
 export interface EmailItem {
   product_id?: string
@@ -32,6 +32,16 @@ export type EmailRequest =
       seller_name: string
       product_name: string
       price_seen: string
+    }
+  | {
+      /** A request saved earlier (a draft, or one that failed): opened as it is, no rewrite. */
+      kind: 'saved'
+      draft_id: string
+      email_kind: 'match' | 'quote'
+      supplier_name: string
+      products: Array<string>
+      /** A reminder: sent as a reply in the thread of the request it follows up. */
+      follow_up?: boolean
     }
 
 interface Contact {
@@ -92,10 +102,18 @@ interface Draft {
 }
 
 function nameOf(r: EmailRequest): string {
-  return r.kind === 'match' ? r.supplier_name : r.seller_name
+  return r.kind === 'quote' ? r.seller_name : r.supplier_name
 }
 
-function bodyOf(r: EmailRequest) {
+function keyOf(r: EmailRequest): string {
+  return r.kind === 'match'
+    ? r.supplier_id
+    : r.kind === 'quote'
+      ? r.offer_id
+      : r.draft_id
+}
+
+function bodyOf(r: Exclude<EmailRequest, { kind: 'saved' }>) {
   return r.kind === 'match'
     ? { kind: 'match', supplier_id: r.supplier_id, items: r.items }
     : { kind: 'quote', offer_id: r.offer_id }
@@ -141,8 +159,31 @@ export function EmailModal({
 
   function draft(i: number, writer?: Writer) {
     patch(i, { state: 'drafting', error: undefined, tried: writer })
+    const req = requests[i]
+    if (req.kind === 'saved') {
+      openSavedDraft({ data: { id: req.draft_id } })
+        .then((r) =>
+          patch(i, {
+            state: 'ready',
+            id: r.id,
+            subject: r.subject,
+            body: r.body,
+            to: r.to,
+            cc: r.reply_cc,
+            bcc: r.reply_bcc,
+            sending: r.sending,
+          }),
+        )
+        .catch((e: unknown) =>
+          patch(i, {
+            state: 'failed',
+            error: e instanceof Error ? e.message : 'Could not open the email',
+          }),
+        )
+      return
+    }
     postJSON<DraftResponse>('/api/email/draft', {
-      ...bodyOf(requests[i]),
+      ...bodyOf(req),
       writer,
     })
       .then((r) => patch(i, fromResponse(r, r.supplier.email ?? '')))
@@ -157,10 +198,11 @@ export function EmailModal({
   /** Rewrites a ready draft the other way, in place. The To the owner typed is kept. */
   function redo(i: number, writer: Writer) {
     const current = drafts[i]
-    if (!current.id) return
+    const req = requests[i]
+    if (!current.id || req.kind === 'saved') return
     patch(i, { redoing: writer, redoError: undefined })
     postJSON<DraftResponse>('/api/email/draft', {
-      ...bodyOf(requests[i]),
+      ...bodyOf(req),
       writer,
       redo_of: current.id,
     })
@@ -189,8 +231,13 @@ export function EmailModal({
       )
   }
 
+  // Strict Mode runs effects twice in development; without this each open saved two drafts.
+  const started = useRef(false)
   useEffect(() => {
-    requests.forEach((_, i) => draft(i))
+    if (!started.current) {
+      started.current = true
+      requests.forEach((_, i) => draft(i))
+    }
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
@@ -203,7 +250,8 @@ export function EmailModal({
 
   const d = drafts[tab]
   const r = requests[tab]
-  const quote = r.kind === 'quote'
+  const quote =
+    r.kind === 'quote' || (r.kind === 'saved' && r.email_kind === 'quote')
 
   function persist(status: 'draft') {
     if (!d.id) return
@@ -269,7 +317,11 @@ export function EmailModal({
         <header className="flex items-center justify-between border-b border-line px-5 py-4">
           <div className="min-w-0">
             <h2 className="text-lg font-bold">
-              {quote ? 'Ask for a quote' : 'Ask to match'}
+              {r.kind === 'saved' && r.follow_up
+                ? 'Send a reminder'
+                : quote
+                  ? 'Ask for a quote'
+                  : 'Ask to match'}
             </h2>
             <p className="truncate text-sm text-muted">
               {requests.length > 1
@@ -290,7 +342,7 @@ export function EmailModal({
           <div className="flex gap-1 overflow-x-auto border-b border-line px-3 py-2">
             {requests.map((x, i) => (
               <button
-                key={x.kind === 'match' ? x.supplier_id : x.offer_id}
+                key={keyOf(x)}
                 onClick={() => setTab(i)}
                 className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium ${
                   i === tab ? 'bg-soft text-ink' : 'text-muted hover:bg-soft'
@@ -315,9 +367,11 @@ export function EmailModal({
           {d.state === 'drafting' && (
             <div className="flex items-center gap-3 py-16 text-muted">
               <Spinner className="h-5 w-5 shrink-0" />
-              {quote
-                ? `Finding how to reach ${nameOf(r)} and writing your quote request...`
-                : `Writing a friendly, firm email to ${nameOf(r)}...`}
+              {r.kind === 'saved'
+                ? 'Opening your email...'
+                : quote
+                  ? `Finding how to reach ${nameOf(r)} and writing your quote request...`
+                  : `Writing a friendly, firm email to ${nameOf(r)}...`}
             </div>
           )}
           {d.state === 'failed' && (
@@ -426,7 +480,16 @@ export function EmailModal({
                   Figures in this email
                 </summary>
                 <ul className="mt-2 space-y-1">
-                  {r.kind === 'match' ? (
+                  {r.kind === 'saved' ? (
+                    <li>
+                      {r.products.length > 0
+                        ? `About ${r.products.join(', ')}. `
+                        : ''}
+                      {r.follow_up
+                        ? 'A reply in the same email thread as your request, which is quoted below with its figures.'
+                        : 'Saved as you left it: the figures were worked out when it was first written.'}
+                    </li>
+                  ) : r.kind === 'match' ? (
                     d.asks ? (
                       d.asks.map((a) => (
                         <li key={a.product_name}>

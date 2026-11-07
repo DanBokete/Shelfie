@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuditRouteImport } from './routes/audit'
+import { Route as EmailsRouteImport } from './routes/emails'
 import { Route as InvoicesRouteImport } from './routes/invoices'
 import { Route as PricesRouteImport } from './routes/prices'
 import { Route as ScanRouteImport } from './routes/scan'
@@ -38,6 +39,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuditRoute = AuditRouteImport.update({
   id: '/audit',
   path: '/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailsRoute = EmailsRouteImport.update({
+  id: '/emails',
+  path: '/emails',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InvoicesRoute = InvoicesRouteImport.update({
@@ -134,6 +140,7 @@ const ApiAuthGoogleStartRoute = ApiAuthGoogleStartRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
+  '/emails': typeof EmailsRoute
   '/invoices': typeof InvoicesRoute
   '/prices': typeof PricesRoute
   '/scan': typeof ScanRoute
@@ -156,6 +163,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
+  '/emails': typeof EmailsRoute
   '/invoices': typeof InvoicesRoute
   '/prices': typeof PricesRoute
   '/scan': typeof ScanRoute
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
+  '/emails': typeof EmailsRoute
   '/invoices': typeof InvoicesRoute
   '/prices': typeof PricesRoute
   '/scan': typeof ScanRoute
@@ -203,6 +212,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/audit'
+    | '/emails'
     | '/invoices'
     | '/prices'
     | '/scan'
@@ -225,6 +235,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/audit'
+    | '/emails'
     | '/invoices'
     | '/prices'
     | '/scan'
@@ -247,6 +258,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/audit'
+    | '/emails'
     | '/invoices'
     | '/prices'
     | '/scan'
@@ -270,6 +282,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuditRoute: typeof AuditRoute
+  EmailsRoute: typeof EmailsRoute
   InvoicesRoute: typeof InvoicesRoute
   PricesRoute: typeof PricesRoute
   ScanRoute: typeof ScanRoute
@@ -304,6 +317,13 @@ declare module '@tanstack/react-router' {
       path: '/audit'
       fullPath: '/audit'
       preLoaderRoute: typeof AuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/emails': {
+      id: '/emails'
+      path: '/emails'
+      fullPath: '/emails'
+      preLoaderRoute: typeof EmailsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/invoices': {
@@ -438,6 +458,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuditRoute: AuditRoute,
+  EmailsRoute: EmailsRoute,
   InvoicesRoute: InvoicesRoute,
   PricesRoute: PricesRoute,
   ScanRoute: ScanRoute,

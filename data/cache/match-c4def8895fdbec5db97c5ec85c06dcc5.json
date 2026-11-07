@@ -1,0 +1,16 @@
+{
+  "name": "match",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T15:52:30.679Z",
+  "output": {
+    "results": [
+      {
+        "line_id": "L1",
+        "product_id": null,
+        "new_product": null,
+        "confidence": 0.95,
+        "reason": "Not a product line; supplier pricing remark with no identifiable item."
+      }
+    ]
+  }
+}

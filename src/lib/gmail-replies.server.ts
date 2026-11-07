@@ -146,6 +146,8 @@ async function run(force: boolean): Promise<ReplyCheck> {
     return skip('Checked less than a minute ago.')
 
   const since = new Date(Date.now() - WATCH_DAYS * 86_400_000).toISOString()
+  // Only original requests: a reminder is sent in its request's thread and names it in
+  // References, so replies to it are found, and tied to the request, through the request.
   const drafts = must(
     await db()
       .from('email_drafts')
@@ -153,6 +155,7 @@ async function run(force: boolean): Promise<ReplyCheck> {
         'id, to_email, sent_at, provider_message_id, gmail_thread_id, send_error',
       )
       .not('sent_at', 'is', null)
+      .is('follow_up_of', null)
       .gte('sent_at', since),
     'load sent requests',
   ) as Array<SentDraft>

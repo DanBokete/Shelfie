@@ -9,6 +9,7 @@ import {
 import { Icon, Spinner } from '#/components/Icon'
 import { postJSON } from '#/lib/api'
 import { euro, pct, shortDate } from '#/lib/format'
+import type { PendingCounts } from '#/lib/pending-emails'
 import { standardQuantity } from '#/lib/units'
 import type { BaseUnit } from '#/lib/units'
 import { getHome } from '#/server/fns'
@@ -86,6 +87,8 @@ function Home() {
           <Icon name="arrowRight" className="h-4 w-4 text-muted" />
         </Link>
       )}
+
+      <PendingEmailsCard counts={business.pending} />
 
       {weeks.length > 0 && (
         <section className="card p-4 md:p-6">
@@ -251,6 +254,73 @@ function WeeklyAlertButton() {
         </p>
       )}
     </div>
+  )
+}
+
+/** How many emails wait on a reply, a send or a look from the owner, linking to Emails. */
+function PendingEmailsCard({ counts }: { counts: PendingCounts }) {
+  if (counts.waiting + counts.drafts + counts.failed + counts.review === 0)
+    return null
+  const cells: Array<{
+    hash: string
+    label: string
+    value: number
+    note?: string
+    tone?: string
+  }> = [
+    {
+      hash: 'waiting',
+      label: 'Waiting for a reply',
+      value: counts.waiting,
+      note: counts.overdue > 0 ? `${counts.overdue} overdue` : undefined,
+    },
+    { hash: 'drafts', label: 'Drafts not sent', value: counts.drafts },
+    {
+      hash: 'failed',
+      label: 'Failed to send',
+      value: counts.failed,
+      tone: counts.failed > 0 ? 'text-rust' : undefined,
+    },
+    { hash: 'review', label: 'Replies to review', value: counts.review },
+  ]
+  return (
+    <section className="card overflow-hidden">
+      <Link
+        to="/emails"
+        className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-soft/60 md:px-6"
+      >
+        <h2 className="flex items-center gap-2 font-bold">
+          <Icon name="mail" className="h-5 w-5 text-brand" />
+          Pending emails
+        </h2>
+        <span className="flex items-center gap-1 text-sm text-muted">
+          {counts.action > 0 ? `${counts.action} need you` : 'All in hand'}
+          <Icon name="arrowRight" className="h-4 w-4" />
+        </span>
+      </Link>
+      <div className="grid grid-cols-2 border-t border-line sm:grid-cols-4">
+        {cells.map((c, i) => (
+          <Link
+            key={c.hash}
+            to="/emails"
+            hash={c.hash}
+            className={`px-4 py-3 hover:bg-soft/60 md:px-6 ${
+              i % 2 === 1 ? 'border-l border-line' : ''
+            } ${i >= 2 ? 'border-t border-line sm:border-t-0' : ''} ${
+              i === 2 ? 'sm:border-l' : ''
+            }`}
+          >
+            <p className={`num text-2xl font-bold ${c.tone ?? ''}`}>
+              {c.value}
+            </p>
+            <p className="text-sm text-muted">{c.label}</p>
+            {c.note && (
+              <p className="text-xs font-medium text-warn">{c.note}</p>
+            )}
+          </Link>
+        ))}
+      </div>
+    </section>
   )
 }
 

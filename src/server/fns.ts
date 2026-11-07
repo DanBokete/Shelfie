@@ -16,6 +16,13 @@ import { disconnectGmail, gmailLink } from '#/lib/google-auth.server'
 import { inboundOverview, reprocessInbound } from '#/lib/inbound.server'
 import { livePricesOverview, productPriceChecks } from '#/lib/market.server'
 import {
+  discardEmail,
+  draftReminder,
+  pendingCounts,
+  pendingEmails,
+  savedDraft,
+} from '#/lib/pending-emails.server'
+import {
   findByBarcode,
   homeSummary,
   invoiceLines,
@@ -152,6 +159,30 @@ export const getReplies = createServerFn({ method: 'GET' }).handler(
 export const retryReply = createServerFn({ method: 'POST' })
   .validator(z.object({ id: z.uuid(), supplier_id: z.uuid().optional() }))
   .handler(({ data }) => reprocessInbound(data.id, data.supplier_id))
+
+/** The Emails page: requests waiting for a reply, drafts, failed sends, replies to review. */
+export const getPendingEmails = createServerFn({ method: 'GET' }).handler(() =>
+  pendingEmails(),
+)
+
+/** How many emails need the owner, for the nav badge and the Home card. */
+export const getPendingCounts = createServerFn({ method: 'GET' }).handler(() =>
+  pendingCounts(),
+)
+
+/** A saved draft (or undelivered request), opened in the email window to edit and send. */
+export const openSavedDraft = createServerFn({ method: 'GET' })
+  .validator(id)
+  .handler(({ data }) => savedDraft(data.id))
+
+/** "Send a reminder": the follow-up draft for a sent request, opened in the email window. */
+export const createReminder = createServerFn({ method: 'POST' })
+  .validator(id)
+  .handler(({ data }) => draftReminder(data.id))
+
+export const discardPendingEmail = createServerFn({ method: 'POST' })
+  .validator(id)
+  .handler(({ data }) => discardEmail(data.id))
 
 export const getSettingsPage = createServerFn({ method: 'GET' }).handler(() =>
   settingsView(),

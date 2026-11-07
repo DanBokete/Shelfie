@@ -1,0 +1,24 @@
+{
+  "name": "prices-read",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T16:01:53.251Z",
+  "output": {
+    "offers": [
+      {
+        "seller": "Dunnes Stores",
+        "title": "Dunnes Stores Irish Little Gem Lettuce",
+        "url": "https://www.dunnesstoresgrocery.com/product/dunnes-stores-irish-little-gem-lettuce-id-100878473",
+        "price": 1.79,
+        "vat_included": true,
+        "vat_rate_percent": 0,
+        "pack_size": 1,
+        "pack_unit": "each",
+        "units_per_case": 1,
+        "match": "equivalent",
+        "match_note": "Little gem, same lettuce type; single head, not a 12-pack",
+        "promo": false,
+        "confidence": 0.5
+      }
+    ]
+  }
+}

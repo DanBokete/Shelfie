@@ -43,6 +43,28 @@ describe('the outgoing email', () => {
     expect(mail.messageId).toMatch(/^<.+@.+>$/)
   })
 
+  it('replies in the thread of the request a reminder follows up', async () => {
+    const raw = await rawMessage({
+      from: 'a@gmail.com',
+      to: 'b@example.ie',
+      cc: null,
+      bcc: null,
+      subject: 'Re: Price on milk',
+      text: 'Just following up.',
+      thread: {
+        inReplyTo: '<second@mail.gmail.com>',
+        references: ['<first@mail.gmail.com>', '<second@mail.gmail.com>'],
+        gmailThreadId: 'thread-1',
+      },
+    })
+    const mail = await simpleParser(Buffer.from(raw, 'base64url'))
+    expect(mail.inReplyTo).toBe('<second@mail.gmail.com>')
+    expect(mail.references).toEqual([
+      '<first@mail.gmail.com>',
+      '<second@mail.gmail.com>',
+    ])
+  })
+
   it('leaves out CC and BCC when there are none', async () => {
     const raw = await rawMessage({
       from: 'a@gmail.com',

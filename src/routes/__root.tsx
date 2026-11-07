@@ -12,13 +12,20 @@ import type { ReactNode } from 'react'
 import { Icon } from '#/components/Icon'
 import type { IconName } from '#/components/Icon'
 import { postJSON } from '#/lib/api'
-import { getBusiness } from '#/server/fns'
+import { getBusiness, getPendingCounts } from '#/server/fns'
 
 import appCss from '../styles.css?url'
 
 export const Route = createRootRoute({
-  // The business name and town from Settings, shown in the header and on the home page.
-  loader: () => getBusiness(),
+  // The business name and town from Settings, shown in the header and on the home page,
+  // and how many emails need the owner, for the Emails badge.
+  loader: async () => {
+    const [business, pending] = await Promise.all([
+      getBusiness(),
+      getPendingCounts(),
+    ])
+    return { ...business, pending }
+  },
   head: () => ({
     meta: [
       { charSet: 'utf-8' },
@@ -89,7 +96,7 @@ function RootError({ error, reset }: ErrorComponentProps) {
 }
 
 const NAV: Array<{
-  to: '/' | '/invoices' | '/scan' | '/audit' | '/prices'
+  to: '/' | '/invoices' | '/scan' | '/audit' | '/prices' | '/emails'
   label: string
   icon: IconName
 }> = [
@@ -97,8 +104,28 @@ const NAV: Array<{
   { to: '/audit', label: 'Savings', icon: 'list' },
   { to: '/prices', label: 'Live prices', icon: 'search' },
   { to: '/invoices', label: 'Invoices', icon: 'invoice' },
+  { to: '/emails', label: 'Emails', icon: 'mail' },
   { to: '/scan', label: 'Scan', icon: 'scan' },
 ]
+
+/** The number on the Emails tab: emails that need the owner. Nothing when there are none. */
+function Badge({
+  count,
+  className = '',
+}: {
+  count: number
+  className?: string
+}) {
+  if (count <= 0) return null
+  return (
+    <span
+      className={`num grid h-[18px] min-w-[18px] place-items-center rounded-full bg-rust px-1 text-[11px] leading-none font-semibold text-white ${className}`}
+    >
+      {count > 99 ? '99+' : count}
+      <span className="sr-only"> need you</span>
+    </span>
+  )
+}
 
 function Logo() {
   return (
@@ -165,6 +192,9 @@ function RootComponent() {
             >
               <Icon name={n.icon} className="h-4 w-4" />
               {n.label}
+              {n.to === '/emails' && (
+                <Badge count={business.pending.action} className="ml-auto" />
+              )}
             </Link>
           ))}
         </nav>
@@ -222,16 +252,24 @@ function RootComponent() {
         aria-label="Main"
         className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
       >
-        <div className="mx-auto grid max-w-md grid-cols-5">
+        <div className="mx-auto grid max-w-md grid-cols-6">
           {NAV.map((n) => (
             <Link
               key={n.to}
               to={n.to}
-              className="flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium text-muted"
+              className="flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium whitespace-nowrap text-muted"
               activeProps={{ className: '!text-ink' }}
               activeOptions={{ exact: n.to === '/' }}
             >
-              <Icon name={n.icon} className="h-6 w-6" />
+              <span className="relative">
+                <Icon name={n.icon} className="h-6 w-6" />
+                {n.to === '/emails' && (
+                  <Badge
+                    count={business.pending.action}
+                    className="absolute -top-1.5 left-4"
+                  />
+                )}
+              </span>
               {n.label}
             </Link>
           ))}
