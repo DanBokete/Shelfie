@@ -1,12 +1,18 @@
-import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { useState } from 'react'
+import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
+import { z } from 'zod'
 import { Icon, Spinner } from '#/components/Icon'
 import { postJSON } from '#/lib/api'
 import { dateTime, timeAgo } from '#/lib/format'
-import { getSettingsPage, updateSettings } from '#/server/fns'
+import { disconnectGoogle, getSettingsPage, updateSettings } from '#/server/fns'
+
+/** Where "Connect Gmail" starts Google's sign-in. */
+const CONNECT_GMAIL = '/api/auth/google/start'
 
 export const Route = createFileRoute('/settings')({
+  // ?gmail=<outcome>: back from Google's sign-in (api/auth.google.callback.ts).
+  validateSearch: z.object({ gmail: z.string().optional() }),
   loader: () => getSettingsPage(),
   head: () => ({ meta: [{ title: 'Settings - Shelfie' }] }),
   component: SettingsPage,
@@ -44,6 +50,31 @@ function SettingsPage() {
     null,
   )
   const [checking, setChecking] = useState(false)
+  const [disconnecting, setDisconnecting] = useState(false)
+  const { gmail: outcome } = Route.useSearch()
+  const navigate = useNavigate()
+
+  // Back from Google: say how it went once, and drop ?gmail= so a reload does not repeat it.
+  useEffect(() => {
+    if (!outcome) return
+    setMessage(gmailOutcome(outcome, view))
+    void navigate({ to: '/settings', search: {}, replace: true })
+  }, [outcome, view, navigate])
+
+  async function disconnect() {
+    setDisconnecting(true)
+    setMessage(null)
+    try {
+      const next = await disconnectGoogle()
+      setForm(formOf(next))
+      await router.invalidate()
+      setMessage({ ok: true, text: 'Gmail disconnected.' })
+    } catch (err) {
+      setMessage({ ok: false, text: readError(err) })
+    } finally {
+      setDisconnecting(false)
+    }
+  }
 
   const set = <TKey extends keyof Form>(key: TKey, value: Form[TKey]) => {
     setForm((f) => ({ ...f, [key]: value }))
@@ -155,23 +186,31 @@ function SettingsPage() {
           )
         }
       >
-        {view.sending.problem && (
+        {/* Connecting (or reconnecting) is explained in the Gmail block below. */}
+        {view.sending.problem && !view.gmail && view.has_app_password && (
           <p className="rounded-lg bg-warn-soft px-3 py-2 text-sm text-warn">
             {view.sending.problem}
           </p>
         )}
-        <Field
-          label="Your Gmail address"
-          hint="Emails are sent from it and suppliers reply to it. It must be the account your app password (GMAIL_APP_PASSWORD in .env) belongs to."
-        >
-          <input
-            className="input"
-            type="email"
-            placeholder="you@gmail.com"
-            value={form.from_email}
-            onChange={(e) => set('from_email', e.target.value)}
-          />
-        </Field>
+        <GmailConnection
+          view={view}
+          disconnecting={disconnecting}
+          onDisconnect={() => void disconnect()}
+        />
+        {!view.gmail && view.has_app_password && (
+          <Field
+            label="Or use your Gmail app password"
+            hint="Without connecting: emails are sent from this address with GMAIL_APP_PASSWORD in .env, which must belong to it."
+          >
+            <input
+              className="input"
+              type="email"
+              placeholder="you@gmail.com"
+              value={form.from_email}
+              onChange={(e) => set('from_email', e.target.value)}
+            />
+          </Field>
+        )}
         <Field
           label="Ask for a reply within"
           hint="The email gives the supplier a date this many days away."
@@ -219,7 +258,9 @@ function SettingsPage() {
       >
         {view.reply_scanning && !view.sending.ready && (
           <p className="rounded-lg bg-warn-soft px-3 py-2 text-sm text-warn">
-            Uses the same Gmail login as sending: set that up above first.
+            {view.gmail?.needs_reconnect
+              ? 'Replies are not being read: reconnect Gmail above.'
+              : 'Replies are read from the Gmail you send from: connect it above first.'}
           </p>
         )}
         <Toggle
@@ -324,6 +365,140 @@ function SettingsPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+/** What happened on Google's sign-in, from ?gmail= on the way back. */
+function gmailOutcome(
+  outcome: string,
+  view: View,
+): { ok: boolean; text: string } {
+  switch (outcome) {
+    case 'connected':
+      return {
+        ok: true,
+        text: view.gmail
+          ? `Connected as ${view.gmail.email}.`
+          : 'Gmail connected.',
+      }
+    case 'denied':
+      return {
+        ok: false,
+        text: 'Gmail was not connected: the sign-in was cancelled on Google’s screen.',
+      }
+    case 'scopes':
+      return {
+        ok: false,
+        text: 'Shelfie needs both Gmail permissions, to send email and to read replies. Press "Connect Gmail" again and leave both ticked.',
+      }
+    case 'expired':
+      return {
+        ok: false,
+        text: 'The Google sign-in took too long. Press "Connect Gmail" again.',
+      }
+    case 'state':
+      return {
+        ok: false,
+        text: 'That Google sign-in did not start from this page, so it was ignored. Press "Connect Gmail" again.',
+      }
+    case 'setup':
+      return {
+        ok: false,
+        text: view.google_setup_problem ?? 'Connecting Gmail is not set up.',
+      }
+    default:
+      return {
+        ok: false,
+        text: 'Google sign-in did not work. Try again.',
+      }
+  }
+}
+
+/** "Connect Gmail", "Connected as ..." or "Reconnect Gmail". */
+function GmailConnection({
+  view,
+  disconnecting,
+  onDisconnect,
+}: {
+  view: View
+  disconnecting: boolean
+  onDisconnect: () => void
+}) {
+  const g = view.gmail
+  const setup = view.google_setup_problem
+  const disconnect = (
+    <button
+      className="btn-ghost"
+      disabled={disconnecting}
+      onClick={onDisconnect}
+    >
+      {disconnecting && <Spinner className="h-4 w-4" />}
+      {disconnecting ? 'Disconnecting…' : 'Disconnect'}
+    </button>
+  )
+  if (g && !g.needs_reconnect)
+    return (
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-bg/60 px-4 py-3">
+        <div className="min-w-0 text-sm">
+          <p className="truncate font-medium">Connected as {g.email}</p>
+          <p className="text-xs text-muted">
+            Emails are sent from this Gmail and replies are read from it.
+            Connected {dateTime(g.connected_at)}.
+          </p>
+        </div>
+        {disconnect}
+      </div>
+    )
+  if (g)
+    return (
+      <div className="space-y-3 rounded-lg bg-warn-soft px-4 py-3 text-sm text-warn">
+        <p className="flex gap-2">
+          <Icon name="alert" className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>
+            Google stopped Shelfie’s access to <b>{g.email}</b>, so emails
+            cannot be sent or replies read. This happens when access is removed
+            in the Google account, and every 7 days while the Google app is in
+            Testing mode.
+          </span>
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <ConnectButton disabled={Boolean(setup)} label="Reconnect Gmail" />
+          {disconnect}
+        </div>
+      </div>
+    )
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-bg/60 px-4 py-3">
+      <div className="min-w-0 flex-1 text-sm">
+        <p className="font-medium">Your Gmail account</p>
+        <p className={`text-xs ${setup ? 'text-warn' : 'text-muted'}`}>
+          {setup ??
+            'Sign in with Google once. Shelfie sends from your Gmail and reads only the replies to what it sent.'}
+        </p>
+      </div>
+      <ConnectButton disabled={Boolean(setup)} label="Connect Gmail" />
+    </div>
+  )
+}
+
+function ConnectButton({
+  disabled,
+  label,
+}: {
+  disabled: boolean
+  label: string
+}) {
+  // A plain link: the browser goes to Google and comes back to this page.
+  return disabled ? (
+    <button className="btn-primary" disabled>
+      <Icon name="mail" className="h-4 w-4" />
+      {label}
+    </button>
+  ) : (
+    <a className="btn-primary" href={CONNECT_GMAIL}>
+      <Icon name="mail" className="h-4 w-4" />
+      {label}
+    </a>
   )
 }
 

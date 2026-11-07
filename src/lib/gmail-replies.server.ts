@@ -1,5 +1,8 @@
-// Reading supplier replies from the owner's Gmail over IMAP, with the same app password
-// used to send (GMAIL_APP_PASSWORD). Only replies to requests Shelfie sent are opened:
+// Reading supplier replies from the owner's Gmail. Two ways in:
+// - Gmail connected in Settings: the Gmail API. Each request's thread is read with
+//   users.threads.get (Gmail's thread id is kept when the request is sent).
+// - Otherwise IMAP, with the same app password used to send (GMAIL_APP_PASSWORD).
+// Only replies to requests Shelfie sent are opened:
 // - in the same thread: In-Reply-To or References names the request's Message-ID, or
 // - from the address the request went to (when "match plain replies by sender" is on).
 // The rest of the mailbox is never fetched, and nothing is marked as read.
@@ -8,12 +11,33 @@
 import { ImapFlow } from 'imapflow'
 import type { SearchObject } from 'imapflow'
 import { simpleParser } from 'mailparser'
+import {
+  GmailApiError,
+  getAttachment,
+  getMessage,
+  getThread,
+  messageHeaders,
+  searchMessages,
+} from './gmail-api.server'
+import {
+  attachmentRefs,
+  bodyText,
+  bounceNote,
+  gmailToInbound,
+  isBounce,
+  newReplies,
+  replyKey,
+} from './gmail-message.server'
+import type { GmailMessage } from './gmail-message.server'
+import { GmailReconnectError } from './google-auth.server'
 import { emailOf } from './inbound'
 import { receiveInbound } from './inbound.server'
 import type { InboundMessage } from './inbound.server'
 import { getSettings, sendingStatus } from './settings.server'
 import type { Settings } from './settings.server'
 import { db, must } from './supabase.server'
+
+export { bounceNote, isBounce }
 
 /** Requests older than this are no longer watched for replies. */
 const WATCH_DAYS = 45
@@ -26,6 +50,7 @@ interface SentDraft {
   to_email: string | null
   sent_at: string
   provider_message_id: string | null
+  gmail_thread_id?: string | null
   send_error: string | null
 }
 
@@ -124,7 +149,9 @@ async function run(force: boolean): Promise<ReplyCheck> {
   const drafts = must(
     await db()
       .from('email_drafts')
-      .select('id, to_email, sent_at, provider_message_id, send_error')
+      .select(
+        'id, to_email, sent_at, provider_message_id, gmail_thread_id, send_error',
+      )
       .not('sent_at', 'is', null)
       .gte('sent_at', since),
     'load sent requests',
@@ -133,9 +160,15 @@ async function run(force: boolean): Promise<ReplyCheck> {
   const checkedAt = new Date().toISOString()
   try {
     const { replies: found, bounces } =
-      drafts.length > 0
-        ? await fetchReplies(settings, drafts)
-        : { replies: [], bounces: 0 }
+      drafts.length === 0
+        ? { replies: [], bounces: 0 }
+        : settings.gmail
+          ? await fetchRepliesApi(
+              settings.gmail.email,
+              settings.match_by_sender,
+              drafts,
+            )
+          : await fetchReplies(settings, drafts)
     let read = 0
     for (const msg of found) {
       try {
@@ -159,7 +192,10 @@ async function run(force: boolean): Promise<ReplyCheck> {
       bounces,
     }
   } catch (err) {
-    const reason = imapError(err)
+    const reason =
+      err instanceof GmailReconnectError || err instanceof GmailApiError
+        ? err.message
+        : imapError(err)
     console.error('[gmail] reply check failed', err)
     await record(checkedAt, reason)
     return {
@@ -315,27 +351,105 @@ export async function toInbound(
   }
 }
 
-/** Gmail's "could not deliver" notices come from these addresses. They are not replies. */
-export function isBounce(from: string | null | undefined): boolean {
-  const email = emailOf(from)
-  if (!email) return false
-  const local = email.slice(0, email.indexOf('@'))
-  return local === 'mailer-daemon' || local === 'postmaster'
+// --- Gmail API (connected with Google) -------------------------------------------------
+// threads.get per request rather than the history API: it needs no stored historyId (which
+// Gmail expires after about a week, forcing a full resync anyway), it reads exactly the
+// threads Shelfie started and nothing else, and it costs one call per watched request.
+
+/**
+ * The Gmail thread of a request sent before Gmail was connected (over SMTP), found once by
+ * its Message-ID and remembered. Null when it is not in this mailbox.
+ */
+async function threadOf(d: SentDraft): Promise<string | null> {
+  if (d.gmail_thread_id) return d.gmail_thread_id
+  const id = d.provider_message_id?.replace(/^<|>$/g, '')
+  if (!id || !id.includes('@')) return null
+  const hit = (await searchMessages(`rfc822msgid:${id}`, 1)).at(0)
+  if (!hit) return null
+  await db()
+    .from('email_drafts')
+    .update({ gmail_thread_id: hit.threadId })
+    .eq('id', d.id)
+  return hit.threadId
 }
 
-/** "Not delivered to x@example.ie: address not found." from a bounce's text. */
-export function bounceNote(text: string): string {
-  const to =
-    /(?:wasn't|was not) delivered to\s+([^\s@]+@[^\s]+?)(?=[\s,;]|\.(?:\s|$)|$)/i.exec(
-      text,
-    )?.[1]
-  const why =
-    /couldn't be found|could not be found|does not exist|no such user/i.test(
-      text,
-    )
-      ? 'address not found'
-      : null
-  return `Not delivered${to ? ` to ${to}` : ''}${why ? `: ${why}` : ''}.`
+/** Finds and downloads replies Shelfie has not seen yet, each tied to its request. */
+async function fetchRepliesApi(
+  own: string,
+  bySender: boolean,
+  drafts: Array<SentDraft>,
+): Promise<{ replies: Array<InboundMessage>; bounces: number }> {
+  // Gmail message id -> the message and the request it answers. A thread match beats a
+  // sender match. Sender matches only have headers until they turn out to be new.
+  const found = new Map<
+    string,
+    { message: GmailMessage; draft: SentDraft; full: boolean }
+  >()
+  for (const d of drafts) {
+    const thread = await threadOf(d)
+    if (!thread) continue
+    for (const m of (await getThread(thread)) ?? [])
+      if (!found.has(m.id))
+        found.set(m.id, { message: m, draft: d, full: true })
+  }
+  if (bySender)
+    for (const d of drafts) {
+      const to = emailOf(d.to_email)
+      if (!to) continue
+      const after = Math.floor(Date.parse(d.sent_at) / 1000)
+      for (const hit of await searchMessages(`from:${to} after:${after}`))
+        if (!found.has(hit.id))
+          found.set(hit.id, {
+            message: await messageHeaders(hit.id, ['Message-ID', 'From']),
+            draft: d,
+            full: false,
+          })
+    }
+  if (found.size === 0) return { replies: [], bounces: 0 }
+
+  // Skip messages already stored, without downloading their attachments.
+  const keys = [...found.values()].map((f) => replyKey(f.message))
+  const seen = new Set(
+    (
+      must(
+        await db()
+          .from('inbound_emails')
+          .select('message_id')
+          .in('message_id', keys),
+        'check stored replies',
+      ) as Array<{ message_id: string }>
+    ).map((r) => r.message_id),
+  )
+
+  const replies: Array<InboundMessage> = []
+  let bounces = 0
+  for (const f of found.values()) {
+    const pick = newReplies([f.message], {
+      own,
+      sentAt: f.draft.sent_at,
+      seen,
+    }).at(0)
+    if (!pick) continue
+    // A bounce already noted on its request is not downloaded again.
+    if (pick.bounce && f.draft.send_error?.startsWith('Not delivered')) continue
+    const message = f.full ? f.message : await getMessage(f.message.id)
+    if (pick.bounce) {
+      // Not a reply: note on the request which address Gmail could not deliver to.
+      await db()
+        .from('email_drafts')
+        .update({ send_error: bounceNote(bodyText(message)) })
+        .eq('id', f.draft.id)
+      bounces++
+      continue
+    }
+    const files = new Map<string, Uint8Array>()
+    for (const a of attachmentRefs(message))
+      if (a.attachmentId)
+        files.set(a.partId, await getAttachment(message.id, a.attachmentId))
+    const inbound = gmailToInbound(message, files, f.draft.id)
+    if (inbound) replies.push(inbound)
+  }
+  return { replies, bounces }
 }
 
 /** Recent requests Gmail reported it could not deliver, for the Replies list. */

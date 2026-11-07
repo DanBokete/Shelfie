@@ -32,6 +32,14 @@ const base: Settings = {
   replies_checked_at: null,
   replies_check_error: null,
   updated_at: '2026-11-07T12:00:00Z',
+  gmail: null,
+}
+
+const CONNECTED = {
+  email: 'aoife.corner@gmail.com',
+  connected_at: '2026-11-07T12:00:00Z',
+  needs_reconnect: false,
+  last_error: null,
 }
 
 afterEach(() => vi.unstubAllEnvs())
@@ -101,10 +109,29 @@ describe('reply-by date', () => {
 })
 
 describe('sending', () => {
-  it('through Gmail needs an app password and the Gmail address', () => {
+  it('through connected Gmail needs nothing else, until Google refuses it', () => {
+    vi.stubEnv('GMAIL_APP_PASSWORD', '')
+    expect(sendingStatus({ ...base, gmail: CONNECTED })).toEqual({
+      ready: true,
+      problem: null,
+    })
+    const refused = { ...CONNECTED, needs_reconnect: true }
+    expect(sendingStatus({ ...base, gmail: refused }).problem).toMatch(
+      /Reconnect Gmail/,
+    )
+  })
+
+  it('sends from the connected Gmail, whatever address was typed before', () => {
+    const s = { ...base, from_email: 'old@gmail.com', gmail: CONNECTED }
+    expect(fromHeader(s)).toBe(
+      '"Aoife at The Corner Café" <aoife.corner@gmail.com>',
+    )
+  })
+
+  it('through Gmail without connecting needs an app password and the address', () => {
     vi.stubEnv('GMAIL_APP_PASSWORD', '')
     const gmail = { ...base, from_email: 'aoife@gmail.com' }
-    expect(sendingStatus(gmail).problem).toMatch(/GMAIL_APP_PASSWORD/)
+    expect(sendingStatus(gmail).problem).toMatch(/Connect Gmail/)
     vi.stubEnv('GMAIL_APP_PASSWORD', 'abcd efgh ijkl mnop')
     expect(sendingStatus(base).problem).toMatch(/Gmail address/)
     expect(sendingStatus(gmail)).toEqual({ ready: true, problem: null })

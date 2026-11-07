@@ -1,30 +1,85 @@
-// Sending request emails from Shelfie, so the owner never leaves the app. Two ways out:
-// - Gmail: the owner's own account over SMTP with an app password (GMAIL_APP_PASSWORD).
-//   The email comes from their real address and lands in their Gmail Sent folder.
+// Sending request emails from Shelfie, so the owner never leaves the app. Three ways out:
+// - Gmail, connected in Settings ("Connect Gmail"): the Gmail API with the owner's Google
+//   sign-in (lib/google-auth.server.ts). Replies are then read from the request's thread.
+// - Gmail with an app password (GMAIL_APP_PASSWORD) over SMTP, when Gmail is not connected.
+//   Either way the email comes from their real address and lands in their Gmail Sent folder.
 // - Postmark: for an address on the owner's own domain (POSTMARK_SERVER_TOKEN).
 // Passwords and tokens live in .env; the choice and the From address are in Settings.
 import nodemailer from 'nodemailer'
+import { GmailApiError, messageHeaders, sendMessage } from './gmail-api.server'
+import { header, rawMessage } from './gmail-message.server'
+import type { Outgoing } from './gmail-message.server'
+import { GmailReconnectError } from './google-auth.server'
 import { inboundAddressFor } from './inbound'
-import { getSettings, replyCc, sendingStatus } from './settings.server'
+import {
+  getSettings,
+  replyCc,
+  senderEmail,
+  sendingStatus,
+} from './settings.server'
 import type { Settings } from './settings.server'
 import { db, mustOne } from './supabase.server'
 
 /** '"Aoife at The Corner Café" <orders@example.ie>', quoted so commas in names are safe. */
 export function fromHeader(s: Settings): string {
   const name = `${s.owner_name} at ${s.business_name}`.replace(/["\\]/g, '')
-  return `"${name}" <${s.from_email}>`
+  return `"${name}" <${senderEmail(s)}>`
 }
 
-interface Outgoing {
-  from: string
-  to: string
-  cc: string | null
-  bcc: string | null
-  subject: string
-  text: string
+/**
+ * The email for a draft: the owner's edits, plus the CC (Shelfie's reply address) and BCC
+ * (the owner's copy) from Settings, never from the browser.
+ */
+export function composeOutgoing(
+  s: Settings,
+  draftId: string,
+  edits: { to: string; subject: string; body: string },
+): Outgoing {
+  return {
+    from: fromHeader(s),
+    to: edits.to,
+    cc: replyCc(s, inboundAddressFor, draftId),
+    bcc: s.bcc_email,
+    subject: edits.subject,
+    text: edits.body,
+  }
 }
 
-// --- Gmail -----------------------------------------------------------------------------
+/** What a provider tells us about a sent email. */
+interface Sent {
+  /** The RFC Message-ID (Gmail), or Postmark's id. */
+  messageId: string | null
+  gmailMessageId?: string
+  gmailThreadId?: string
+}
+
+// --- Gmail API (connected with Google) -------------------------------------------------
+
+async function sendWithGmailApi(m: Outgoing): Promise<Sent> {
+  let sent: { id: string; threadId: string }
+  try {
+    sent = await sendMessage(await rawMessage(m))
+  } catch (err) {
+    if (err instanceof GmailReconnectError || err instanceof GmailApiError)
+      throw new SendError(err.message)
+    throw err
+  }
+  // Sent: from here nothing may fail the send. Gmail's message and thread ids find the
+  // replies; the Message-ID is kept too, so the app-password path can find them as well.
+  const head = await messageHeaders(sent.id, ['Message-ID']).catch(
+    (err: unknown) => {
+      console.warn('[gmail] sent, but could not read its Message-ID', err)
+      return null
+    },
+  )
+  return {
+    messageId: header(head?.payload, 'Message-ID'),
+    gmailMessageId: sent.id,
+    gmailThreadId: sent.threadId,
+  }
+}
+
+// --- Gmail app password (SMTP) ---------------------------------------------------------
 
 /** Gmail's failures the owner can fix, in their words. Null for anything else. */
 export function gmailError(err: {
@@ -52,7 +107,7 @@ export function gmailError(err: {
   return null
 }
 
-async function sendWithGmail(s: Settings, m: Outgoing): Promise<string | null> {
+async function sendWithGmail(s: Settings, m: Outgoing): Promise<Sent> {
   const transport = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
@@ -72,7 +127,7 @@ async function sendWithGmail(s: Settings, m: Outgoing): Promise<string | null> {
       subject: m.subject,
       text: m.text,
     })
-    return info.messageId
+    return { messageId: info.messageId }
   } catch (err) {
     const e = err as { code?: string; responseCode?: number; response?: string }
     throw new SendError(
@@ -103,7 +158,7 @@ interface PostmarkResponse {
   MessageID?: string
 }
 
-async function sendWithPostmark(m: Outgoing): Promise<string | null> {
+async function sendWithPostmark(m: Outgoing): Promise<Sent> {
   const res = await fetch(POSTMARK_URL, {
     method: 'POST',
     headers: {
@@ -132,15 +187,12 @@ async function sendWithPostmark(m: Outgoing): Promise<string | null> {
       (out && POSTMARK_ERRORS[out.ErrorCode]) ??
         `Postmark error: ${out?.Message ?? `HTTP ${res.status}`}`,
     )
-  return out.MessageID ?? null
+  return { messageId: out.MessageID ?? null }
 }
 
 // --- Sending a draft -------------------------------------------------------------------
 
-/**
- * Sends a drafted request and records it. The CC (Shelfie's reply address) and BCC
- * (the owner's copy) are worked out here from Settings, never taken from the browser.
- */
+/** Sends a drafted request and records it. */
 export async function sendDraft(
   id: string,
   edits: { to: string; subject: string; body: string },
@@ -159,21 +211,16 @@ export async function sendDraft(
   const status = sendingStatus(settings)
   if (!status.ready) throw new SendError(status.problem!)
 
-  const message: Outgoing = {
-    from: fromHeader(settings),
-    to: edits.to,
-    cc: replyCc(settings, inboundAddressFor, id),
-    bcc: settings.bcc_email,
-    subject: edits.subject,
-    text: edits.body,
-  }
+  const message = composeOutgoing(settings, id, edits)
 
-  let messageId: string | null
+  let sent: Sent
   try {
-    messageId =
-      settings.send_via === 'gmail'
-        ? await sendWithGmail(settings, message)
-        : await sendWithPostmark(message)
+    sent =
+      settings.send_via !== 'gmail'
+        ? await sendWithPostmark(message)
+        : settings.gmail
+          ? await sendWithGmailApi(message)
+          : await sendWithGmail(settings, message)
   } catch (err) {
     if (err instanceof SendError)
       await db()
@@ -190,7 +237,9 @@ export async function sendDraft(
       .update({
         status: 'sent',
         sent_at: sentAt,
-        provider_message_id: messageId,
+        provider_message_id: sent.messageId,
+        gmail_message_id: sent.gmailMessageId ?? null,
+        gmail_thread_id: sent.gmailThreadId ?? null,
         send_error: null,
         to_email: edits.to,
         subject: edits.subject,

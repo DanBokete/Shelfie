@@ -2,6 +2,8 @@
 // settings table; the inbound address and webhook secret fall back to .env when unset.
 import { randomBytes } from 'node:crypto'
 import { z } from 'zod'
+import { gmailLink, googleSetupProblem } from './google-auth.server'
+import type { GmailLink } from './google-auth.server'
 import { db, mustOne } from './supabase.server'
 
 export interface Settings {
@@ -27,6 +29,8 @@ export interface Settings {
   replies_checked_at: string | null
   replies_check_error: string | null
   updated_at: string
+  /** The Gmail account connected with "Connect Gmail", if any. Never the token. */
+  gmail: GmailLink | null
 }
 
 export type SendVia = 'gmail' | 'postmark'
@@ -35,15 +39,21 @@ const COLS =
   'business_name, owner_name, town, reply_by_days, cc_shelfie, bcc_email, send_via, from_email, reply_scanning, inbound_address, webhook_secret, match_by_sender, alerts_enabled, alert_min_saving, replies_checked_at, replies_check_error, updated_at'
 
 export async function getSettings(): Promise<Settings> {
-  const row = mustOne(
-    await db()
+  const [res, gmail] = await Promise.all([
+    db()
       .from('settings')
       .select(COLS)
       .eq('id', true)
-      .maybeSingle<Settings>(),
-    'load settings',
-  )
-  return { ...row, alert_min_saving: Number(row.alert_min_saving) }
+      .maybeSingle<Omit<Settings, 'gmail'>>(),
+    gmailLink(),
+  ])
+  const row = mustOne(res, 'load settings')
+  return { ...row, alert_min_saving: Number(row.alert_min_saving), gmail }
+}
+
+/** The address requests come from: the connected Gmail account, else the one in Settings. */
+export function senderEmail(s: Settings): string | null {
+  return s.send_via === 'gmail' && s.gmail ? s.gmail.email : s.from_email
 }
 
 /** The Shelfie reply address in use: the saved one, else .env. Null when neither is set. */
@@ -62,11 +72,17 @@ export function sendingStatus(s: Settings): {
   problem: string | null
 } {
   if (s.send_via === 'gmail') {
+    // Connected with Google: the Gmail API. Otherwise the app password, if there is one.
+    if (s.gmail?.needs_reconnect)
+      return {
+        ready: false,
+        problem: `Google stopped Shelfie’s access to ${s.gmail.email}. Press "Reconnect Gmail" in Settings.`,
+      }
+    if (s.gmail) return { ready: true, problem: null }
     if (!process.env.GMAIL_APP_PASSWORD)
       return {
         ready: false,
-        problem:
-          'Sending is not set up: add your Gmail app password to .env as GMAIL_APP_PASSWORD and restart the app.',
+        problem: 'Sending is not set up: press "Connect Gmail" in Settings.',
       }
     if (!s.from_email)
       return {
@@ -180,6 +196,10 @@ export async function settingsView() {
   return {
     ...rest,
     sending,
+    /** What .env lacks for "Connect Gmail", or null when it can be used. */
+    google_setup_problem: googleSetupProblem(),
+    /** Whether the app-password fallback (SMTP and IMAP) is set up. */
+    has_app_password: Boolean(process.env.GMAIL_APP_PASSWORD),
     // Replies are read from the same Gmail account emails are sent from.
     reply_scanning_ready: s.reply_scanning && sending.ready,
   }

@@ -27,6 +27,8 @@ import { Route as ApiEmailSendRouteImport } from './routes/api/email.send'
 import { Route as ApiInvoicesExtractRouteImport } from './routes/api/invoices.extract'
 import { Route as ApiPricesCheckRouteImport } from './routes/api/prices.check'
 import { Route as ApiScanIdentifyRouteImport } from './routes/api/scan.identify'
+import { Route as ApiAuthGoogleCallbackRouteImport } from './routes/api/auth.google.callback'
+import { Route as ApiAuthGoogleStartRouteImport } from './routes/api/auth.google.start'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -118,6 +120,16 @@ const ApiScanIdentifyRoute = ApiScanIdentifyRouteImport.update({
   path: '/api/scan/identify',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthGoogleCallbackRoute = ApiAuthGoogleCallbackRouteImport.update({
+  id: '/api/auth/google/callback',
+  path: '/api/auth/google/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthGoogleStartRoute = ApiAuthGoogleStartRouteImport.update({
+  id: '/api/auth/google/start',
+  path: '/api/auth/google/start',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -138,6 +150,8 @@ export interface FileRoutesByFullPath {
   '/api/invoices/extract': typeof ApiInvoicesExtractRoute
   '/api/prices/check': typeof ApiPricesCheckRoute
   '/api/scan/identify': typeof ApiScanIdentifyRoute
+  '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
+  '/api/auth/google/start': typeof ApiAuthGoogleStartRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -158,6 +172,8 @@ export interface FileRoutesByTo {
   '/api/invoices/extract': typeof ApiInvoicesExtractRoute
   '/api/prices/check': typeof ApiPricesCheckRoute
   '/api/scan/identify': typeof ApiScanIdentifyRoute
+  '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
+  '/api/auth/google/start': typeof ApiAuthGoogleStartRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -179,6 +195,8 @@ export interface FileRoutesById {
   '/api/invoices/extract': typeof ApiInvoicesExtractRoute
   '/api/prices/check': typeof ApiPricesCheckRoute
   '/api/scan/identify': typeof ApiScanIdentifyRoute
+  '/api/auth/google/callback': typeof ApiAuthGoogleCallbackRoute
+  '/api/auth/google/start': typeof ApiAuthGoogleStartRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -201,6 +219,8 @@ export interface FileRouteTypes {
     | '/api/invoices/extract'
     | '/api/prices/check'
     | '/api/scan/identify'
+    | '/api/auth/google/callback'
+    | '/api/auth/google/start'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -221,6 +241,8 @@ export interface FileRouteTypes {
     | '/api/invoices/extract'
     | '/api/prices/check'
     | '/api/scan/identify'
+    | '/api/auth/google/callback'
+    | '/api/auth/google/start'
   id:
     | '__root__'
     | '/'
@@ -241,6 +263,8 @@ export interface FileRouteTypes {
     | '/api/invoices/extract'
     | '/api/prices/check'
     | '/api/scan/identify'
+    | '/api/auth/google/callback'
+    | '/api/auth/google/start'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -262,6 +286,8 @@ export interface RootRouteChildren {
   ApiInvoicesExtractRoute: typeof ApiInvoicesExtractRoute
   ApiPricesCheckRoute: typeof ApiPricesCheckRoute
   ApiScanIdentifyRoute: typeof ApiScanIdentifyRoute
+  ApiAuthGoogleCallbackRoute: typeof ApiAuthGoogleCallbackRoute
+  ApiAuthGoogleStartRoute: typeof ApiAuthGoogleStartRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -392,6 +418,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiScanIdentifyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/google/callback': {
+      id: '/api/auth/google/callback'
+      path: '/api/auth/google/callback'
+      fullPath: '/api/auth/google/callback'
+      preLoaderRoute: typeof ApiAuthGoogleCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/google/start': {
+      id: '/api/auth/google/start'
+      path: '/api/auth/google/start'
+      fullPath: '/api/auth/google/start'
+      preLoaderRoute: typeof ApiAuthGoogleStartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -414,6 +454,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiInvoicesExtractRoute: ApiInvoicesExtractRoute,
   ApiPricesCheckRoute: ApiPricesCheckRoute,
   ApiScanIdentifyRoute: ApiScanIdentifyRoute,
+  ApiAuthGoogleCallbackRoute: ApiAuthGoogleCallbackRoute,
+  ApiAuthGoogleStartRoute: ApiAuthGoogleStartRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

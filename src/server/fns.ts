@@ -12,6 +12,7 @@ import { lastAlert, telegramStatus } from '#/lib/alerts.server'
 import { demoMode, model } from '#/lib/claude.server'
 import { updateDraft } from '#/lib/email.server'
 import { deliveryProblems } from '#/lib/gmail-replies.server'
+import { disconnectGmail, gmailLink } from '#/lib/google-auth.server'
 import { inboundOverview, reprocessInbound } from '#/lib/inbound.server'
 import { livePricesOverview, productPriceChecks } from '#/lib/market.server'
 import {
@@ -143,6 +144,8 @@ export const getReplies = createServerFn({ method: 'GET' }).handler(
     ...(await inboundOverview()),
     // Requests Gmail could not deliver, found while checking for replies.
     undelivered: await deliveryProblems(),
+    // Whether the connected Gmail needs signing in again (no token, ever).
+    gmail: await gmailLink(),
   }),
 )
 
@@ -157,6 +160,14 @@ export const getSettingsPage = createServerFn({ method: 'GET' }).handler(() =>
 export const updateSettings = createServerFn({ method: 'POST' })
   .validator(SettingsInput)
   .handler(({ data }) => saveSettings(data))
+
+/** "Disconnect" in Settings: revokes Shelfie's Google access and forgets it. */
+export const disconnectGoogle = createServerFn({ method: 'POST' }).handler(
+  async () => {
+    await disconnectGmail()
+    return settingsView()
+  },
+)
 
 export const newWebhookSecret = createServerFn({ method: 'POST' }).handler(() =>
   rotateWebhookSecret(),

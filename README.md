@@ -70,17 +70,44 @@ Real crumpled photos are still worth adding by hand before the pitch.
 ## Reading supplier replies
 
 When a supplier or seller replies to an "Ask to match" or "Ask for a quote" email with a quote, price list or invoice, Shelfie reads it and updates prices.
-Everything goes through the owner's own Gmail account: Shelfie sends the request from it (SMTP) and reads the replies from it (IMAP), with the same app password.
+Everything goes through the owner's own Gmail account: Shelfie sends the request from it and reads the replies from it.
+The owner presses "Connect Gmail" in Settings and signs in with Google once (see "Connect Gmail" below); Shelfie then uses the Gmail API.
+Without a connection, a Gmail app password still works (SMTP and IMAP), and Postmark still works for an address on the owner's own domain.
 
 - While the app is open, it checks Gmail every 2 minutes; "Check Gmail now" on the Invoices page and "Check now" in Settings run a check at once.
-- Only replies to requests Shelfie sent are opened: emails in the same thread (their `In-Reply-To` or `References` names the request's Message-ID), and, if "Also read emails from the supplier's address" is on, new emails from the address the request went to. Nothing else in the mailbox is fetched, and emails stay unread.
+- Only replies to requests Shelfie sent are opened: emails in the same thread, and, if "Also read emails from the supplier's address" is on, new emails from the address the request went to. Nothing else in the mailbox is fetched, and emails stay unread.
+- With Gmail connected, each request's Gmail thread is read with `users.threads.get`, using the thread id saved when it was sent. The history API was not used: it needs a stored `historyId` that Gmail expires after about a week, and it reports every change in the mailbox, while `threads.get` reads exactly the threads Shelfie started. Requests sent over SMTP before connecting are found once by their Message-ID (`rfc822msgid:`).
+- With the app password, IMAP finds emails whose `In-Reply-To` or `References` names the request's Message-ID.
 - A Gmail "could not deliver" notice is not a reply: it is noted on the request and shown at the top of Replies (for example a mistyped address).
 - Requests are watched for 45 days. The code is in `src/lib/gmail-replies.server.ts`.
 
-Setup (Settings page, plus one line in `.env`):
+### Connect Gmail
 
-1. Turn on 2-Step Verification for the Google account, create an app password at myaccount.google.com/apppasswords, put it in `GMAIL_APP_PASSWORD` and restart.
-2. In Settings, enter that Gmail address under "Your Gmail address". Sending and reading replies both show "Ready".
+Google needs an OAuth client for Shelfie, once per project (free):
+
+1. In the [Google Cloud console](https://console.cloud.google.com/), create a project (for example "Shelfie").
+2. Enable the Gmail API: APIs & Services, Library, "Gmail API", Enable.
+3. Set up the consent screen (Google Auth Platform, called "OAuth consent screen" in older consoles): app name "Shelfie", user type External, your email as support and developer contact.
+   Leave the publishing status on **Testing**, and under Audience add the demo Gmail address as a **test user**.
+   Under Data Access, add the scopes `openid`, `.../auth/userinfo.email`, `.../auth/gmail.send` and `.../auth/gmail.readonly`.
+4. Create the client: Clients (or Credentials), Create client, type **Web application**.
+   Add these Authorized redirect URIs, exactly:
+   - `http://localhost:3000/api/auth/google/callback`
+   - `http://localhost:3100/api/auth/google/callback` if you run the dev server on port 3100
+   - `https://<your tunnel or deployed host>/api/auth/google/callback` for the phone or the deployed app
+5. In `.env`, set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` from the client, and `TOKEN_ENCRYPTION_KEY` to the output of `openssl rand -base64 32`. Restart.
+6. In Settings, press "Connect Gmail", sign in as the test user, and leave both Gmail permissions ticked. Settings shows "Connected as <address>"; sending and reading replies both show "Ready".
+
+Good to know:
+
+- In Testing mode, Google shows a "Google hasn't verified this app" warning: press Continue. Only test users can sign in.
+- In Testing mode, Google ends the sign-in after 7 days. Settings and Replies then show "Reconnect Gmail"; press it and sign in again. The same happens if access is removed at myaccount.google.com/permissions.
+- A public launch needs Google's app verification. `gmail.readonly` is a restricted scope, so it also needs a yearly third-party security assessment.
+- Shelfie keeps only the refresh token, encrypted with AES-256-GCM (`TOKEN_ENCRYPTION_KEY`) in the `email_accounts` table, and never sends it to the browser. Changing the key means connecting again. Disconnect revokes the token with Google and deletes the row.
+- A demo reset (`/admin/reset`) keeps the connection.
+- The app has no login: anyone who can open it can connect or disconnect Gmail. That is fine on the demo laptop, but not on a public URL.
+
+Without connecting, with an app password instead: turn on 2-Step Verification for the Google account, create an app password at myaccount.google.com/apppasswords, put it in `GMAIL_APP_PASSWORD` and restart, then enter that Gmail address in Settings.
 
 What happens to a reply:
 

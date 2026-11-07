@@ -150,6 +150,23 @@ export function Replies({
             : check.reason}
         </p>
       )}
+      {data.gmail?.needs_reconnect && (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl bg-warn-soft px-3 py-2.5 text-sm text-warn">
+          <Icon name="alert" className="h-4 w-4 shrink-0" />
+          <span className="min-w-0 flex-1">
+            Google stopped Shelfie’s access to{' '}
+            <b className="font-semibold">{data.gmail.email}</b>, so new replies
+            are not being read.
+          </span>
+          {/* A plain link: the browser goes to Google and back to Settings. */}
+          <a
+            className="btn-secondary px-3 py-1.5"
+            href="/api/auth/google/start"
+          >
+            Reconnect Gmail
+          </a>
+        </div>
+      )}
       {data.undelivered.length > 0 && (
         <ul className="space-y-1.5">
           {data.undelivered.map((u) => (
