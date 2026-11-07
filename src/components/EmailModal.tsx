@@ -1,4 +1,6 @@
-// Drafts one negotiation email per supplier, lets the owner edit it, then hands it to their mail app.
+// Drafts one email per request, lets the owner edit it, then hands it to their mail app.
+// Two kinds: "match" asks a current supplier to match a lower price; "quote" asks a seller
+// found online for their trade prices.
 import { useEffect, useState } from 'react'
 import { Icon, Spinner } from './Icon'
 import { postJSON } from '#/lib/api'
@@ -12,31 +14,69 @@ export interface EmailItem {
   weekly_quantity: number | null
 }
 
-export interface EmailGroup {
-  supplier_id: string
-  supplier_name: string
-  items: Array<EmailItem>
+export type EmailRequest =
+  | {
+      kind: 'match'
+      supplier_id: string
+      supplier_name: string
+      items: Array<EmailItem>
+    }
+  | {
+      kind: 'quote'
+      offer_id: string
+      seller_name: string
+      product_name: string
+      price_seen: string
+    }
+
+interface Contact {
+  sells_to_trade: 'yes' | 'no' | 'unknown'
+  email: string | null
+  phone: string | null
+  contact_source_url: string | null
+  note: string | null
+  website: string | null
+  lookup_error: string | null
+}
+
+interface DraftResponse {
+  id: string
+  subject: string
+  body: string
+  supplier: { email: string | null }
+  contact?: Contact
 }
 
 interface Draft {
   state: 'drafting' | 'ready' | 'failed'
   id?: string
-  to?: string | null
+  to: string
   subject: string
   body: string
+  contact?: Contact
   error?: string
   sent?: boolean
 }
 
+function nameOf(r: EmailRequest): string {
+  return r.kind === 'match' ? r.supplier_name : r.seller_name
+}
+
+function bodyOf(r: EmailRequest) {
+  return r.kind === 'match'
+    ? { kind: 'match', supplier_id: r.supplier_id, items: r.items }
+    : { kind: 'quote', offer_id: r.offer_id }
+}
+
 export function EmailModal({
-  groups,
+  requests,
   onClose,
 }: {
-  groups: Array<EmailGroup>
+  requests: Array<EmailRequest>
   onClose: () => void
 }) {
   const [drafts, setDrafts] = useState<Array<Draft>>(() =>
-    groups.map(() => ({ state: 'drafting', subject: '', body: '' })),
+    requests.map(() => ({ state: 'drafting', to: '', subject: '', body: '' })),
   )
   const [tab, setTab] = useState(0)
   const [copied, setCopied] = useState(false)
@@ -46,22 +86,15 @@ export function EmailModal({
 
   function draft(i: number) {
     patch(i, { state: 'drafting', error: undefined })
-    postJSON<{
-      id: string
-      subject: string
-      body: string
-      supplier: { email: string | null }
-    }>('/api/email/draft', {
-      supplier_id: groups[i].supplier_id,
-      items: groups[i].items,
-    })
+    postJSON<DraftResponse>('/api/email/draft', bodyOf(requests[i]))
       .then((r) =>
         patch(i, {
           state: 'ready',
           id: r.id,
           subject: r.subject,
           body: r.body,
-          to: r.supplier.email,
+          to: r.supplier.email ?? '',
+          contact: r.contact,
         }),
       )
       .catch((e: unknown) =>
@@ -73,7 +106,7 @@ export function EmailModal({
   }
 
   useEffect(() => {
-    groups.forEach((_, i) => draft(i))
+    requests.forEach((_, i) => draft(i))
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
@@ -85,23 +118,31 @@ export function EmailModal({
   }, [])
 
   const d = drafts[tab]
-  const g = groups[tab]
+  const r = requests[tab]
+  const quote = r.kind === 'quote'
 
-  function send() {
+  function persist(status: 'draft' | 'approved') {
     if (!d.id) return
     void saveDraft({
-      data: { id: d.id, subject: d.subject, body: d.body, status: 'approved' },
+      data: {
+        id: d.id,
+        subject: d.subject,
+        body: d.body,
+        to_email: d.to.trim() || null,
+        status,
+      },
     })
+  }
+
+  function send() {
+    persist('approved')
     patch(tab, { sent: true })
-    window.location.href = `mailto:${encodeURIComponent(d.to ?? '')}?subject=${encodeURIComponent(d.subject)}&body=${encodeURIComponent(d.body)}`
+    window.location.href = `mailto:${encodeURIComponent(d.to.trim())}?subject=${encodeURIComponent(d.subject)}&body=${encodeURIComponent(d.body)}`
   }
 
   async function copy() {
     await navigator.clipboard.writeText(`Subject: ${d.subject}\n\n${d.body}`)
-    if (d.id)
-      void saveDraft({
-        data: { id: d.id, subject: d.subject, body: d.body, status: 'draft' },
-      })
+    persist('draft')
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
   }
@@ -119,12 +160,14 @@ export function EmailModal({
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-center justify-between border-b border-line px-5 py-4">
-          <div>
-            <h2 className="text-lg font-bold">Ask to match</h2>
-            <p className="text-sm text-muted">
-              {groups.length > 1
-                ? `${groups.length} emails, one per supplier`
-                : `To ${g.supplier_name}`}
+          <div className="min-w-0">
+            <h2 className="text-lg font-bold">
+              {quote ? 'Ask for a quote' : 'Ask to match'}
+            </h2>
+            <p className="truncate text-sm text-muted">
+              {requests.length > 1
+                ? `${requests.length} emails, one per supplier`
+                : `To ${nameOf(r)}`}
             </p>
           </div>
           <button
@@ -136,11 +179,11 @@ export function EmailModal({
           </button>
         </header>
 
-        {groups.length > 1 && (
+        {requests.length > 1 && (
           <div className="flex gap-1 overflow-x-auto border-b border-line px-3 py-2">
-            {groups.map((x, i) => (
+            {requests.map((x, i) => (
               <button
-                key={x.supplier_id}
+                key={x.kind === 'match' ? x.supplier_id : x.offer_id}
                 onClick={() => setTab(i)}
                 className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium ${
                   i === tab ? 'bg-soft text-ink' : 'text-muted hover:bg-soft'
@@ -152,8 +195,10 @@ export function EmailModal({
                 {drafts[i].sent && (
                   <Icon name="check" className="h-3.5 w-3.5 text-brand" />
                 )}
-                {x.supplier_name}
-                <span className="text-xs text-muted">({x.items.length})</span>
+                {nameOf(x)}
+                {x.kind === 'match' && (
+                  <span className="text-xs text-muted">({x.items.length})</span>
+                )}
               </button>
             ))}
           </div>
@@ -162,7 +207,10 @@ export function EmailModal({
         <div className="flex-1 space-y-3 overflow-auto px-5 py-4">
           {d.state === 'drafting' && (
             <div className="flex items-center gap-3 py-16 text-muted">
-              <Spinner /> Writing a friendly, firm email to {g.supplier_name}...
+              <Spinner className="h-5 w-5 shrink-0" />
+              {quote
+                ? `Finding how to reach ${nameOf(r)} and writing your quote request...`
+                : `Writing a friendly, firm email to ${nameOf(r)}...`}
             </div>
           )}
           {d.state === 'failed' && (
@@ -175,6 +223,22 @@ export function EmailModal({
           )}
           {d.state === 'ready' && (
             <>
+              {d.contact && (
+                <ContactNote contact={d.contact} seller={nameOf(r)} />
+              )}
+              <label className="block space-y-1">
+                <span className="label">To</span>
+                <input
+                  className="input"
+                  type="email"
+                  inputMode="email"
+                  placeholder={
+                    quote ? 'Add their trade or sales email' : 'Supplier email'
+                  }
+                  value={d.to}
+                  onChange={(e) => patch(tab, { to: e.target.value })}
+                />
+              </label>
               <label className="block space-y-1">
                 <span className="label">Subject</span>
                 <input
@@ -196,13 +260,20 @@ export function EmailModal({
                   Figures in this email
                 </summary>
                 <ul className="mt-2 space-y-1">
-                  {g.items.map((it) => (
-                    <li key={it.product_name}>
-                      {it.product_name} ({it.pack_label}): you pay €
-                      {it.your_price.toFixed(2)}, found €
-                      {it.best_price.toFixed(2)}
+                  {r.kind === 'match' ? (
+                    r.items.map((it) => (
+                      <li key={it.product_name}>
+                        {it.product_name} ({it.pack_label}): you pay €
+                        {it.your_price.toFixed(2)}, found €
+                        {it.best_price.toFixed(2)}
+                      </li>
+                    ))
+                  ) : (
+                    <li>
+                      {r.product_name}: seen online at {r.price_seen}. Your
+                      current supplier and price are not mentioned.
                     </li>
-                  ))}
+                  )}
                 </ul>
               </details>
             </>
@@ -230,6 +301,65 @@ export function EmailModal({
           </button>
         </footer>
       </div>
+    </div>
+  )
+}
+
+function ContactNote({
+  contact: c,
+  seller,
+}: {
+  contact: Contact
+  seller: string
+}) {
+  const link = (url: string, label: string) => (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="font-medium underline underline-offset-2"
+    >
+      {label}
+    </a>
+  )
+  const host = (url: string) => {
+    try {
+      return new URL(url).hostname.replace(/^www\./, '')
+    } catch {
+      return url
+    }
+  }
+  return (
+    <div
+      className={`space-y-1 rounded-xl px-3 py-2.5 text-sm ${
+        c.sells_to_trade === 'no'
+          ? 'bg-warn-soft text-warn'
+          : 'bg-soft/70 text-ink'
+      }`}
+    >
+      {c.sells_to_trade === 'no' && (
+        <p className="flex gap-2 font-semibold">
+          <Icon name="alert" className="mt-0.5 h-4 w-4 shrink-0" />
+          {seller} looks like a shop for the public, not trade. Their price is
+          still useful when you talk to your supplier.
+        </p>
+      )}
+      {c.email ? (
+        <p>
+          Email found
+          {c.contact_source_url ? (
+            <> on {link(c.contact_source_url, host(c.contact_source_url))}</>
+          ) : null}
+          .
+        </p>
+      ) : (
+        <p>
+          {c.lookup_error ?? 'No trade email found on their site.'}{' '}
+          {c.website && <>Find one on {link(c.website, host(c.website))}.</>}
+        </p>
+      )}
+      {c.phone && <p>Phone: {c.phone}</p>}
+      {c.note && <p className="text-muted">{c.note}</p>}
     </div>
   )
 }

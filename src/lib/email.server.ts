@@ -71,7 +71,9 @@ export async function draftEmail(supplierId: string, items: Array<EmailItem>) {
     await db()
       .from('email_drafts')
       .insert({
+        kind: 'match',
         supplier_id: supplier.id,
+        to_email: supplier.email,
         subject: draft.subject,
         body: draft.body,
         items,
@@ -86,10 +88,19 @@ export async function draftEmail(supplierId: string, items: Array<EmailItem>) {
 
 export async function updateDraft(
   id: string,
-  fields: { subject: string; body: string; status: 'draft' | 'approved' },
+  fields: {
+    subject: string
+    body: string
+    to_email: string | null
+    status: 'draft' | 'approved'
+  },
 ) {
+  const { subject, body, to_email, status } = fields
   must(
-    await db().from('email_drafts').update(fields).eq('id', id),
+    await db()
+      .from('email_drafts')
+      .update({ subject, body, to_email, status })
+      .eq('id', id),
     'update draft',
   )
 }

@@ -111,6 +111,7 @@ export const saveDraft = createServerFn({ method: 'POST' })
       id: z.uuid(),
       subject: z.string().max(300),
       body: z.string().max(5000),
+      to_email: z.string().max(320).nullable(),
       status: z.enum(['draft', 'approved']),
     }),
   )

@@ -27,6 +27,16 @@ export function must<T>(
   return res.data
 }
 
+/** Unwraps a single-row result, throwing on error or when the row is missing. */
+export function mustOne<T>(
+  res: { data: T | null; error: { message: string } | null },
+  what: string,
+): T {
+  const row = must(res, what)
+  if (row == null) throw new Error(`${what}: not found`)
+  return row
+}
+
 /** Downloads a stored file, throwing if it is missing. */
 export async function downloadFile(
   bucket: string,

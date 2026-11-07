@@ -6,7 +6,7 @@ import {
 } from '@tanstack/react-router'
 import { useState } from 'react'
 import { EmailModal } from '#/components/EmailModal'
-import type { EmailGroup } from '#/components/EmailModal'
+import type { EmailRequest } from '#/components/EmailModal'
 import { Icon } from '#/components/Icon'
 import { postJSON } from '#/lib/api'
 import {
@@ -79,7 +79,7 @@ function maths(packPrice: number, baseAmount: number, unit: BaseUnit): string {
 
 function ItemPage() {
   const { product, insight, names, supplier, live } = Route.useLoaderData()
-  const [emailOpen, setEmailOpen] = useState(false)
+  const [email, setEmail] = useState<Array<EmailRequest> | null>(null)
   const unit = product.base_unit
   const cur = insight.current
   const best = insight.cheapest
@@ -95,10 +95,11 @@ function ItemPage() {
     (insight.per_unit_saving ?? 0) > 0,
   )
 
-  const emailGroups: Array<EmailGroup> =
+  const matchRequest: Array<EmailRequest> =
     canAsk && cur && supplier && bestInMyPack != null
       ? [
           {
+            kind: 'match',
             supplier_id: supplier.id,
             supplier_name: supplier.name,
             items: [
@@ -221,7 +222,7 @@ function ItemPage() {
       {canAsk && cur && bestInMyPack != null && (
         <button
           className="btn-primary w-full py-4 text-center text-base whitespace-normal"
-          onClick={() => setEmailOpen(true)}
+          onClick={() => setEmail(matchRequest)}
         >
           <Icon name="mail" className="h-5 w-5 shrink-0" /> Ask{' '}
           {cur.supplier_name} to match {euro(bestInMyPack, { cents: true })}
@@ -230,9 +231,11 @@ function ItemPage() {
 
       <OnlinePrices
         productId={product.id}
+        productName={product.canonical_name}
         live={live}
         unit={unit}
         yourPpu={cur?.ppu ?? null}
+        onQuote={(r) => setEmail([r])}
       />
 
       {/* 4. All suppliers */}
@@ -344,9 +347,7 @@ function ItemPage() {
         </ul>
       </details>
 
-      {emailOpen && (
-        <EmailModal groups={emailGroups} onClose={() => setEmailOpen(false)} />
-      )}
+      {email && <EmailModal requests={email} onClose={() => setEmail(null)} />}
     </div>
   )
 }
@@ -362,14 +363,18 @@ type Live = Awaited<ReturnType<typeof getProductPriceChecks>>
 /** Competitor prices from the latest web search, with a button to search again now. */
 function OnlinePrices({
   productId,
+  productName,
   live,
   unit,
   yourPpu,
+  onQuote,
 }: {
   productId: string
+  productName: string
   live: Live
   unit: BaseUnit
   yourPpu: number | null
+  onQuote: (r: EmailRequest) => void
 }) {
   const router = useRouter()
   const [running, setRunning] = useState(false)
@@ -484,6 +489,22 @@ function OnlinePrices({
                       </span>
                     )}
                   </p>
+                  {(diff == null || diff < 0) && (
+                    <button
+                      className="btn-secondary mt-2 px-3 py-1.5"
+                      onClick={() =>
+                        onQuote({
+                          kind: 'quote',
+                          offer_id: o.id,
+                          seller_name: o.seller,
+                          product_name: productName,
+                          price_seen: `${euro(o.pack_price, { cents: true })} ex VAT per ${pack(o)}`,
+                        })
+                      }
+                    >
+                      <Icon name="mail" className="h-4 w-4" /> Ask for a quote
+                    </button>
+                  )}
                 </div>
                 <div className="shrink-0 text-right">
                   <p className="font-semibold tabular-nums">

@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { EmailModal } from '#/components/EmailModal'
-import type { EmailGroup } from '#/components/EmailModal'
+import type { EmailRequest } from '#/components/EmailModal'
 import { Icon, Spinner } from '#/components/Icon'
 import { pool, postFile, postJSON } from '#/lib/api'
 import type { AuditReport, ReportItem } from '#/lib/audit-types'
@@ -46,7 +46,7 @@ function AuditPage() {
     items: number
   } | null>(null)
   const [dragging, setDragging] = useState(false)
-  const [email, setEmail] = useState<Array<EmailGroup> | null>(null)
+  const [email, setEmail] = useState<Array<EmailRequest> | null>(null)
   const input = useRef<HTMLInputElement>(null)
 
   async function start(file: File) {
@@ -263,7 +263,7 @@ function AuditPage() {
         />
       )}
 
-      {email && <EmailModal groups={email} onClose={() => setEmail(null)} />}
+      {email && <EmailModal requests={email} onClose={() => setEmail(null)} />}
     </div>
   )
 }
@@ -380,18 +380,22 @@ function Report({
 }: {
   report: AuditReport
   truncated: boolean
-  onEmail: (g: Array<EmailGroup>) => void
+  onEmail: (g: Array<EmailRequest>) => void
 }) {
   const total = useCountUp(report.total_annual_saving)
   const switchItems =
     report.groups.find((g) => g.group === 'switch')?.items ?? []
 
   function fixAll() {
-    const bySupplier = new Map<string, EmailGroup>()
+    const bySupplier = new Map<
+      string,
+      Extract<EmailRequest, { kind: 'match' }>
+    >()
     for (const i of switchItems) {
       const it = emailItem(i)
       if (!it || !i.current) continue
       const g = bySupplier.get(i.current.supplier_id) ?? {
+        kind: 'match' as const,
         supplier_id: i.current.supplier_id,
         supplier_name: i.current.supplier_name,
         items: [],
@@ -471,7 +475,7 @@ function Group({
 }: {
   group: FindingGroup
   items: Array<ReportItem>
-  onEmail: (g: Array<EmailGroup>) => void
+  onEmail: (g: Array<EmailRequest>) => void
 }) {
   const label = GROUP_LABELS[group]
   const collapsed = group === 'best'
@@ -510,7 +514,7 @@ function ItemRow({
   onEmail,
 }: {
   item: ReportItem
-  onEmail: (g: Array<EmailGroup>) => void
+  onEmail: (g: Array<EmailRequest>) => void
 }) {
   const it = i.group === 'switch' ? emailItem(i) : null
   return (
@@ -565,6 +569,7 @@ function ItemRow({
           onClick={() =>
             onEmail([
               {
+                kind: 'match',
                 supplier_id: i.current!.supplier_id,
                 supplier_name: i.current!.supplier_name,
                 items: [it],

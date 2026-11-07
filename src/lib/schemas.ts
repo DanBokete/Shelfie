@@ -115,3 +115,13 @@ export const WebOffer = z.object({
 })
 export type WebOffer = z.infer<typeof WebOffer>
 export const WebOffers = z.object({ offers: z.array(WebOffer) })
+
+// P10: how to reach a seller found online
+export const SellerContact = z.object({
+  sells_to_trade: z.enum(['yes', 'no', 'unknown']),
+  email: z.string().nullable(),
+  phone: z.string().nullable(),
+  contact_page_url: z.string().nullable(),
+  note: z.string(),
+})
+export type SellerContact = z.infer<typeof SellerContact>

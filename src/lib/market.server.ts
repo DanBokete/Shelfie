@@ -2,6 +2,7 @@
 // that are the same product or a close equivalent, and stores each as a dated 'web' price.
 // The model only reads what the pages say: every stored number comes from lib/units.ts.
 import { askJSON, searchWeb } from './claude.server'
+import { pageKey } from './contact'
 import type { WebSource } from './claude.server'
 import { P7_WEB_PRICE_SEARCH, P8_WEB_PRICE_READ } from './prompts'
 import {
@@ -47,16 +48,6 @@ function dublinDate(d: Date): string {
 
 function today(): string {
   return dublinDate(new Date())
-}
-
-/** Host and path without query or trailing slash, so the same page always compares equal. */
-function pageKey(url: string): string | null {
-  try {
-    const u = new URL(url)
-    return `${u.hostname.replace(/^www\./, '')}${u.pathname.replace(/\/$/, '')}`.toLowerCase()
-  } catch {
-    return null
-  }
 }
 
 /** What the owner buys now, in words, so the search looks for the same thing. */
