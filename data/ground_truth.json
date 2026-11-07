@@ -1,0 +1,5652 @@
+{
+ "business": {
+  "name": "The Corner Café",
+  "town": "Cork",
+  "owner": "Aoife"
+ },
+ "suppliers": {
+  "A": {
+   "name": "Lee Valley Wholesale",
+   "email": "orders@leevalleywholesale.ie",
+   "phone": "021 430 1188",
+   "address": "Unit 4, Kinsale Road Business Park, Cork T12 X2N7",
+   "vat": "IE 6388047V"
+  },
+  "B": {
+   "name": "Munster Fresh Foods",
+   "email": "accounts@munsterfresh.ie",
+   "phone": "021 455 2290",
+   "address": "Market Yard, Mallow, Co. Cork P51 K2C4",
+   "vat": "IE 9811324H"
+  },
+  "C": {
+   "name": "Harbour Catering Supplies",
+   "email": "sales@harbourcatering.ie",
+   "phone": "021 481 7735",
+   "address": "Harbour Row, Cobh, Co. Cork P24 W8T3",
+   "vat": "IE 3307719M"
+  }
+ },
+ "products": [
+  {
+   "key": "milk",
+   "name": "Whole milk",
+   "category": "dairy"
+  },
+  {
+   "key": "semi",
+   "name": "Semi-skimmed milk",
+   "category": "dairy"
+  },
+  {
+   "key": "oat",
+   "name": "Oatly Barista oat drink",
+   "category": "dairy"
+  },
+  {
+   "key": "beans",
+   "name": "Espresso coffee beans",
+   "category": "dry goods"
+  },
+  {
+   "key": "butter",
+   "name": "Salted butter",
+   "category": "dairy"
+  },
+  {
+   "key": "eggs",
+   "name": "Free range eggs, large",
+   "category": "dairy"
+  },
+  {
+   "key": "flour",
+   "name": "Plain flour",
+   "category": "dry goods"
+  },
+  {
+   "key": "caster",
+   "name": "Caster sugar",
+   "category": "dry goods"
+  },
+  {
+   "key": "sachets",
+   "name": "White sugar sticks",
+   "category": "dry goods"
+  },
+  {
+   "key": "tea",
+   "name": "Barry's Tea catering bags",
+   "category": "drinks"
+  },
+  {
+   "key": "hotchoc",
+   "name": "Hot chocolate powder",
+   "category": "drinks"
+  },
+  {
+   "key": "sourdough",
+   "name": "Sourdough loaf",
+   "category": "bakery"
+  },
+  {
+   "key": "pan",
+   "name": "White sliced pan",
+   "category": "bakery"
+  },
+  {
+   "key": "scones",
+   "name": "Fruit scones",
+   "category": "bakery"
+  },
+  {
+   "key": "croissant",
+   "name": "Butter croissants, frozen",
+   "category": "bakery"
+  },
+  {
+   "key": "brownie",
+   "name": "Chocolate brownies, frozen",
+   "category": "bakery"
+  },
+  {
+   "key": "cheddar",
+   "name": "Mature cheddar",
+   "category": "deli"
+  },
+  {
+   "key": "mozz",
+   "name": "Grated mozzarella",
+   "category": "deli"
+  },
+  {
+   "key": "ham",
+   "name": "Cooked ham, sliced",
+   "category": "deli"
+  },
+  {
+   "key": "bacon",
+   "name": "Back bacon rashers",
+   "category": "deli"
+  },
+  {
+   "key": "sausages",
+   "name": "Pork sausages",
+   "category": "deli"
+  },
+  {
+   "key": "salmon",
+   "name": "Smoked salmon, sliced",
+   "category": "deli"
+  },
+  {
+   "key": "chicken",
+   "name": "Chicken breast fillets",
+   "category": "deli"
+  },
+  {
+   "key": "yogurt",
+   "name": "Greek style yogurt",
+   "category": "dairy"
+  },
+  {
+   "key": "granola",
+   "name": "Granola",
+   "category": "dry goods"
+  },
+  {
+   "key": "mayo",
+   "name": "Mayonnaise",
+   "category": "dry goods"
+  },
+  {
+   "key": "tomatoes",
+   "name": "Vine tomatoes",
+   "category": "produce"
+  },
+  {
+   "key": "lettuce",
+   "name": "Baby gem lettuce",
+   "category": "produce"
+  },
+  {
+   "key": "avocado",
+   "name": "Hass avocados",
+   "category": "produce"
+  },
+  {
+   "key": "spinach",
+   "name": "Baby spinach",
+   "category": "produce"
+  },
+  {
+   "key": "bananas",
+   "name": "Bananas",
+   "category": "produce"
+  },
+  {
+   "key": "lemons",
+   "name": "Lemons",
+   "category": "produce"
+  },
+  {
+   "key": "onions",
+   "name": "Red onions",
+   "category": "produce"
+  },
+  {
+   "key": "coke",
+   "name": "Coca-Cola cans 330ml",
+   "category": "drinks"
+  },
+  {
+   "key": "oj",
+   "name": "Orange juice",
+   "category": "drinks"
+  },
+  {
+   "key": "water",
+   "name": "Still water 500ml",
+   "category": "drinks"
+  },
+  {
+   "key": "sparkling",
+   "name": "Sparkling water 500ml",
+   "category": "drinks"
+  },
+  {
+   "key": "cups",
+   "name": "Double wall cups 12oz",
+   "category": "disposables"
+  },
+  {
+   "key": "lids",
+   "name": "Lids for 12oz cups",
+   "category": "disposables"
+  },
+  {
+   "key": "napkins",
+   "name": "Napkins 2-ply white",
+   "category": "disposables"
+  },
+  {
+   "key": "boxes",
+   "name": "Kraft takeaway boxes",
+   "category": "disposables"
+  },
+  {
+   "key": "cling",
+   "name": "Cling film 450mm",
+   "category": "disposables"
+  },
+  {
+   "key": "sacks",
+   "name": "Refuse sacks",
+   "category": "disposables"
+  }
+ ],
+ "invoices": [
+  {
+   "file": "2026-08-03_lee-valley-wholesale.pdf",
+   "supplier": "A",
+   "supplier_name": "Lee Valley Wholesale",
+   "invoice_number": "LVW-24113",
+   "invoice_date": "2026-08-03",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "milk",
+     "description": "AVONM WHL 2LTR",
+     "quantity": 41,
+     "pack_price": 3.78,
+     "line_total": 154.98,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "semi",
+     "description": "AVONM SEMI SKM 2LTR",
+     "quantity": 16,
+     "pack_price": 3.55,
+     "line_total": 56.8,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "oat",
+     "description": "OATLY BARISTA 1L X6",
+     "quantity": 6,
+     "pack_price": 15.9,
+     "line_total": 95.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 6,
+     "vat": 0
+    },
+    {
+     "product_key": "beans",
+     "description": "ESPRESSO BEANS HOUSE BLEND 1KG",
+     "quantity": 13,
+     "pack_price": 24,
+     "line_total": 312,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "butter",
+     "description": "IRISH BUTTER SALTED 454G",
+     "quantity": 20,
+     "pack_price": 3.1,
+     "line_total": 62,
+     "pack_size": 454,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "eggs",
+     "description": "EGGS FF LGE X30",
+     "quantity": 11,
+     "pack_price": 8.4,
+     "line_total": 92.4,
+     "pack_size": 30,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "flour",
+     "description": "FLOUR PLAIN 16KG SACK",
+     "quantity": 1,
+     "pack_price": 14.5,
+     "line_total": 14.5,
+     "pack_size": 16,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "caster",
+     "description": "SUGAR CASTER 5KG",
+     "quantity": 2,
+     "pack_price": 6.2,
+     "line_total": 12.4,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "tea",
+     "description": "BARRYS TEA GOLD BLEND 1100 BAGS",
+     "quantity": 1,
+     "pack_price": 38.5,
+     "line_total": 38.5,
+     "pack_size": 1100,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "hotchoc",
+     "description": "HOT CHOC POWDER 2KG TUB",
+     "quantity": 1,
+     "pack_price": 16.4,
+     "line_total": 16.4,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "pan",
+     "description": "WHITE SLICED PAN 800G",
+     "quantity": 24,
+     "pack_price": 1.65,
+     "line_total": 39.6,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "croissant",
+     "description": "CROISSANT BUTTER FRZ X60",
+     "quantity": 3,
+     "pack_price": 21,
+     "line_total": 63,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "brownie",
+     "description": "BROWNIE CHOC FRZ X24",
+     "quantity": 1,
+     "pack_price": 19.8,
+     "line_total": 19.8,
+     "pack_size": 24,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "cheddar",
+     "description": "CHED MATURE 5KG BLOCK",
+     "quantity": 2,
+     "pack_price": 38.5,
+     "line_total": 77,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mozz",
+     "description": "MOZZARELLA GRATED 2KG",
+     "quantity": 2,
+     "pack_price": 15.8,
+     "line_total": 31.6,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "ham",
+     "description": "HAM COOKED SLICED 1KG",
+     "quantity": 5,
+     "pack_price": 11.9,
+     "line_total": 59.5,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bacon",
+     "description": "RASHERS BACK 2.27KG",
+     "quantity": 3,
+     "pack_price": 13.6,
+     "line_total": 40.8,
+     "pack_size": 2.27,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sausages",
+     "description": "SAUSAGES PORK X60",
+     "quantity": 2,
+     "pack_price": 14.2,
+     "line_total": 28.4,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "salmon",
+     "description": "SMOKED SALMON SLICED 500G",
+     "quantity": 5,
+     "pack_price": 12.8,
+     "line_total": 64,
+     "pack_size": 500,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "yogurt",
+     "description": "GREEK STYLE YOG 1KG",
+     "quantity": 7,
+     "pack_price": 4.6,
+     "line_total": 32.2,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "granola",
+     "description": "GRANOLA HONEY 2.5KG",
+     "quantity": 1,
+     "pack_price": 14.9,
+     "line_total": 14.9,
+     "pack_size": 2.5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "coke",
+     "description": "COCA COLA 330ML CAN X24",
+     "quantity": 3,
+     "pack_price": 17.8,
+     "line_total": 53.4,
+     "pack_size": 330,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "oj",
+     "description": "OJ SMOOTH 1LTR X12",
+     "quantity": 2,
+     "pack_price": 19.2,
+     "line_total": 38.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 12,
+     "vat": 0
+    },
+    {
+     "product_key": "water",
+     "description": "STILL WATER 500ML X24",
+     "quantity": 5,
+     "pack_price": 7.2,
+     "line_total": 36,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "sparkling",
+     "description": "SPARKLING WATER 500ML X24",
+     "quantity": 2,
+     "pack_price": 8.1,
+     "line_total": 16.2,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    }
+   ],
+   "adjustments": [],
+   "subtotal_ex_vat": 1470.18,
+   "vat_total": 24.29,
+   "total": 1494.47
+  },
+  {
+   "file": "2026-08-05_munster-fresh-foods.pdf",
+   "supplier": "B",
+   "supplier_name": "Munster Fresh Foods",
+   "invoice_number": "MFF/8802",
+   "invoice_date": "2026-08-05",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "sourdough",
+     "description": "Sourdough Loaf 800g",
+     "quantity": 76,
+     "pack_price": 3.2,
+     "line_total": 243.2,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "scones",
+     "description": "Fruit Scones (12)",
+     "quantity": 7,
+     "pack_price": 6,
+     "line_total": 42,
+     "pack_size": 12,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "chicken",
+     "description": "Chicken Breast Fillets 2kg",
+     "quantity": 6,
+     "pack_price": 17.8,
+     "line_total": 106.8,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "tomatoes",
+     "description": "Vine Tomatoes 6kg Box",
+     "quantity": 5,
+     "pack_price": 13.8,
+     "line_total": 69,
+     "pack_size": 6,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "lettuce",
+     "description": "Baby Gem Lettuce (12)",
+     "quantity": 6,
+     "pack_price": 7.2,
+     "line_total": 43.2,
+     "pack_size": 12,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "avocado",
+     "description": "Hass Avocados Ready to Eat x20",
+     "quantity": 5,
+     "pack_price": 17,
+     "line_total": 85,
+     "pack_size": 20,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "spinach",
+     "description": "Baby Spinach 1kg",
+     "quantity": 4,
+     "pack_price": 6.8,
+     "line_total": 27.2,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bananas",
+     "description": "Bananas (per kg)",
+     "quantity": 27,
+     "pack_price": 1.6,
+     "line_total": 43.2,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "lemons",
+     "description": "Lemons (each)",
+     "quantity": 68,
+     "pack_price": 0.32,
+     "line_total": 21.76,
+     "pack_size": 1,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "onions",
+     "description": "Red Onions 10kg Sack",
+     "quantity": 1,
+     "pack_price": 9.5,
+     "line_total": 9.5,
+     "pack_size": 10,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    }
+   ],
+   "adjustments": [
+    {
+     "description": "Delivery charge",
+     "amount": 6.5
+    }
+   ],
+   "subtotal_ex_vat": 697.36,
+   "vat_total": 0,
+   "total": 697.36
+  },
+  {
+   "file": "2026-08-10_lee-valley-wholesale.pdf",
+   "supplier": "A",
+   "supplier_name": "Lee Valley Wholesale",
+   "invoice_number": "LVW-24120",
+   "invoice_date": "2026-08-10",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "milk",
+     "description": "AVONM WHL 2LTR",
+     "quantity": 41,
+     "pack_price": 3.78,
+     "line_total": 154.98,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "semi",
+     "description": "AVONM SEMI SKM 2LTR",
+     "quantity": 12,
+     "pack_price": 3.55,
+     "line_total": 42.6,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "oat",
+     "description": "OATLY BARISTA 1L X6",
+     "quantity": 6,
+     "pack_price": 15.9,
+     "line_total": 95.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 6,
+     "vat": 0
+    },
+    {
+     "product_key": "beans",
+     "description": "ESPRESSO BEANS HOUSE BLEND 1KG",
+     "quantity": 10,
+     "pack_price": 24,
+     "line_total": 240,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "butter",
+     "description": "IRISH BUTTER SALTED 454G",
+     "quantity": 23,
+     "pack_price": 3.1,
+     "line_total": 71.3,
+     "pack_size": 454,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "eggs",
+     "description": "EGGS FF LGE X30",
+     "quantity": 10,
+     "pack_price": 8.4,
+     "line_total": 84,
+     "pack_size": 30,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "flour",
+     "description": "FLOUR PLAIN 16KG SACK",
+     "quantity": 1,
+     "pack_price": 14.5,
+     "line_total": 14.5,
+     "pack_size": 16,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "caster",
+     "description": "SUGAR CASTER 5KG",
+     "quantity": 2,
+     "pack_price": 6.2,
+     "line_total": 12.4,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sachets",
+     "description": "SUGAR STICKS WHITE X1000",
+     "quantity": 1,
+     "pack_price": 9.8,
+     "line_total": 9.8,
+     "pack_size": 1000,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "hotchoc",
+     "description": "HOT CHOC POWDER 2KG TUB",
+     "quantity": 1,
+     "pack_price": 16.4,
+     "line_total": 16.4,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "pan",
+     "description": "WHITE SLICED PAN 800G",
+     "quantity": 26,
+     "pack_price": 1.65,
+     "line_total": 42.9,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "croissant",
+     "description": "CROISSANT BUTTER FRZ X60",
+     "quantity": 3,
+     "pack_price": 21,
+     "line_total": 63,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "brownie",
+     "description": "BROWNIE CHOC FRZ X24",
+     "quantity": 1,
+     "pack_price": 19.8,
+     "line_total": 19.8,
+     "pack_size": 24,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "cheddar",
+     "description": "CHED MATURE 5KG BLOCK",
+     "quantity": 2,
+     "pack_price": 38.5,
+     "line_total": 77,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mozz",
+     "description": "MOZZARELLA GRATED 2KG",
+     "quantity": 2,
+     "pack_price": 15.8,
+     "line_total": 31.6,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "ham",
+     "description": "HAM COOKED SLICED 1KG",
+     "quantity": 5,
+     "pack_price": 11.9,
+     "line_total": 59.5,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bacon",
+     "description": "RASHERS BACK 2.27KG",
+     "quantity": 3,
+     "pack_price": 13.6,
+     "line_total": 40.8,
+     "pack_size": 2.27,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sausages",
+     "description": "SAUSAGES PORK X60",
+     "quantity": 2,
+     "pack_price": 14.2,
+     "line_total": 28.4,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "salmon",
+     "description": "SMOKED SALMON SLICED 500G",
+     "quantity": 5,
+     "pack_price": 12.8,
+     "line_total": 64,
+     "pack_size": 500,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "yogurt",
+     "description": "GREEK STYLE YOG 1KG",
+     "quantity": 6,
+     "pack_price": 4.6,
+     "line_total": 27.6,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "granola",
+     "description": "GRANOLA HONEY 2.5KG",
+     "quantity": 1,
+     "pack_price": 14.9,
+     "line_total": 14.9,
+     "pack_size": 2.5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mayo",
+     "description": "MAYONNAISE 5LTR",
+     "quantity": 1,
+     "pack_price": 12.9,
+     "line_total": 12.9,
+     "pack_size": 5,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "coke",
+     "description": "COCA COLA 330ML CAN X24",
+     "quantity": 3,
+     "pack_price": 17.8,
+     "line_total": 53.4,
+     "pack_size": 330,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "oj",
+     "description": "OJ SMOOTH 1LTR X12",
+     "quantity": 2,
+     "pack_price": 19.2,
+     "line_total": 38.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 12,
+     "vat": 0
+    },
+    {
+     "product_key": "water",
+     "description": "STILL WATER 500ML X24",
+     "quantity": 5,
+     "pack_price": 7.2,
+     "line_total": 36,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "sparkling",
+     "description": "SPARKLING WATER 500ML X24",
+     "quantity": 2,
+     "pack_price": 8.1,
+     "line_total": 16.2,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    }
+   ],
+   "adjustments": [],
+   "subtotal_ex_vat": 1367.78,
+   "vat_total": 24.29,
+   "total": 1392.07
+  },
+  {
+   "file": "2026-08-17_lee-valley-wholesale.pdf",
+   "supplier": "A",
+   "supplier_name": "Lee Valley Wholesale",
+   "invoice_number": "LVW-24127",
+   "invoice_date": "2026-08-17",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "milk",
+     "description": "AVONM WHL 2LTR",
+     "quantity": 42,
+     "pack_price": 3.89,
+     "line_total": 163.38,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "semi",
+     "description": "AVONM SEMI SKM 2LTR",
+     "quantity": 16,
+     "pack_price": 3.55,
+     "line_total": 56.8,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "oat",
+     "description": "OATLY BARISTA 1L X6",
+     "quantity": 6,
+     "pack_price": 15.9,
+     "line_total": 95.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 6,
+     "vat": 0
+    },
+    {
+     "product_key": "beans",
+     "description": "ESPRESSO BEANS HOUSE BLEND 1KG",
+     "quantity": 12,
+     "pack_price": 24,
+     "line_total": 288,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "butter",
+     "description": "IRISH BUTTER SALTED 454G",
+     "quantity": 21,
+     "pack_price": 3.1,
+     "line_total": 65.1,
+     "pack_size": 454,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "eggs",
+     "description": "EGGS FF LGE X30",
+     "quantity": 9,
+     "pack_price": 8.4,
+     "line_total": 75.6,
+     "pack_size": 30,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "flour",
+     "description": "FLOUR PLAIN 16KG SACK",
+     "quantity": 1,
+     "pack_price": 14.5,
+     "line_total": 14.5,
+     "pack_size": 16,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "caster",
+     "description": "SUGAR CASTER 5KG",
+     "quantity": 2,
+     "pack_price": 6.2,
+     "line_total": 12.4,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "hotchoc",
+     "description": "HOT CHOC POWDER 2KG TUB",
+     "quantity": 1,
+     "pack_price": 16.4,
+     "line_total": 16.4,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "pan",
+     "description": "WHITE SLICED PAN 800G",
+     "quantity": 27,
+     "pack_price": 1.65,
+     "line_total": 44.55,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "croissant",
+     "description": "CROISSANT BUTTER FRZ X60",
+     "quantity": 3,
+     "pack_price": 21,
+     "line_total": 63,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "brownie",
+     "description": "BROWNIE CHOC FRZ X24",
+     "quantity": 1,
+     "pack_price": 19.8,
+     "line_total": 19.8,
+     "pack_size": 24,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "cheddar",
+     "description": "CHED MATURE 5KG BLOCK",
+     "quantity": 2,
+     "pack_price": 38.5,
+     "line_total": 77,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mozz",
+     "description": "MOZZARELLA GRATED 2KG",
+     "quantity": 2,
+     "pack_price": 15.8,
+     "line_total": 31.6,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "ham",
+     "description": "HAM COOKED SLICED 1KG",
+     "quantity": 5,
+     "pack_price": 11.9,
+     "line_total": 59.5,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bacon",
+     "description": "RASHERS BACK 2.27KG",
+     "quantity": 3,
+     "pack_price": 13.6,
+     "line_total": 40.8,
+     "pack_size": 2.27,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sausages",
+     "description": "SAUSAGES PORK X60",
+     "quantity": 2,
+     "pack_price": 14.2,
+     "line_total": 28.4,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "salmon",
+     "description": "SMOKED SALMON SLICED 500G",
+     "quantity": 5,
+     "pack_price": 12.8,
+     "line_total": 64,
+     "pack_size": 500,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "yogurt",
+     "description": "GREEK STYLE YOG 1KG",
+     "quantity": 6,
+     "pack_price": 4.6,
+     "line_total": 27.6,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "granola",
+     "description": "GRANOLA HONEY 2.5KG",
+     "quantity": 1,
+     "pack_price": 14.9,
+     "line_total": 14.9,
+     "pack_size": 2.5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "coke",
+     "description": "COCA COLA 330ML CAN X24",
+     "quantity": 2,
+     "pack_price": 17.8,
+     "line_total": 35.6,
+     "pack_size": 330,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "oj",
+     "description": "OJ SMOOTH 1LTR X12",
+     "quantity": 2,
+     "pack_price": 19.2,
+     "line_total": 38.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 12,
+     "vat": 0
+    },
+    {
+     "product_key": "water",
+     "description": "STILL WATER 500ML X24",
+     "quantity": 4,
+     "pack_price": 7.2,
+     "line_total": 28.8,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "sparkling",
+     "description": "SPARKLING WATER 500ML X24",
+     "quantity": 2,
+     "pack_price": 8.1,
+     "line_total": 16.2,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    }
+   ],
+   "adjustments": [],
+   "subtotal_ex_vat": 1377.73,
+   "vat_total": 18.54,
+   "total": 1396.27
+  },
+  {
+   "file": "2026-08-19_munster-fresh-foods.pdf",
+   "supplier": "B",
+   "supplier_name": "Munster Fresh Foods",
+   "invoice_number": "MFF/8805",
+   "invoice_date": "2026-08-19",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "sourdough",
+     "description": "Sourdough Loaf 800g",
+     "quantity": 68,
+     "pack_price": 3.2,
+     "line_total": 217.6,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "scones",
+     "description": "Fruit Scones (12)",
+     "quantity": 9,
+     "pack_price": 6,
+     "line_total": 54,
+     "pack_size": 12,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "chicken",
+     "description": "Chicken Breast Fillets 2kg",
+     "quantity": 7,
+     "pack_price": 17.8,
+     "line_total": 124.6,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "tomatoes",
+     "description": "Vine Tomatoes 6kg Box",
+     "quantity": 4,
+     "pack_price": 13.8,
+     "line_total": 55.2,
+     "pack_size": 6,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "lettuce",
+     "description": "Baby Gem Lettuce (12)",
+     "quantity": 5,
+     "pack_price": 7.2,
+     "line_total": 36,
+     "pack_size": 12,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "avocado",
+     "description": "Hass Avocados Ready to Eat x20",
+     "quantity": 5,
+     "pack_price": 17,
+     "line_total": 85,
+     "pack_size": 20,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "spinach",
+     "description": "Baby Spinach 1kg",
+     "quantity": 4,
+     "pack_price": 6.8,
+     "line_total": 27.2,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bananas",
+     "description": "Bananas (per kg)",
+     "quantity": 25,
+     "pack_price": 1.6,
+     "line_total": 40,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "lemons",
+     "description": "Lemons (each)",
+     "quantity": 56,
+     "pack_price": 0.32,
+     "line_total": 17.92,
+     "pack_size": 1,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "onions",
+     "description": "Red Onions 10kg Sack",
+     "quantity": 1,
+     "pack_price": 9.5,
+     "line_total": 9.5,
+     "pack_size": 10,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    }
+   ],
+   "adjustments": [
+    {
+     "description": "Delivery charge",
+     "amount": 6.5
+    }
+   ],
+   "subtotal_ex_vat": 673.52,
+   "vat_total": 0,
+   "total": 673.52
+  },
+  {
+   "file": "2026-08-20_harbour-catering-supplies.jpg",
+   "supplier": "C",
+   "supplier_name": "Harbour Catering Supplies",
+   "invoice_number": "1407",
+   "invoice_date": "2026-08-20",
+   "format": "handwritten",
+   "lines": [
+    {
+     "product_key": "cups",
+     "description": "12oz double wall cups 500",
+     "quantity": 3,
+     "pack_price": 62,
+     "line_total": 186,
+     "pack_size": 500,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "lids",
+     "description": "lids for 12oz cups 1000",
+     "quantity": 1,
+     "pack_price": 29,
+     "line_total": 29,
+     "pack_size": 1000,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "napkins",
+     "description": "napkins 2ply white 4000",
+     "quantity": 1,
+     "pack_price": 38,
+     "line_total": 38,
+     "pack_size": 4000,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "boxes",
+     "description": "kraft food boxes medium 200",
+     "quantity": 1,
+     "pack_price": 34,
+     "line_total": 34,
+     "pack_size": 200,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "cling",
+     "description": "cling film 450mm x 300m",
+     "quantity": 1,
+     "pack_price": 8.5,
+     "line_total": 8.5,
+     "pack_size": 1,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "sacks",
+     "description": "refuse sacks black x200",
+     "quantity": 1,
+     "pack_price": 19,
+     "line_total": 19,
+     "pack_size": 200,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    }
+   ],
+   "adjustments": [],
+   "subtotal_ex_vat": 314.5,
+   "vat_total": 72.34,
+   "total": 386.84
+  },
+  {
+   "file": "2026-08-24_lee-valley-wholesale.jpg",
+   "supplier": "A",
+   "supplier_name": "Lee Valley Wholesale",
+   "invoice_number": "LVW-24134",
+   "invoice_date": "2026-08-24",
+   "format": "photo",
+   "lines": [
+    {
+     "product_key": "milk",
+     "description": "AVONM WHL 2LTR",
+     "quantity": 34,
+     "pack_price": 3.89,
+     "line_total": 132.26,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "semi",
+     "description": "AVONM SEMI SKM 2LTR",
+     "quantity": 14,
+     "pack_price": 3.55,
+     "line_total": 49.7,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "oat",
+     "description": "OATLY BARISTA 1L X6",
+     "quantity": 7,
+     "pack_price": 15.9,
+     "line_total": 111.3,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 6,
+     "vat": 0
+    },
+    {
+     "product_key": "beans",
+     "description": "ESPRESSO BEANS HOUSE BLEND 1KG",
+     "quantity": 12,
+     "pack_price": 24,
+     "line_total": 288,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "butter",
+     "description": "IRISH BUTTER SALTED 454G",
+     "quantity": 19,
+     "pack_price": 3.1,
+     "line_total": 58.9,
+     "pack_size": 454,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "eggs",
+     "description": "EGGS FF LGE X30",
+     "quantity": 10,
+     "pack_price": 8.4,
+     "line_total": 84,
+     "pack_size": 30,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "flour",
+     "description": "FLOUR PLAIN 16KG SACK",
+     "quantity": 1,
+     "pack_price": 14.5,
+     "line_total": 14.5,
+     "pack_size": 16,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "caster",
+     "description": "SUGAR CASTER 5KG",
+     "quantity": 2,
+     "pack_price": 6.2,
+     "line_total": 12.4,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sachets",
+     "description": "SUGAR STICKS WHITE X1000",
+     "quantity": 1,
+     "pack_price": 9.8,
+     "line_total": 9.8,
+     "pack_size": 1000,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "tea",
+     "description": "BARRYS TEA GOLD BLEND 1100 BAGS",
+     "quantity": 1,
+     "pack_price": 38.5,
+     "line_total": 38.5,
+     "pack_size": 1100,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "hotchoc",
+     "description": "HOT CHOC POWDER 2KG TUB",
+     "quantity": 1,
+     "pack_price": 16.4,
+     "line_total": 16.4,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "pan",
+     "description": "WHITE SLICED PAN 800G",
+     "quantity": 28,
+     "pack_price": 1.65,
+     "line_total": 46.2,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "croissant",
+     "description": "CROISSANT BUTTER FRZ X60",
+     "quantity": 3,
+     "pack_price": 21,
+     "line_total": 63,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "brownie",
+     "description": "BROWNIE CHOC FRZ X24",
+     "quantity": 1,
+     "pack_price": 19.8,
+     "line_total": 19.8,
+     "pack_size": 24,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "cheddar",
+     "description": "CHED MATURE 5KG BLOCK",
+     "quantity": 1,
+     "pack_price": 38.5,
+     "line_total": 38.5,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mozz",
+     "description": "MOZZARELLA GRATED 2KG",
+     "quantity": 2,
+     "pack_price": 15.8,
+     "line_total": 31.6,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "ham",
+     "description": "HAM COOKED SLICED 1KG",
+     "quantity": 5,
+     "pack_price": 11.9,
+     "line_total": 59.5,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bacon",
+     "description": "RASHERS BACK 2.27KG",
+     "quantity": 3,
+     "pack_price": 13.6,
+     "line_total": 40.8,
+     "pack_size": 2.27,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sausages",
+     "description": "SAUSAGES PORK X60",
+     "quantity": 1,
+     "pack_price": 14.2,
+     "line_total": 14.2,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "salmon",
+     "description": "SMOKED SALMON SLICED 500G",
+     "quantity": 6,
+     "pack_price": 12.8,
+     "line_total": 76.8,
+     "pack_size": 500,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "yogurt",
+     "description": "GREEK STYLE YOG 1KG",
+     "quantity": 5,
+     "pack_price": 4.6,
+     "line_total": 23,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "granola",
+     "description": "GRANOLA HONEY 2.5KG",
+     "quantity": 1,
+     "pack_price": 14.9,
+     "line_total": 14.9,
+     "pack_size": 2.5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mayo",
+     "description": "MAYONNAISE 5LTR",
+     "quantity": 1,
+     "pack_price": 12.9,
+     "line_total": 12.9,
+     "pack_size": 5,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "coke",
+     "description": "COCA COLA 330ML CAN X24",
+     "quantity": 3,
+     "pack_price": 17.8,
+     "line_total": 53.4,
+     "pack_size": 330,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "oj",
+     "description": "OJ SMOOTH 1LTR X12",
+     "quantity": 2,
+     "pack_price": 19.2,
+     "line_total": 38.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 12,
+     "vat": 0
+    },
+    {
+     "product_key": "water",
+     "description": "STILL WATER 500ML X24",
+     "quantity": 5,
+     "pack_price": 7.2,
+     "line_total": 36,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "sparkling",
+     "description": "SPARKLING WATER 500ML X24",
+     "quantity": 2,
+     "pack_price": 8.1,
+     "line_total": 16.2,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    }
+   ],
+   "adjustments": [],
+   "subtotal_ex_vat": 1400.96,
+   "vat_total": 24.29,
+   "total": 1425.25
+  },
+  {
+   "file": "2026-08-31_lee-valley-wholesale.pdf",
+   "supplier": "A",
+   "supplier_name": "Lee Valley Wholesale",
+   "invoice_number": "LVW-24141",
+   "invoice_date": "2026-08-31",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "milk",
+     "description": "AVONM WHL 2LTR",
+     "quantity": 38,
+     "pack_price": 3.89,
+     "line_total": 147.82,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "semi",
+     "description": "AVONM SEMI SKM 2LTR",
+     "quantity": 13,
+     "pack_price": 3.55,
+     "line_total": 46.15,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "oat",
+     "description": "OATLY BARISTA 1L X6",
+     "quantity": 6,
+     "pack_price": 15.9,
+     "line_total": 95.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 6,
+     "vat": 0
+    },
+    {
+     "product_key": "beans",
+     "description": "ESPRESSO BEANS HOUSE BLEND 1KG",
+     "quantity": 10,
+     "pack_price": 24,
+     "line_total": 240,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "butter",
+     "description": "IRISH BUTTER SALTED 454G",
+     "quantity": 18,
+     "pack_price": 3.1,
+     "line_total": 55.8,
+     "pack_size": 454,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "eggs",
+     "description": "EGGS FF LGE X30",
+     "quantity": 9,
+     "pack_price": 8.4,
+     "line_total": 75.6,
+     "pack_size": 30,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "flour",
+     "description": "FLOUR PLAIN 16KG SACK",
+     "quantity": 1,
+     "pack_price": 14.5,
+     "line_total": 14.5,
+     "pack_size": 16,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "caster",
+     "description": "SUGAR CASTER 5KG",
+     "quantity": 2,
+     "pack_price": 6.2,
+     "line_total": 12.4,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "hotchoc",
+     "description": "HOT CHOC POWDER 2KG TUB",
+     "quantity": 1,
+     "pack_price": 16.4,
+     "line_total": 16.4,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "pan",
+     "description": "WHITE SLICED PAN 800G",
+     "quantity": 21,
+     "pack_price": 1.65,
+     "line_total": 34.65,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "croissant",
+     "description": "CROISSANT BUTTER FRZ X60",
+     "quantity": 3,
+     "pack_price": 21,
+     "line_total": 63,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "brownie",
+     "description": "BROWNIE CHOC FRZ X24",
+     "quantity": 1,
+     "pack_price": 19.8,
+     "line_total": 19.8,
+     "pack_size": 24,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "cheddar",
+     "description": "CHED MATURE 5KG BLOCK",
+     "quantity": 3,
+     "pack_price": 38.5,
+     "line_total": 115.5,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mozz",
+     "description": "MOZZARELLA GRATED 2KG",
+     "quantity": 2,
+     "pack_price": 15.8,
+     "line_total": 31.6,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "ham",
+     "description": "HAM COOKED SLICED 1KG",
+     "quantity": 5,
+     "pack_price": 11.9,
+     "line_total": 59.5,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bacon",
+     "description": "RASHERS BACK 2.27KG",
+     "quantity": 3,
+     "pack_price": 13.6,
+     "line_total": 40.8,
+     "pack_size": 2.27,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sausages",
+     "description": "SAUSAGES PORK X60",
+     "quantity": 3,
+     "pack_price": 14.2,
+     "line_total": 42.6,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "salmon",
+     "description": "SMOKED SALMON SLICED 500G",
+     "quantity": 4,
+     "pack_price": 12.8,
+     "line_total": 51.2,
+     "pack_size": 500,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "yogurt",
+     "description": "GREEK STYLE YOG 1KG",
+     "quantity": 6,
+     "pack_price": 4.6,
+     "line_total": 27.6,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "granola",
+     "description": "GRANOLA HONEY 2.5KG",
+     "quantity": 1,
+     "pack_price": 14.9,
+     "line_total": 14.9,
+     "pack_size": 2.5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "coke",
+     "description": "COCA COLA 330ML CAN X24",
+     "quantity": 3,
+     "pack_price": 17.8,
+     "line_total": 53.4,
+     "pack_size": 330,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "oj",
+     "description": "OJ SMOOTH 1LTR X12",
+     "quantity": 2,
+     "pack_price": 19.2,
+     "line_total": 38.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 12,
+     "vat": 0
+    },
+    {
+     "product_key": "water",
+     "description": "STILL WATER 500ML X24",
+     "quantity": 6,
+     "pack_price": 7.2,
+     "line_total": 43.2,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "sparkling",
+     "description": "SPARKLING WATER 500ML X24",
+     "quantity": 2,
+     "pack_price": 8.1,
+     "line_total": 16.2,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    }
+   ],
+   "adjustments": [],
+   "subtotal_ex_vat": 1356.42,
+   "vat_total": 25.94,
+   "total": 1382.36
+  },
+  {
+   "file": "2026-09-02_munster-fresh-foods.pdf",
+   "supplier": "B",
+   "supplier_name": "Munster Fresh Foods",
+   "invoice_number": "MFF/8808",
+   "invoice_date": "2026-09-02",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "sourdough",
+     "description": "Sourdough Loaf 800g",
+     "quantity": 65,
+     "pack_price": 3.2,
+     "line_total": 208,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "scones",
+     "description": "Fruit Scones (12)",
+     "quantity": 8,
+     "pack_price": 6,
+     "line_total": 48,
+     "pack_size": 12,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "chicken",
+     "description": "Chicken Breast Fillets 2kg",
+     "quantity": 6,
+     "pack_price": 17.8,
+     "line_total": 106.8,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "tomatoes",
+     "description": "Vine Tomatoes 6kg Box",
+     "quantity": 4,
+     "pack_price": 13.8,
+     "line_total": 55.2,
+     "pack_size": 6,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "lettuce",
+     "description": "Baby Gem Lettuce (12)",
+     "quantity": 7,
+     "pack_price": 7.2,
+     "line_total": 50.4,
+     "pack_size": 12,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "avocado",
+     "description": "Hass Avocados Ready to Eat x20",
+     "quantity": 7,
+     "pack_price": 17,
+     "line_total": 119,
+     "pack_size": 20,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "spinach",
+     "description": "Baby Spinach 1kg",
+     "quantity": 4,
+     "pack_price": 6.8,
+     "line_total": 27.2,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bananas",
+     "description": "Bananas (per kg)",
+     "quantity": 24,
+     "pack_price": 1.6,
+     "line_total": 38.4,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "lemons",
+     "description": "Lemons (each)",
+     "quantity": 62,
+     "pack_price": 0.32,
+     "line_total": 19.84,
+     "pack_size": 1,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "onions",
+     "description": "Red Onions 10kg Sack",
+     "quantity": 1,
+     "pack_price": 9.5,
+     "line_total": 9.5,
+     "pack_size": 10,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    }
+   ],
+   "adjustments": [
+    {
+     "description": "Delivery charge",
+     "amount": 6.5
+    }
+   ],
+   "subtotal_ex_vat": 688.84,
+   "vat_total": 0,
+   "total": 688.84
+  },
+  {
+   "file": "2026-09-07_lee-valley-wholesale.pdf",
+   "supplier": "A",
+   "supplier_name": "Lee Valley Wholesale",
+   "invoice_number": "LVW-24148",
+   "invoice_date": "2026-09-07",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "milk",
+     "description": "AVONM WHL 2LTR",
+     "quantity": 40,
+     "pack_price": 3.99,
+     "line_total": 159.6,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "semi",
+     "description": "AVONM SEMI SKM 2LTR",
+     "quantity": 15,
+     "pack_price": 3.55,
+     "line_total": 53.25,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "oat",
+     "description": "OATLY BARISTA 1L X6",
+     "quantity": 6,
+     "pack_price": 15.9,
+     "line_total": 95.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 6,
+     "vat": 0
+    },
+    {
+     "product_key": "beans",
+     "description": "ESPRESSO BEANS HOUSE BLEND 1KG",
+     "quantity": 12,
+     "pack_price": 24,
+     "line_total": 288,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "butter",
+     "description": "IRISH BUTTER SALTED 454G",
+     "quantity": 20,
+     "pack_price": 3.1,
+     "line_total": 62,
+     "pack_size": 454,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "eggs",
+     "description": "EGGS FF LGE X30",
+     "quantity": 10,
+     "pack_price": 8.4,
+     "line_total": 84,
+     "pack_size": 30,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "flour",
+     "description": "FLOUR PLAIN 16KG SACK",
+     "quantity": 1,
+     "pack_price": 14.5,
+     "line_total": 14.5,
+     "pack_size": 16,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "caster",
+     "description": "SUGAR CASTER 5KG",
+     "quantity": 2,
+     "pack_price": 6.2,
+     "line_total": 12.4,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sachets",
+     "description": "SUGAR STICKS WHITE X1000",
+     "quantity": 1,
+     "pack_price": 9.8,
+     "line_total": 9.8,
+     "pack_size": 1000,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "tea",
+     "description": "BARRYS TEA GOLD BLEND 1100 BAGS",
+     "quantity": 1,
+     "pack_price": 38.5,
+     "line_total": 38.5,
+     "pack_size": 1100,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "hotchoc",
+     "description": "HOT CHOC POWDER 2KG TUB",
+     "quantity": 1,
+     "pack_price": 16.4,
+     "line_total": 16.4,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "pan",
+     "description": "WHITE SLICED PAN 800G",
+     "quantity": 27,
+     "pack_price": 1.65,
+     "line_total": 44.55,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "croissant",
+     "description": "CROISSANT BUTTER FRZ X60",
+     "quantity": 3,
+     "pack_price": 21,
+     "line_total": 63,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "brownie",
+     "description": "BROWNIE CHOC FRZ X24",
+     "quantity": 1,
+     "pack_price": 19.8,
+     "line_total": 19.8,
+     "pack_size": 24,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "cheddar",
+     "description": "CHED MATURE 5KG BLOCK",
+     "quantity": 1,
+     "pack_price": 38.5,
+     "line_total": 38.5,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mozz",
+     "description": "MOZZARELLA GRATED 2KG",
+     "quantity": 2,
+     "pack_price": 15.8,
+     "line_total": 31.6,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "ham",
+     "description": "HAM COOKED SLICED 1KG",
+     "quantity": 5,
+     "pack_price": 11.9,
+     "line_total": 59.5,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bacon",
+     "description": "RASHERS BACK 2.27KG",
+     "quantity": 2,
+     "pack_price": 13.6,
+     "line_total": 27.2,
+     "pack_size": 2.27,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sausages",
+     "description": "SAUSAGES PORK X60",
+     "quantity": 2,
+     "pack_price": 14.2,
+     "line_total": 28.4,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "salmon",
+     "description": "SMOKED SALMON SLICED 500G",
+     "quantity": 4,
+     "pack_price": 12.8,
+     "line_total": 51.2,
+     "pack_size": 500,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "yogurt",
+     "description": "GREEK STYLE YOG 1KG",
+     "quantity": 6,
+     "pack_price": 4.6,
+     "line_total": 27.6,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "granola",
+     "description": "GRANOLA HONEY 2.5KG",
+     "quantity": 1,
+     "pack_price": 14.9,
+     "line_total": 14.9,
+     "pack_size": 2.5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mayo",
+     "description": "MAYONNAISE 5LTR",
+     "quantity": 1,
+     "pack_price": 12.9,
+     "line_total": 12.9,
+     "pack_size": 5,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "coke",
+     "description": "COCA COLA 330ML CAN X24",
+     "quantity": 3,
+     "pack_price": 17.8,
+     "line_total": 53.4,
+     "pack_size": 330,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "oj",
+     "description": "OJ SMOOTH 1LTR X12",
+     "quantity": 2,
+     "pack_price": 19.2,
+     "line_total": 38.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 12,
+     "vat": 0
+    },
+    {
+     "product_key": "water",
+     "description": "STILL WATER 500ML X24",
+     "quantity": 5,
+     "pack_price": 7.2,
+     "line_total": 36,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "sparkling",
+     "description": "SPARKLING WATER 500ML X24",
+     "quantity": 2,
+     "pack_price": 8.1,
+     "line_total": 16.2,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    }
+   ],
+   "adjustments": [],
+   "subtotal_ex_vat": 1397,
+   "vat_total": 24.29,
+   "total": 1421.29
+  },
+  {
+   "file": "2026-09-10_harbour-catering-supplies.pdf",
+   "supplier": "C",
+   "supplier_name": "Harbour Catering Supplies",
+   "invoice_number": "1408",
+   "invoice_date": "2026-09-10",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "cups",
+     "description": "12oz double wall cups 500",
+     "quantity": 3,
+     "pack_price": 62,
+     "line_total": 186,
+     "pack_size": 500,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "lids",
+     "description": "lids for 12oz cups 1000",
+     "quantity": 2,
+     "pack_price": 29,
+     "line_total": 58,
+     "pack_size": 1000,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "boxes",
+     "description": "kraft food boxes medium 200",
+     "quantity": 1,
+     "pack_price": 34,
+     "line_total": 34,
+     "pack_size": 200,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "eggs",
+     "description": "free range eggs large tray 30",
+     "quantity": 4,
+     "pack_price": 7.5,
+     "line_total": 30,
+     "pack_size": 30,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "milk",
+     "description": "Milk Full Fat 2 Litre",
+     "quantity": 6,
+     "pack_price": 3.95,
+     "line_total": 23.7,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    }
+   ],
+   "adjustments": [],
+   "subtotal_ex_vat": 331.7,
+   "vat_total": 63.94,
+   "total": 395.64
+  },
+  {
+   "file": "2026-09-14_lee-valley-wholesale.pdf",
+   "supplier": "A",
+   "supplier_name": "Lee Valley Wholesale",
+   "invoice_number": "LVW-24155",
+   "invoice_date": "2026-09-14",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "milk",
+     "description": "AVONM WHL 2LTR",
+     "quantity": 38,
+     "pack_price": 3.99,
+     "line_total": 151.62,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "semi",
+     "description": "AVONM SEMI SKM 2LTR",
+     "quantity": 16,
+     "pack_price": 3.55,
+     "line_total": 56.8,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "oat",
+     "description": "OATLY BARISTA 1L X6",
+     "quantity": 6,
+     "pack_price": 15.9,
+     "line_total": 95.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 6,
+     "vat": 0
+    },
+    {
+     "product_key": "beans",
+     "description": "ESPRESSO BEANS HOUSE BLEND 1KG",
+     "quantity": 12,
+     "pack_price": 24,
+     "line_total": 312,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0,
+     "bad_maths": true
+    },
+    {
+     "product_key": "butter",
+     "description": "IRISH BUTTER SALTED 454G",
+     "quantity": 20,
+     "pack_price": 3.1,
+     "line_total": 62,
+     "pack_size": 454,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "eggs",
+     "description": "EGGS FF LGE X30",
+     "quantity": 9,
+     "pack_price": 8.4,
+     "line_total": 75.6,
+     "pack_size": 30,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "flour",
+     "description": "FLOUR PLAIN 16KG SACK",
+     "quantity": 1,
+     "pack_price": 14.5,
+     "line_total": 14.5,
+     "pack_size": 16,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "caster",
+     "description": "SUGAR CASTER 5KG",
+     "quantity": 2,
+     "pack_price": 6.2,
+     "line_total": 12.4,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "hotchoc",
+     "description": "HOT CHOC POWDER 2KG TUB",
+     "quantity": 1,
+     "pack_price": 16.4,
+     "line_total": 16.4,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "pan",
+     "description": "WHITE SLICED PAN 800G",
+     "quantity": 29,
+     "pack_price": 1.65,
+     "line_total": 47.85,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "croissant",
+     "description": "CROISSANT BUTTER FRZ X60",
+     "quantity": 3,
+     "pack_price": 21,
+     "line_total": 63,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "brownie",
+     "description": "BROWNIE CHOC FRZ X24",
+     "quantity": 1,
+     "pack_price": 19.8,
+     "line_total": 19.8,
+     "pack_size": 24,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "cheddar",
+     "description": "CHED MATURE 5KG BLOCK",
+     "quantity": 3,
+     "pack_price": 38.5,
+     "line_total": 115.5,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mozz",
+     "description": "MOZZARELLA GRATED 2KG",
+     "quantity": 1,
+     "pack_price": 15.8,
+     "line_total": 15.8,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "ham",
+     "description": "HAM COOKED SLICED 1KG",
+     "quantity": 5,
+     "pack_price": 11.9,
+     "line_total": 59.5,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bacon",
+     "description": "RASHERS BACK 2.27KG",
+     "quantity": 4,
+     "pack_price": 13.6,
+     "line_total": 54.4,
+     "pack_size": 2.27,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sausages",
+     "description": "SAUSAGES PORK X60",
+     "quantity": 2,
+     "pack_price": 14.2,
+     "line_total": 28.4,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "salmon",
+     "description": "SMOKED SALMON SLICED 500G",
+     "quantity": 5,
+     "pack_price": 12.8,
+     "line_total": 64,
+     "pack_size": 500,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "yogurt",
+     "description": "GREEK STYLE YOG 1KG",
+     "quantity": 6,
+     "pack_price": 4.6,
+     "line_total": 27.6,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "granola",
+     "description": "GRANOLA HONEY 2.5KG",
+     "quantity": 1,
+     "pack_price": 14.9,
+     "line_total": 14.9,
+     "pack_size": 2.5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mayo",
+     "description": "MAYONNAISE 5LTR",
+     "quantity": 1,
+     "pack_price": 12.9,
+     "line_total": 12.9,
+     "pack_size": 5,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "coke",
+     "description": "COCA COLA 330ML CAN X24",
+     "quantity": 3,
+     "pack_price": 17.8,
+     "line_total": 53.4,
+     "pack_size": 330,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "oj",
+     "description": "OJ SMOOTH 1LTR X12",
+     "quantity": 2,
+     "pack_price": 19.2,
+     "line_total": 38.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 12,
+     "vat": 0
+    },
+    {
+     "product_key": "water",
+     "description": "STILL WATER 500ML X24",
+     "quantity": 5,
+     "pack_price": 7.2,
+     "line_total": 36,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "sparkling",
+     "description": "SPARKLING WATER 500ML X24",
+     "quantity": 1,
+     "pack_price": 8.1,
+     "line_total": 8.1,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    }
+   ],
+   "adjustments": [],
+   "subtotal_ex_vat": 1456.27,
+   "vat_total": 22.42,
+   "total": 1478.69
+  },
+  {
+   "file": "2026-09-16_munster-fresh-foods.jpg",
+   "supplier": "B",
+   "supplier_name": "Munster Fresh Foods",
+   "invoice_number": "MFF/8811",
+   "invoice_date": "2026-09-16",
+   "format": "photo",
+   "lines": [
+    {
+     "product_key": "sourdough",
+     "description": "Sourdough Loaf 800g",
+     "quantity": 72,
+     "pack_price": 3.2,
+     "line_total": 230.4,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "scones",
+     "description": "Fruit Scones (12)",
+     "quantity": 9,
+     "pack_price": 6,
+     "line_total": 54,
+     "pack_size": 12,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "chicken",
+     "description": "Chicken Breast Fillets 2kg",
+     "quantity": 6,
+     "pack_price": 17.8,
+     "line_total": 106.8,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "tomatoes",
+     "description": "Vine Tomatoes 6kg Box",
+     "quantity": 4,
+     "pack_price": 13.8,
+     "line_total": 55.2,
+     "pack_size": 6,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "lettuce",
+     "description": "Baby Gem Lettuce (12)",
+     "quantity": 6,
+     "pack_price": 7.2,
+     "line_total": 43.2,
+     "pack_size": 12,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "avocado",
+     "description": "Hass Avocados Ready to Eat x20",
+     "quantity": 6,
+     "pack_price": 17,
+     "line_total": 102,
+     "pack_size": 20,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "spinach",
+     "description": "Baby Spinach 1kg",
+     "quantity": 4,
+     "pack_price": 6.8,
+     "line_total": 27.2,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bananas",
+     "description": "Bananas (per kg)",
+     "quantity": 31,
+     "pack_price": 1.6,
+     "line_total": 49.6,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "lemons",
+     "description": "Lemons (each)",
+     "quantity": 58,
+     "pack_price": 0.32,
+     "line_total": 18.56,
+     "pack_size": 1,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "onions",
+     "description": "Red Onions 10kg Sack",
+     "quantity": 1,
+     "pack_price": 9.5,
+     "line_total": 9.5,
+     "pack_size": 10,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    }
+   ],
+   "adjustments": [
+    {
+     "description": "Delivery charge",
+     "amount": 6.5
+    }
+   ],
+   "subtotal_ex_vat": 702.96,
+   "vat_total": 0,
+   "total": 702.96
+  },
+  {
+   "file": "2026-09-21_lee-valley-wholesale.pdf",
+   "supplier": "A",
+   "supplier_name": "Lee Valley Wholesale",
+   "invoice_number": "LVW-24162",
+   "invoice_date": "2026-09-21",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "milk",
+     "description": "AVONM WHL 2LTR",
+     "quantity": 40,
+     "pack_price": 3.99,
+     "line_total": 159.6,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "semi",
+     "description": "AVONM SEMI SKM 2LTR",
+     "quantity": 14,
+     "pack_price": 3.55,
+     "line_total": 49.7,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "oat",
+     "description": "OATLY BARISTA 1L X6",
+     "quantity": 6,
+     "pack_price": 15.9,
+     "line_total": 95.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 6,
+     "vat": 0
+    },
+    {
+     "product_key": "beans",
+     "description": "ESPRESSO BEANS HOUSE BLEND 1KG",
+     "quantity": 13,
+     "pack_price": 24,
+     "line_total": 312,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "butter",
+     "description": "IRISH BUTTER SALTED 454G",
+     "quantity": 19,
+     "pack_price": 3.26,
+     "line_total": 61.94,
+     "pack_size": 454,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "eggs",
+     "description": "EGGS FF LGE X30",
+     "quantity": 10,
+     "pack_price": 8.4,
+     "line_total": 84,
+     "pack_size": 30,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "flour",
+     "description": "FLOUR PLAIN 16KG SACK",
+     "quantity": 1,
+     "pack_price": 14.5,
+     "line_total": 14.5,
+     "pack_size": 16,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "caster",
+     "description": "SUGAR CASTER 5KG",
+     "quantity": 2,
+     "pack_price": 6.2,
+     "line_total": 12.4,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sachets",
+     "description": "SUGAR STICKS WHITE X1000",
+     "quantity": 1,
+     "pack_price": 9.8,
+     "line_total": 9.8,
+     "pack_size": 1000,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "tea",
+     "description": "BARRYS TEA GOLD BLEND 1100 BAGS",
+     "quantity": 1,
+     "pack_price": 38.5,
+     "line_total": 38.5,
+     "pack_size": 1100,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "hotchoc",
+     "description": "HOT CHOC POWDER 2KG TUB",
+     "quantity": 1,
+     "pack_price": 16.4,
+     "line_total": 16.4,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "pan",
+     "description": "WHITE SLICED PAN 800G",
+     "quantity": 24,
+     "pack_price": 1.65,
+     "line_total": 39.6,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "croissant",
+     "description": "CROISSANT BUTTER FRZ X60",
+     "quantity": 2,
+     "pack_price": 21,
+     "line_total": 42,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "brownie",
+     "description": "BROWNIE CHOC FRZ X24",
+     "quantity": 1,
+     "pack_price": 19.8,
+     "line_total": 19.8,
+     "pack_size": 24,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "cheddar",
+     "description": "CHED MATURE 5KG BLOCK",
+     "quantity": 2,
+     "pack_price": 38.5,
+     "line_total": 77,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mozz",
+     "description": "MOZZARELLA GRATED 2KG",
+     "quantity": 2,
+     "pack_price": 15.8,
+     "line_total": 31.6,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "ham",
+     "description": "HAM COOKED SLICED 1KG",
+     "quantity": 5,
+     "pack_price": 11.9,
+     "line_total": 59.5,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bacon",
+     "description": "RASHERS BACK 2.27KG",
+     "quantity": 2,
+     "pack_price": 13.6,
+     "line_total": 27.2,
+     "pack_size": 2.27,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sausages",
+     "description": "SAUSAGES PORK X60",
+     "quantity": 2,
+     "pack_price": 14.2,
+     "line_total": 28.4,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "salmon",
+     "description": "SMOKED SALMON SLICED 500G",
+     "quantity": 5,
+     "pack_price": 12.8,
+     "line_total": 64,
+     "pack_size": 500,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "yogurt",
+     "description": "GREEK STYLE YOG 1KG",
+     "quantity": 6,
+     "pack_price": 4.6,
+     "line_total": 27.6,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "granola",
+     "description": "GRANOLA HONEY 2.5KG",
+     "quantity": 1,
+     "pack_price": 14.9,
+     "line_total": 14.9,
+     "pack_size": 2.5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "coke",
+     "description": "COCA COLA 330ML CAN X24",
+     "quantity": 3,
+     "pack_price": 17.8,
+     "line_total": 53.4,
+     "pack_size": 330,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "oj",
+     "description": "OJ SMOOTH 1LTR X12",
+     "quantity": 3,
+     "pack_price": 19.2,
+     "line_total": 57.6,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 12,
+     "vat": 0
+    },
+    {
+     "product_key": "water",
+     "description": "STILL WATER 500ML X24",
+     "quantity": 5,
+     "pack_price": 7.2,
+     "line_total": 36,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "sparkling",
+     "description": "SPARKLING WATER 500ML X24",
+     "quantity": 2,
+     "pack_price": 8.1,
+     "line_total": 16.2,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    }
+   ],
+   "adjustments": [],
+   "subtotal_ex_vat": 1449.04,
+   "vat_total": 24.29,
+   "total": 1473.33
+  },
+  {
+   "file": "2026-09-24_harbour-catering-supplies.pdf",
+   "supplier": "C",
+   "supplier_name": "Harbour Catering Supplies",
+   "invoice_number": "1409",
+   "invoice_date": "2026-09-24",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "cups",
+     "description": "12oz double wall cups 500",
+     "quantity": 2,
+     "pack_price": 62,
+     "line_total": 124,
+     "pack_size": 500,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "lids",
+     "description": "lids for 12oz cups 1000",
+     "quantity": 1,
+     "pack_price": 29,
+     "line_total": 29,
+     "pack_size": 1000,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "napkins",
+     "description": "napkins 2ply white 4000",
+     "quantity": 1,
+     "pack_price": 38,
+     "line_total": 38,
+     "pack_size": 4000,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "boxes",
+     "description": "kraft food boxes medium 200",
+     "quantity": 1,
+     "pack_price": 34,
+     "line_total": 34,
+     "pack_size": 200,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "cling",
+     "description": "cling film 450mm x 300m",
+     "quantity": 1,
+     "pack_price": 8.5,
+     "line_total": 8.5,
+     "pack_size": 1,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "sacks",
+     "description": "refuse sacks black x200",
+     "quantity": 1,
+     "pack_price": 19,
+     "line_total": 19,
+     "pack_size": 200,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    }
+   ],
+   "adjustments": [
+    {
+     "description": "Loyalty discount",
+     "amount": -3
+    }
+   ],
+   "subtotal_ex_vat": 249.5,
+   "vat_total": 58.08,
+   "total": 307.58
+  },
+  {
+   "file": "2026-09-28_lee-valley-wholesale.pdf",
+   "supplier": "A",
+   "supplier_name": "Lee Valley Wholesale",
+   "invoice_number": "LVW-24169",
+   "invoice_date": "2026-09-28",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "milk",
+     "description": "AVONM WHL 2LTR",
+     "quantity": 41,
+     "pack_price": 4.09,
+     "line_total": 167.69,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "semi",
+     "description": "AVONM SEMI SKM 2LTR",
+     "quantity": 14,
+     "pack_price": 3.55,
+     "line_total": 49.7,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "oat",
+     "description": "OATLY BARISTA 1L X6",
+     "quantity": 6,
+     "pack_price": 15.9,
+     "line_total": 95.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 6,
+     "vat": 0
+    },
+    {
+     "product_key": "beans",
+     "description": "ESPRESSO BEANS HOUSE BLEND 1KG",
+     "quantity": 11,
+     "pack_price": 24,
+     "line_total": 264,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "butter",
+     "description": "IRISH BUTTER SALTED 454G",
+     "quantity": 17,
+     "pack_price": 3.26,
+     "line_total": 55.42,
+     "pack_size": 454,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "eggs",
+     "description": "EGGS FF LGE X30",
+     "quantity": 8,
+     "pack_price": 8.4,
+     "line_total": 67.2,
+     "pack_size": 30,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "flour",
+     "description": "FLOUR PLAIN 16KG SACK",
+     "quantity": 1,
+     "pack_price": 14.5,
+     "line_total": 14.5,
+     "pack_size": 16,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "caster",
+     "description": "SUGAR CASTER 5KG",
+     "quantity": 2,
+     "pack_price": 6.2,
+     "line_total": 12.4,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "hotchoc",
+     "description": "HOT CHOC POWDER 2KG TUB",
+     "quantity": 1,
+     "pack_price": 16.4,
+     "line_total": 16.4,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "pan",
+     "description": "WHITE SLICED PAN 800G",
+     "quantity": 28,
+     "pack_price": 1.65,
+     "line_total": 46.2,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "croissant",
+     "description": "CROISSANT BUTTER FRZ X60",
+     "quantity": 4,
+     "pack_price": 21,
+     "line_total": 84,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "brownie",
+     "description": "BROWNIE CHOC FRZ X24",
+     "quantity": 1,
+     "pack_price": 19.8,
+     "line_total": 19.8,
+     "pack_size": 24,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "cheddar",
+     "description": "CHED MATURE 5KG BLOCK",
+     "quantity": 2,
+     "pack_price": 38.5,
+     "line_total": 77,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mozz",
+     "description": "MOZZARELLA GRATED 2KG",
+     "quantity": 3,
+     "pack_price": 15.8,
+     "line_total": 47.4,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "ham",
+     "description": "HAM COOKED SLICED 1KG",
+     "quantity": 4,
+     "pack_price": 11.9,
+     "line_total": 47.6,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bacon",
+     "description": "RASHERS BACK 2.27KG",
+     "quantity": 3,
+     "pack_price": 13.6,
+     "line_total": 40.8,
+     "pack_size": 2.27,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sausages",
+     "description": "SAUSAGES PORK X60",
+     "quantity": 2,
+     "pack_price": 14.2,
+     "line_total": 28.4,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "salmon",
+     "description": "SMOKED SALMON SLICED 500G",
+     "quantity": 6,
+     "pack_price": 12.8,
+     "line_total": 76.8,
+     "pack_size": 500,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "yogurt",
+     "description": "GREEK STYLE YOG 1KG",
+     "quantity": 6,
+     "pack_price": 4.6,
+     "line_total": 27.6,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "granola",
+     "description": "GRANOLA HONEY 2.5KG",
+     "quantity": 1,
+     "pack_price": 14.9,
+     "line_total": 14.9,
+     "pack_size": 2.5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mayo",
+     "description": "MAYONNAISE 5LTR",
+     "quantity": 1,
+     "pack_price": 12.9,
+     "line_total": 12.9,
+     "pack_size": 5,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "coke",
+     "description": "COCA COLA 330ML CAN X24",
+     "quantity": 4,
+     "pack_price": 17.8,
+     "line_total": 71.2,
+     "pack_size": 330,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "oj",
+     "description": "OJ SMOOTH 1LTR X12",
+     "quantity": 1,
+     "pack_price": 19.2,
+     "line_total": 19.2,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 12,
+     "vat": 0
+    },
+    {
+     "product_key": "water",
+     "description": "STILL WATER 500ML X24",
+     "quantity": 5,
+     "pack_price": 7.2,
+     "line_total": 36,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "sparkling",
+     "description": "SPARKLING WATER 500ML X24",
+     "quantity": 3,
+     "pack_price": 8.1,
+     "line_total": 24.3,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    }
+   ],
+   "adjustments": [],
+   "subtotal_ex_vat": 1416.81,
+   "vat_total": 30.24,
+   "total": 1447.05
+  },
+  {
+   "file": "2026-09-30_munster-fresh-foods.pdf",
+   "supplier": "B",
+   "supplier_name": "Munster Fresh Foods",
+   "invoice_number": "MFF/8814",
+   "invoice_date": "2026-09-30",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "sourdough",
+     "description": "Sourdough Loaf 800g",
+     "quantity": 62,
+     "pack_price": 3.2,
+     "line_total": 198.4,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "scones",
+     "description": "Fruit Scones (12)",
+     "quantity": 8,
+     "pack_price": 6,
+     "line_total": 48,
+     "pack_size": 12,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "chicken",
+     "description": "Chicken Breast Fillets 2kg",
+     "quantity": 6,
+     "pack_price": 17.8,
+     "line_total": 106.8,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "tomatoes",
+     "description": "Vine Tomatoes 6kg Box",
+     "quantity": 4,
+     "pack_price": 13.8,
+     "line_total": 55.2,
+     "pack_size": 6,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "lettuce",
+     "description": "Baby Gem Lettuce (12)",
+     "quantity": 7,
+     "pack_price": 7.2,
+     "line_total": 50.4,
+     "pack_size": 12,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "avocado",
+     "description": "Hass Avocados Ready to Eat x20",
+     "quantity": 6,
+     "pack_price": 17,
+     "line_total": 102,
+     "pack_size": 20,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "spinach",
+     "description": "Baby Spinach 1kg",
+     "quantity": 4,
+     "pack_price": 6.8,
+     "line_total": 27.2,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bananas",
+     "description": "Bananas (per kg)",
+     "quantity": 29,
+     "pack_price": 1.6,
+     "line_total": 46.4,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "lemons",
+     "description": "Lemons (each)",
+     "quantity": 67,
+     "pack_price": 0.32,
+     "line_total": 21.44,
+     "pack_size": 1,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "onions",
+     "description": "Red Onions 10kg Sack",
+     "quantity": 1,
+     "pack_price": 9.5,
+     "line_total": 9.5,
+     "pack_size": 10,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    }
+   ],
+   "adjustments": [
+    {
+     "description": "Delivery charge",
+     "amount": 6.5
+    }
+   ],
+   "subtotal_ex_vat": 671.84,
+   "vat_total": 0,
+   "total": 671.84
+  },
+  {
+   "file": "2026-10-05_lee-valley-wholesale.pdf",
+   "supplier": "A",
+   "supplier_name": "Lee Valley Wholesale",
+   "invoice_number": "LVW-24176",
+   "invoice_date": "2026-10-05",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "milk",
+     "description": "AVONM WHL 2LTR",
+     "quantity": 44,
+     "pack_price": 4.09,
+     "line_total": 179.96,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "semi",
+     "description": "AVONM SEMI SKM 2LTR",
+     "quantity": 14,
+     "pack_price": 3.55,
+     "line_total": 49.7,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "oat",
+     "description": "OATLY BARISTA 1L X6",
+     "quantity": 5,
+     "pack_price": 15.9,
+     "line_total": 79.5,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 6,
+     "vat": 0
+    },
+    {
+     "product_key": "beans",
+     "description": "ESPRESSO BEANS HOUSE BLEND 1KG",
+     "quantity": 13,
+     "pack_price": 24,
+     "line_total": 312,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "butter",
+     "description": "IRISH BUTTER SALTED 454G",
+     "quantity": 21,
+     "pack_price": 3.26,
+     "line_total": 68.46,
+     "pack_size": 454,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "eggs",
+     "description": "EGGS FF LGE X30",
+     "quantity": 12,
+     "pack_price": 8.4,
+     "line_total": 100.8,
+     "pack_size": 30,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "flour",
+     "description": "FLOUR PLAIN 16KG SACK",
+     "quantity": 1,
+     "pack_price": 14.5,
+     "line_total": 14.5,
+     "pack_size": 16,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "caster",
+     "description": "SUGAR CASTER 5KG",
+     "quantity": 2,
+     "pack_price": 6.2,
+     "line_total": 12.4,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sachets",
+     "description": "SUGAR STICKS WHITE X1000",
+     "quantity": 1,
+     "pack_price": 9.8,
+     "line_total": 9.8,
+     "pack_size": 1000,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "tea",
+     "description": "BARRYS TEA GOLD BLEND 1100 BAGS",
+     "quantity": 1,
+     "pack_price": 38.5,
+     "line_total": 38.5,
+     "pack_size": 1100,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "hotchoc",
+     "description": "HOT CHOC POWDER 2KG TUB",
+     "quantity": 1,
+     "pack_price": 16.4,
+     "line_total": 16.4,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "pan",
+     "description": "WHITE SLICED PAN 800G",
+     "quantity": 29,
+     "pack_price": 1.65,
+     "line_total": 47.85,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "croissant",
+     "description": "CROISSANT BUTTER FRZ X60",
+     "quantity": 2,
+     "pack_price": 21,
+     "line_total": 42,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "brownie",
+     "description": "BROWNIE CHOC FRZ X24",
+     "quantity": 1,
+     "pack_price": 19.8,
+     "line_total": 19.8,
+     "pack_size": 24,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "cheddar",
+     "description": "CHED MATURE 5KG BLOCK",
+     "quantity": 2,
+     "pack_price": 38.5,
+     "line_total": 77,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mozz",
+     "description": "MOZZARELLA GRATED 2KG",
+     "quantity": 1,
+     "pack_price": 15.8,
+     "line_total": 15.8,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "ham",
+     "description": "HAM COOKED SLICED 1KG",
+     "quantity": 5,
+     "pack_price": 11.9,
+     "line_total": 59.5,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bacon",
+     "description": "RASHERS BACK 2.27KG",
+     "quantity": 4,
+     "pack_price": 13.6,
+     "line_total": 54.4,
+     "pack_size": 2.27,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sausages",
+     "description": "SAUSAGES PORK X60",
+     "quantity": 2,
+     "pack_price": 14.2,
+     "line_total": 28.4,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "salmon",
+     "description": "SMOKED SALMON SLICED 500G",
+     "quantity": 5,
+     "pack_price": 12.8,
+     "line_total": 64,
+     "pack_size": 500,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "yogurt",
+     "description": "GREEK STYLE YOG 1KG",
+     "quantity": 5,
+     "pack_price": 4.6,
+     "line_total": 23,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "granola",
+     "description": "GRANOLA HONEY 2.5KG",
+     "quantity": 1,
+     "pack_price": 14.9,
+     "line_total": 14.9,
+     "pack_size": 2.5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "coke",
+     "description": "COCA COLA 330ML CAN X24",
+     "quantity": 3,
+     "pack_price": 17.8,
+     "line_total": 53.4,
+     "pack_size": 330,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "oj",
+     "description": "OJ SMOOTH 1LTR X12",
+     "quantity": 2,
+     "pack_price": 19.2,
+     "line_total": 38.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 12,
+     "vat": 0
+    },
+    {
+     "product_key": "water",
+     "description": "STILL WATER 500ML X24",
+     "quantity": 5,
+     "pack_price": 7.2,
+     "line_total": 36,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "sparkling",
+     "description": "SPARKLING WATER 500ML X24",
+     "quantity": 2,
+     "pack_price": 8.1,
+     "line_total": 16.2,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    }
+   ],
+   "adjustments": [],
+   "subtotal_ex_vat": 1472.67,
+   "vat_total": 24.29,
+   "total": 1496.96
+  },
+  {
+   "file": "2026-10-08_harbour-catering-supplies.pdf",
+   "supplier": "C",
+   "supplier_name": "Harbour Catering Supplies",
+   "invoice_number": "1410",
+   "invoice_date": "2026-10-08",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "cups",
+     "description": "12oz double wall cups 500",
+     "quantity": 2,
+     "pack_price": 62,
+     "line_total": 124,
+     "pack_size": 500,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "lids",
+     "description": "lids for 12oz cups 1000",
+     "quantity": 1,
+     "pack_price": 29,
+     "line_total": 29,
+     "pack_size": 1000,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "boxes",
+     "description": "kraft food boxes medium 200",
+     "quantity": 1,
+     "pack_price": 34,
+     "line_total": 34,
+     "pack_size": 200,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    }
+   ],
+   "adjustments": [],
+   "subtotal_ex_vat": 187,
+   "vat_total": 43.01,
+   "total": 230.01
+  },
+  {
+   "file": "2026-10-12_lee-valley-wholesale.pdf",
+   "supplier": "A",
+   "supplier_name": "Lee Valley Wholesale",
+   "invoice_number": "LVW-24183",
+   "invoice_date": "2026-10-12",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "milk",
+     "description": "AVONM WHL 2LTR",
+     "quantity": 40,
+     "pack_price": 4.2,
+     "line_total": 168,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "semi",
+     "description": "AVONM SEMI SKM 2LTR",
+     "quantity": 14,
+     "pack_price": 3.55,
+     "line_total": 49.7,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "oat",
+     "description": "OATLY BARISTA 1L X6",
+     "quantity": 7,
+     "pack_price": 15.9,
+     "line_total": 111.3,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 6,
+     "vat": 0
+    },
+    {
+     "product_key": "beans",
+     "description": "ESPRESSO BEANS HOUSE BLEND 1KG",
+     "quantity": 14,
+     "pack_price": 24,
+     "line_total": 336,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "butter",
+     "description": "IRISH BUTTER SALTED 454G",
+     "quantity": 20,
+     "pack_price": 3.26,
+     "line_total": 65.2,
+     "pack_size": 454,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "eggs",
+     "description": "EGGS FF LGE X30",
+     "quantity": 9,
+     "pack_price": 8.4,
+     "line_total": 75.6,
+     "pack_size": 30,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "flour",
+     "description": "FLOUR PLAIN 16KG SACK",
+     "quantity": 1,
+     "pack_price": 14.5,
+     "line_total": 14.5,
+     "pack_size": 16,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "caster",
+     "description": "SUGAR CASTER 5KG",
+     "quantity": 2,
+     "pack_price": 6.2,
+     "line_total": 12.4,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "hotchoc",
+     "description": "HOT CHOC POWDER 2KG TUB",
+     "quantity": 1,
+     "pack_price": 16.4,
+     "line_total": 16.4,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "pan",
+     "description": "WHITE SLICED PAN 800G",
+     "quantity": 22,
+     "pack_price": 1.65,
+     "line_total": 36.3,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "croissant",
+     "description": "CROISSANT BUTTER FRZ X60",
+     "quantity": 3,
+     "pack_price": 21,
+     "line_total": 63,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "brownie",
+     "description": "BROWNIE CHOC FRZ X24",
+     "quantity": 1,
+     "pack_price": 19.8,
+     "line_total": 19.8,
+     "pack_size": 24,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "cheddar",
+     "description": "CHED MATURE 5KG BLOCK",
+     "quantity": 2,
+     "pack_price": 38.5,
+     "line_total": 77,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mozz",
+     "description": "MOZZARELLA GRATED 2KG",
+     "quantity": 3,
+     "pack_price": 15.8,
+     "line_total": 47.4,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "ham",
+     "description": "HAM COOKED SLICED 1KG",
+     "quantity": 5,
+     "pack_price": 11.9,
+     "line_total": 59.5,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bacon",
+     "description": "RASHERS BACK 2.27KG",
+     "quantity": 3,
+     "pack_price": 13.6,
+     "line_total": 40.8,
+     "pack_size": 2.27,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sausages",
+     "description": "SAUSAGES PORK X60",
+     "quantity": 1,
+     "pack_price": 14.2,
+     "line_total": 14.2,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "salmon",
+     "description": "SMOKED SALMON SLICED 500G",
+     "quantity": 5,
+     "pack_price": 12.8,
+     "line_total": 64,
+     "pack_size": 500,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "yogurt",
+     "description": "GREEK STYLE YOG 1KG",
+     "quantity": 6,
+     "pack_price": 4.6,
+     "line_total": 27.6,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "granola",
+     "description": "GRANOLA HONEY 2.5KG",
+     "quantity": 1,
+     "pack_price": 14.9,
+     "line_total": 14.9,
+     "pack_size": 2.5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mayo",
+     "description": "MAYONNAISE 5LTR",
+     "quantity": 1,
+     "pack_price": 12.9,
+     "line_total": 12.9,
+     "pack_size": 5,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "coke",
+     "description": "COCA COLA 330ML CAN X24",
+     "quantity": 3,
+     "pack_price": 17.8,
+     "line_total": 53.4,
+     "pack_size": 330,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "oj",
+     "description": "OJ SMOOTH 1LTR X12",
+     "quantity": 2,
+     "pack_price": 19.2,
+     "line_total": 38.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 12,
+     "vat": 0
+    },
+    {
+     "product_key": "water",
+     "description": "STILL WATER 500ML X24",
+     "quantity": 5,
+     "pack_price": 7.2,
+     "line_total": 36,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "sparkling",
+     "description": "SPARKLING WATER 500ML X24",
+     "quantity": 2,
+     "pack_price": 8.1,
+     "line_total": 16.2,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    }
+   ],
+   "adjustments": [],
+   "subtotal_ex_vat": 1470.5,
+   "vat_total": 24.29,
+   "total": 1494.79
+  },
+  {
+   "file": "2026-10-14_munster-fresh-foods.pdf",
+   "supplier": "B",
+   "supplier_name": "Munster Fresh Foods",
+   "invoice_number": "MFF/8817",
+   "invoice_date": "2026-10-14",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "sourdough",
+     "description": "Sourdough Loaf 800g",
+     "quantity": 77,
+     "pack_price": 3.2,
+     "line_total": 246.4,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "scones",
+     "description": "Fruit Scones (12)",
+     "quantity": 7,
+     "pack_price": 6,
+     "line_total": 42,
+     "pack_size": 12,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "chicken",
+     "description": "Chicken Breast Fillets 2kg",
+     "quantity": 5,
+     "pack_price": 17.8,
+     "line_total": 89,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "tomatoes",
+     "description": "Vine Tomatoes 6kg Box",
+     "quantity": 5,
+     "pack_price": 13.8,
+     "line_total": 69,
+     "pack_size": 6,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "lettuce",
+     "description": "Baby Gem Lettuce (12)",
+     "quantity": 6,
+     "pack_price": 7.2,
+     "line_total": 43.2,
+     "pack_size": 12,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "avocado",
+     "description": "Hass Avocados Ready to Eat x20",
+     "quantity": 6,
+     "pack_price": 17,
+     "line_total": 102,
+     "pack_size": 20,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "spinach",
+     "description": "Baby Spinach 1kg",
+     "quantity": 4,
+     "pack_price": 6.8,
+     "line_total": 27.2,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bananas",
+     "description": "Bananas (per kg)",
+     "quantity": 29,
+     "pack_price": 1.6,
+     "line_total": 46.4,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "lemons",
+     "description": "Lemons (each)",
+     "quantity": 52,
+     "pack_price": 0.32,
+     "line_total": 16.64,
+     "pack_size": 1,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "onions",
+     "description": "Red Onions 10kg Sack",
+     "quantity": 1,
+     "pack_price": 9.5,
+     "line_total": 9.5,
+     "pack_size": 10,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    }
+   ],
+   "adjustments": [
+    {
+     "description": "Delivery charge",
+     "amount": 6.5
+    }
+   ],
+   "subtotal_ex_vat": 697.84,
+   "vat_total": 0,
+   "total": 697.84
+  },
+  {
+   "file": "2026-10-19_lee-valley-wholesale.pdf",
+   "supplier": "A",
+   "supplier_name": "Lee Valley Wholesale",
+   "invoice_number": "LVW-24190",
+   "invoice_date": "2026-10-19",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "milk",
+     "description": "AVONM WHL 2LTR",
+     "quantity": 44,
+     "pack_price": 4.2,
+     "line_total": 184.8,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "semi",
+     "description": "AVONM SEMI SKM 2LTR",
+     "quantity": 14,
+     "pack_price": 3.55,
+     "line_total": 49.7,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "oat",
+     "description": "OATLY BARISTA 1L X6",
+     "quantity": 6,
+     "pack_price": 15.9,
+     "line_total": 95.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 6,
+     "vat": 0
+    },
+    {
+     "product_key": "beans",
+     "description": "ESPRESSO BEANS HOUSE BLEND 1KG",
+     "quantity": 13,
+     "pack_price": 24,
+     "line_total": 312,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "butter",
+     "description": "IRISH BUTTER SALTED 454G",
+     "quantity": 18,
+     "pack_price": 3.26,
+     "line_total": 58.68,
+     "pack_size": 454,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "eggs",
+     "description": "EGGS FF LGE X30",
+     "quantity": 11,
+     "pack_price": 8.4,
+     "line_total": 92.4,
+     "pack_size": 30,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "flour",
+     "description": "FLOUR PLAIN 16KG SACK",
+     "quantity": 1,
+     "pack_price": 14.5,
+     "line_total": 14.5,
+     "pack_size": 16,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "caster",
+     "description": "SUGAR CASTER 5KG",
+     "quantity": 2,
+     "pack_price": 6.2,
+     "line_total": 12.4,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sachets",
+     "description": "SUGAR STICKS WHITE X1000",
+     "quantity": 1,
+     "pack_price": 9.8,
+     "line_total": 9.8,
+     "pack_size": 1000,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "tea",
+     "description": "BARRYS TEA GOLD BLEND 1100 BAGS",
+     "quantity": 1,
+     "pack_price": 38.5,
+     "line_total": 38.5,
+     "pack_size": 1100,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "hotchoc",
+     "description": "HOT CHOC POWDER 2KG TUB",
+     "quantity": 1,
+     "pack_price": 16.4,
+     "line_total": 16.4,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "pan",
+     "description": "WHITE SLICED PAN 800G",
+     "quantity": 28,
+     "pack_price": 1.65,
+     "line_total": 46.2,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "croissant",
+     "description": "CROISSANT BUTTER FRZ X60",
+     "quantity": 3,
+     "pack_price": 21,
+     "line_total": 63,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "brownie",
+     "description": "BROWNIE CHOC FRZ X24",
+     "quantity": 1,
+     "pack_price": 19.8,
+     "line_total": 19.8,
+     "pack_size": 24,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "cheddar",
+     "description": "CHED MATURE 5KG BLOCK",
+     "quantity": 2,
+     "pack_price": 38.5,
+     "line_total": 77,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mozz",
+     "description": "MOZZARELLA GRATED 2KG",
+     "quantity": 2,
+     "pack_price": 15.8,
+     "line_total": 31.6,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "ham",
+     "description": "HAM COOKED SLICED 1KG",
+     "quantity": 6,
+     "pack_price": 11.9,
+     "line_total": 71.4,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bacon",
+     "description": "RASHERS BACK 2.27KG",
+     "quantity": 3,
+     "pack_price": 13.6,
+     "line_total": 40.8,
+     "pack_size": 2.27,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sausages",
+     "description": "SAUSAGES PORK X60",
+     "quantity": 2,
+     "pack_price": 14.2,
+     "line_total": 28.4,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "salmon",
+     "description": "SMOKED SALMON SLICED 500G",
+     "quantity": 4,
+     "pack_price": 12.8,
+     "line_total": 51.2,
+     "pack_size": 500,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "yogurt",
+     "description": "GREEK STYLE YOG 1KG",
+     "quantity": 5,
+     "pack_price": 4.6,
+     "line_total": 23,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "granola",
+     "description": "GRANOLA HONEY 2.5KG",
+     "quantity": 1,
+     "pack_price": 14.9,
+     "line_total": 14.9,
+     "pack_size": 2.5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "coke",
+     "description": "COCA COLA 330ML CAN X24",
+     "quantity": 3,
+     "pack_price": 17.8,
+     "line_total": 53.4,
+     "pack_size": 330,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "oj",
+     "description": "OJ SMOOTH 1LTR X12",
+     "quantity": 2,
+     "pack_price": 19.2,
+     "line_total": 38.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 12,
+     "vat": 0
+    },
+    {
+     "product_key": "water",
+     "description": "STILL WATER 500ML X24",
+     "quantity": 4,
+     "pack_price": 7.2,
+     "line_total": 28.8,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "sparkling",
+     "description": "SPARKLING WATER 500ML X24",
+     "quantity": 2,
+     "pack_price": 8.1,
+     "line_total": 16.2,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    }
+   ],
+   "adjustments": [],
+   "subtotal_ex_vat": 1488.68,
+   "vat_total": 22.63,
+   "total": 1511.31
+  },
+  {
+   "file": "2026-10-24_harbour-catering-supplies.pdf",
+   "supplier": "C",
+   "supplier_name": "Harbour Catering Supplies",
+   "invoice_number": "1411",
+   "invoice_date": "2026-10-24",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "cups",
+     "description": "12oz double wall cups 500",
+     "quantity": 2,
+     "pack_price": 62,
+     "line_total": 124,
+     "pack_size": 500,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "lids",
+     "description": "lids for 12oz cups 1000",
+     "quantity": 1,
+     "pack_price": 29,
+     "line_total": 29,
+     "pack_size": 1000,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "napkins",
+     "description": "napkins 2ply white 4000",
+     "quantity": 1,
+     "pack_price": 38,
+     "line_total": 38,
+     "pack_size": 4000,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "boxes",
+     "description": "kraft food boxes medium 200",
+     "quantity": 1,
+     "pack_price": 34,
+     "line_total": 34,
+     "pack_size": 200,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "cling",
+     "description": "cling film 450mm x 300m",
+     "quantity": 1,
+     "pack_price": 8.5,
+     "line_total": 8.5,
+     "pack_size": 1,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "sacks",
+     "description": "refuse sacks black x200",
+     "quantity": 1,
+     "pack_price": 19,
+     "line_total": 19,
+     "pack_size": 200,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 23
+    },
+    {
+     "product_key": "eggs",
+     "description": "free range eggs large tray 30",
+     "quantity": 10,
+     "pack_price": 7.5,
+     "line_total": 75,
+     "pack_size": 30,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    }
+   ],
+   "adjustments": [],
+   "subtotal_ex_vat": 327.5,
+   "vat_total": 58.08,
+   "total": 385.58
+  },
+  {
+   "file": "2026-10-26_lee-valley-wholesale.pdf",
+   "supplier": "A",
+   "supplier_name": "Lee Valley Wholesale",
+   "invoice_number": "LVW-24197",
+   "invoice_date": "2026-10-26",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "milk",
+     "description": "AVONM WHL 2LTR",
+     "quantity": 43,
+     "pack_price": 4.2,
+     "line_total": 180.6,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "semi",
+     "description": "AVONM SEMI SKM 2LTR",
+     "quantity": 13,
+     "pack_price": 3.55,
+     "line_total": 46.15,
+     "pack_size": 2,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "oat",
+     "description": "OATLY BARISTA 1L X6",
+     "quantity": 6,
+     "pack_price": 15.9,
+     "line_total": 95.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 6,
+     "vat": 0
+    },
+    {
+     "product_key": "beans",
+     "description": "ESPRESSO BEANS HOUSE BLEND 1KG",
+     "quantity": 13,
+     "pack_price": 24,
+     "line_total": 312,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "butter",
+     "description": "IRISH BUTTER SALTED 454G",
+     "quantity": 17,
+     "pack_price": 3.26,
+     "line_total": 55.42,
+     "pack_size": 454,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "flour",
+     "description": "FLOUR PLAIN 16KG SACK",
+     "quantity": 1,
+     "pack_price": 14.5,
+     "line_total": 14.5,
+     "pack_size": 16,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "caster",
+     "description": "SUGAR CASTER 5KG",
+     "quantity": 2,
+     "pack_price": 6.2,
+     "line_total": 12.4,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "hotchoc",
+     "description": "HOT CHOC POWDER 2KG TUB",
+     "quantity": 1,
+     "pack_price": 16.4,
+     "line_total": 16.4,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "pan",
+     "description": "WHITE SLICED PAN 800G",
+     "quantity": 22,
+     "pack_price": 1.65,
+     "line_total": 36.3,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "croissant",
+     "description": "CROISSANT BUTTER FRZ X60",
+     "quantity": 3,
+     "pack_price": 21,
+     "line_total": 63,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "brownie",
+     "description": "BROWNIE CHOC FRZ X24",
+     "quantity": 1,
+     "pack_price": 19.8,
+     "line_total": 19.8,
+     "pack_size": 24,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "cheddar",
+     "description": "CHED MATURE 5KG BLOCK",
+     "quantity": 2,
+     "pack_price": 38.5,
+     "line_total": 77,
+     "pack_size": 5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mozz",
+     "description": "MOZZARELLA GRATED 2KG",
+     "quantity": 2,
+     "pack_price": 15.8,
+     "line_total": 31.6,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "ham",
+     "description": "HAM COOKED SLICED 1KG",
+     "quantity": 5,
+     "pack_price": 11.9,
+     "line_total": 59.5,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bacon",
+     "description": "RASHERS BACK 2.27KG",
+     "quantity": 3,
+     "pack_price": 13.6,
+     "line_total": 40.8,
+     "pack_size": 2.27,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "sausages",
+     "description": "SAUSAGES PORK X60",
+     "quantity": 2,
+     "pack_price": 14.2,
+     "line_total": 28.4,
+     "pack_size": 60,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "salmon",
+     "description": "SMOKED SALMON SLICED 500G",
+     "quantity": 6,
+     "pack_price": 12.8,
+     "line_total": 76.8,
+     "pack_size": 500,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "yogurt",
+     "description": "GREEK STYLE YOG 1KG",
+     "quantity": 6,
+     "pack_price": 4.6,
+     "line_total": 27.6,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "granola",
+     "description": "GRANOLA HONEY 2.5KG",
+     "quantity": 1,
+     "pack_price": 14.9,
+     "line_total": 14.9,
+     "pack_size": 2.5,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "mayo",
+     "description": "MAYONNAISE 5LTR",
+     "quantity": 1,
+     "pack_price": 12.9,
+     "line_total": 12.9,
+     "pack_size": 5,
+     "pack_unit": "l",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "coke",
+     "description": "COCA COLA 330ML CAN X24",
+     "quantity": 3,
+     "pack_price": 17.8,
+     "line_total": 53.4,
+     "pack_size": 330,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "oj",
+     "description": "OJ SMOOTH 1LTR X12",
+     "quantity": 2,
+     "pack_price": 19.2,
+     "line_total": 38.4,
+     "pack_size": 1,
+     "pack_unit": "l",
+     "units_per_case": 12,
+     "vat": 0
+    },
+    {
+     "product_key": "water",
+     "description": "STILL WATER 500ML X24",
+     "quantity": 5,
+     "pack_price": 7.2,
+     "line_total": 36,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    },
+    {
+     "product_key": "sparkling",
+     "description": "SPARKLING WATER 500ML X24",
+     "quantity": 2,
+     "pack_price": 8.1,
+     "line_total": 16.2,
+     "pack_size": 500,
+     "pack_unit": "ml",
+     "units_per_case": 24,
+     "vat": 23
+    }
+   ],
+   "adjustments": [],
+   "subtotal_ex_vat": 1365.47,
+   "vat_total": 24.29,
+   "total": 1389.76
+  },
+  {
+   "file": "2026-10-28_munster-fresh-foods.pdf",
+   "supplier": "B",
+   "supplier_name": "Munster Fresh Foods",
+   "invoice_number": "MFF/8820",
+   "invoice_date": "2026-10-28",
+   "format": "pdf",
+   "lines": [
+    {
+     "product_key": "sourdough",
+     "description": "Sourdough Loaf 800g",
+     "quantity": 71,
+     "pack_price": 3.2,
+     "line_total": 227.2,
+     "pack_size": 800,
+     "pack_unit": "g",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "scones",
+     "description": "Fruit Scones (12)",
+     "quantity": 8,
+     "pack_price": 6,
+     "line_total": 48,
+     "pack_size": 12,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "chicken",
+     "description": "Chicken Breast Fillets 2kg",
+     "quantity": 6,
+     "pack_price": 17.8,
+     "line_total": 106.8,
+     "pack_size": 2,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "tomatoes",
+     "description": "Vine Tomatoes 6kg Box",
+     "quantity": 4,
+     "pack_price": 13.8,
+     "line_total": 55.2,
+     "pack_size": 6,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "lettuce",
+     "description": "Baby Gem Lettuce (12)",
+     "quantity": 6,
+     "pack_price": 7.2,
+     "line_total": 43.2,
+     "pack_size": 12,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "avocado",
+     "description": "Hass Avocados Ready to Eat x20",
+     "quantity": 7,
+     "pack_price": 17,
+     "line_total": 119,
+     "pack_size": 20,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "spinach",
+     "description": "Baby Spinach 1kg",
+     "quantity": 5,
+     "pack_price": 6.8,
+     "line_total": 34,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "bananas",
+     "description": "Bananas (per kg)",
+     "quantity": 29,
+     "pack_price": 1.6,
+     "line_total": 46.4,
+     "pack_size": 1,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "lemons",
+     "description": "Lemons (each)",
+     "quantity": 58,
+     "pack_price": 0.32,
+     "line_total": 18.56,
+     "pack_size": 1,
+     "pack_unit": "each",
+     "units_per_case": 1,
+     "vat": 0
+    },
+    {
+     "product_key": "onions",
+     "description": "Red Onions 10kg Sack",
+     "quantity": 1,
+     "pack_price": 9.5,
+     "line_total": 9.5,
+     "pack_size": 10,
+     "pack_unit": "kg",
+     "units_per_case": 1,
+     "vat": 0
+    }
+   ],
+   "adjustments": [
+    {
+     "description": "Delivery charge",
+     "amount": 6.5
+    }
+   ],
+   "subtotal_ex_vat": 714.36,
+   "vat_total": 0,
+   "total": 714.36
+  }
+ ],
+ "price_lists": {
+  "B": {
+   "supplier": "B",
+   "date": "2026-10-01",
+   "rows": [
+    [
+     "Whole Milk 2L x6",
+     2,
+     "l",
+     6,
+     21.3
+    ],
+    [
+     "Semi Skimmed Milk 2L x6",
+     2,
+     "l",
+     6,
+     20.4
+    ],
+    [
+     "Oatly Barista Edition 1L (6)",
+     1,
+     "l",
+     6,
+     15.3
+    ],
+    [
+     "Espresso Coffee Beans 3kg Bag",
+     3,
+     "kg",
+     1,
+     61.2
+    ],
+    [
+     "Salted Butter 1kg Block",
+     1,
+     "kg",
+     1,
+     6.4
+    ],
+    [
+     "Plain Flour 16kg Sack",
+     16,
+     "kg",
+     1,
+     15.1
+    ],
+    [
+     "Sourdough Loaf 800g",
+     800,
+     "g",
+     1,
+     3.2
+    ],
+    [
+     "White Sliced Pan 800g",
+     800,
+     "g",
+     1,
+     1.55
+    ],
+    [
+     "Fruit Scones (12)",
+     12,
+     "each",
+     1,
+     6
+    ],
+    [
+     "All Butter Croissants Frozen (48)",
+     48,
+     "each",
+     1,
+     17.9
+    ],
+    [
+     "Mature Cheddar 2.5kg",
+     2.5,
+     "kg",
+     1,
+     18.1
+    ],
+    [
+     "Grated Mozzarella 2kg",
+     2,
+     "kg",
+     1,
+     16.4
+    ],
+    [
+     "Irish Smoked Salmon Sliced 1kg",
+     1,
+     "kg",
+     1,
+     24.6
+    ],
+    [
+     "Chicken Breast Fillets 2kg",
+     2,
+     "kg",
+     1,
+     17.8
+    ],
+    [
+     "Greek Style Yogurt 1kg",
+     1,
+     "kg",
+     1,
+     4.2
+    ],
+    [
+     "Vine Tomatoes 6kg Box",
+     6,
+     "kg",
+     1,
+     13.8
+    ],
+    [
+     "Baby Gem Lettuce (12)",
+     12,
+     "each",
+     1,
+     7.2
+    ],
+    [
+     "Hass Avocados Ready to Eat x20",
+     20,
+     "each",
+     1,
+     17
+    ],
+    [
+     "Baby Spinach 1kg",
+     1,
+     "kg",
+     1,
+     6.8
+    ],
+    [
+     "Bananas (per kg)",
+     1,
+     "kg",
+     1,
+     1.6
+    ],
+    [
+     "Lemons (each)",
+     1,
+     "each",
+     1,
+     0.32
+    ],
+    [
+     "Red Onions 10kg Sack",
+     10,
+     "kg",
+     1,
+     9.5
+    ],
+    [
+     "Coca-Cola Original 330ml Can (24)",
+     330,
+     "ml",
+     24,
+     16.9
+    ],
+    [
+     "Double Wall Coffee Cups 12oz x 1000",
+     1000,
+     "each",
+     1,
+     118
+    ],
+    [
+     "Napkins 2-Ply White (2000)",
+     2000,
+     "each",
+     1,
+     21.5
+    ]
+   ]
+  },
+  "C": {
+   "supplier": "C",
+   "date": "2026-10-05",
+   "rows": [
+    [
+     "Milk Full Fat 2 Litre",
+     2,
+     "l",
+     1,
+     3.95
+    ],
+    [
+     "free range eggs large tray 30",
+     30,
+     "each",
+     1,
+     7.5
+    ],
+    [
+     "caster sugar 2kg",
+     2,
+     "kg",
+     1,
+     2.7
+    ],
+    [
+     "sugar sticks white x1000",
+     1000,
+     "each",
+     1,
+     8.9
+    ],
+    [
+     "cooked ham sliced 500g",
+     500,
+     "g",
+     1,
+     6.3
+    ],
+    [
+     "chicken breast fillets 5kg",
+     5,
+     "kg",
+     1,
+     42.5
+    ],
+    [
+     "mayonnaise 10 litre",
+     10,
+     "l",
+     1,
+     24
+    ],
+    [
+     "tomatoes vine 5kg",
+     5,
+     "kg",
+     1,
+     12.25
+    ],
+    [
+     "avocados hass ripe tray 22",
+     22,
+     "each",
+     1,
+     17.6
+    ],
+    [
+     "still water 500ml x 24",
+     500,
+     "ml",
+     24,
+     6.5
+    ],
+    [
+     "12oz double wall cups 500",
+     500,
+     "each",
+     1,
+     62
+    ],
+    [
+     "lids for 12oz cups 1000",
+     1000,
+     "each",
+     1,
+     29
+    ],
+    [
+     "napkins 2ply white 4000",
+     4000,
+     "each",
+     1,
+     38
+    ],
+    [
+     "kraft food boxes medium 200",
+     200,
+     "each",
+     1,
+     34
+    ],
+    [
+     "cling film 450mm x 300m",
+     1,
+     "each",
+     1,
+     8.5
+    ],
+    [
+     "refuse sacks black x200",
+     200,
+     "each",
+     1,
+     19
+    ],
+    [
+     "harbour cola 330ml can x24",
+     330,
+     "ml",
+     24,
+     9.6
+    ],
+    [
+     "catering tea bags 1100",
+     1100,
+     "each",
+     1,
+     19
+    ]
+   ]
+  }
+ }
+}

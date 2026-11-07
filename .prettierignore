@@ -1,0 +1,8 @@
+package-lock.json
+pnpm-lock.yaml
+yarn.lock.output
+.nitro
+.tanstack
+supabase/.temp
+src/routeTree.gen.ts
+data
