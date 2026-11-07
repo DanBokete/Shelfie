@@ -5,6 +5,7 @@ import { handle } from '#/lib/http.server'
 import { draftQuoteRequest } from '#/lib/quotes.server'
 
 const Item = z.object({
+  product_id: z.uuid().optional(),
   product_name: z.string().min(1).max(200),
   pack_label: z.string().max(100),
   your_price: z.number().positive(),

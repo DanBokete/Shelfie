@@ -365,6 +365,7 @@ function emailItem(i: ReportItem) {
   )
     return null
   return {
+    ...(i.product_id ? { product_id: i.product_id } : {}),
     product_name: i.product_name ?? i.raw_name,
     pack_label: i.pack_label,
     your_price: i.your_pack_price,

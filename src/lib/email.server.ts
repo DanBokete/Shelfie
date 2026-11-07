@@ -1,5 +1,5 @@
 // Feature 5: negotiation email drafts. Claude writes the words; the figures come from our code.
-import { reductionPercent } from './ask'
+import { targetBuyPrice } from './ask'
 import { askJSON } from './claude.server'
 import { inboundAddressFor } from './inbound'
 import { P6_NEGOTIATION_EMAIL } from './prompts'
@@ -10,9 +10,12 @@ import {
   sendingStatus,
   withBusiness,
 } from './settings.server'
+import { sellingPricePerPack } from './selling.server'
 import { db, must } from './supabase.server'
 
 export interface EmailItem {
+  /** Lets the server look up the owner's selling price for a profit-based target. */
+  product_id?: string
   product_name: string
   pack_label: string
   your_price: number
@@ -43,25 +46,44 @@ export async function draftEmail(supplierId: string, items: Array<EmailItem>) {
   // The reply date is filled in after generation so cached drafts stay correct on any day.
   const settings = await getSettings()
   const system = withBusiness(P6_NEGOTIATION_EMAIL, settings)
-  // Only products where a lower price was found, each with the percentage to ask for.
-  const asks = items
-    .map((i) => ({
-      ...i,
-      percent: reductionPercent(i.your_price, i.best_price),
-    }))
-    .filter((i) => i.percent > 0)
+  // Each product gets a target buy price and the percentage cut that is. Where the owner has
+  // entered a selling price it is the price that keeps their profit when they sell at the
+  // competitive price; otherwise it is the better price found. Nothing to ask means no email.
+  const asks = (
+    await Promise.all(
+      items.map(async (i) => {
+        const selling = i.product_id
+          ? await sellingPricePerPack(i.product_id)
+          : null
+        const t = targetBuyPrice({
+          your_price: i.your_price,
+          best_price: i.best_price,
+          selling_price: selling,
+        })
+        return t
+          ? {
+              product_name: i.product_name,
+              pack_label: i.pack_label,
+              weekly_quantity: i.weekly_quantity,
+              ...t,
+            }
+          : null
+      }),
+    )
+  ).filter((a): a is NonNullable<typeof a> => a != null)
   if (asks.length === 0)
     throw new Error('There is no lower price to ask this supplier to match.')
   const facts = {
     supplier: supplier.name,
-    items: asks.map((i) => ({
-      product: i.product_name,
-      pack: i.pack_label,
-      reduction_percent: i.percent,
+    items: asks.map((a) => ({
+      product: a.product_name,
+      pack: a.pack_label,
+      target_price_per_pack: `€${a.target.toFixed(2)}`,
+      reduction_percent: a.percent,
       typical_weekly_quantity:
-        i.weekly_quantity == null
+        a.weekly_quantity == null
           ? null
-          : Math.round(i.weekly_quantity * 10) / 10,
+          : Math.round(a.weekly_quantity * 10) / 10,
     })),
   }
   const raw = await askJSON({
@@ -99,6 +121,7 @@ export async function draftEmail(supplierId: string, items: Array<EmailItem>) {
     reply_cc: replyCc(settings, inboundAddressFor, row.id),
     reply_bcc: settings.bcc_email,
     sending: sendingStatus(settings),
+    asks: asks.map(({ weekly_quantity: _w, ...a }) => a),
     ...draft,
   }
 }

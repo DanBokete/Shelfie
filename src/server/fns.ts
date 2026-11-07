@@ -30,6 +30,7 @@ import {
   editLine,
 } from '#/lib/review.server'
 import { setBarcode } from '#/lib/scan.server'
+import { setSellingPrice } from '#/lib/selling.server'
 import {
   SettingsInput,
   getSettings,
@@ -127,6 +128,15 @@ export const saveDraft = createServerFn({ method: 'POST' })
     }),
   )
   .handler(({ data }) => updateDraft(data.id, data))
+
+export const saveSellingPrice = createServerFn({ method: 'POST' })
+  .validator(
+    z.object({
+      product_id: z.uuid(),
+      pack_price: z.number().positive().max(100000).nullable(),
+    }),
+  )
+  .handler(({ data }) => setSellingPrice(data.product_id, data.pack_price))
 
 export const getReplies = createServerFn({ method: 'GET' }).handler(
   async () => ({

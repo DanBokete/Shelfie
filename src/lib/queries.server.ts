@@ -17,9 +17,12 @@ export interface Product {
   barcode: string | null
   category: string | null
   base_unit: BaseUnit
+  /** What the owner sells it for, ex VAT, per 1 ml, 1 g or 1 item. Null until entered. */
+  selling_price_per_base_unit: number | null
 }
 
-const PRODUCT_COLS = 'id, canonical_name, brand, barcode, category, base_unit'
+const PRODUCT_COLS =
+  'id, canonical_name, brand, barcode, category, base_unit, selling_price_per_base_unit'
 
 /** First and last invoice dates across the business, used to annualise volume. */
 export async function invoicePeriod(): Promise<{

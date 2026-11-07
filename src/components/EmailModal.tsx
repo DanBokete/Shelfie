@@ -9,6 +9,7 @@ import { dateTime } from '#/lib/format'
 import { saveDraft } from '#/server/fns'
 
 export interface EmailItem {
+  product_id?: string
   product_name: string
   pack_label: string
   your_price: number
@@ -52,6 +53,14 @@ interface DraftResponse {
   reply_bcc?: string | null
   /** Whether Shelfie can send, and if not, what to set up. */
   sending: { ready: boolean; problem: string | null }
+  /** What the email asks for, per product: the buy price we want and the percentage cut. */
+  asks?: Array<{
+    product_name: string
+    pack_label: string
+    target: number
+    percent: number
+    basis: 'profit' | 'found_price'
+  }>
   contact?: Contact
 }
 
@@ -63,6 +72,7 @@ interface Draft {
   body: string
   cc?: string | null
   bcc?: string | null
+  asks?: DraftResponse['asks']
   contact?: Contact
   error?: string
   sending?: { ready: boolean; problem: string | null }
@@ -116,6 +126,7 @@ export function EmailModal({
           cc: r.reply_cc ?? null,
           bcc: r.reply_bcc ?? null,
           sending: r.sending,
+          asks: r.asks,
           contact: r.contact,
         }),
       )
@@ -341,13 +352,19 @@ export function EmailModal({
                 </summary>
                 <ul className="mt-2 space-y-1">
                   {r.kind === 'match' ? (
-                    r.items.map((it) => (
-                      <li key={it.product_name}>
-                        {it.product_name} ({it.pack_label}): you pay €
-                        {it.your_price.toFixed(2)}, found €
-                        {it.best_price.toFixed(2)}
-                      </li>
-                    ))
+                    d.asks ? (
+                      d.asks.map((a) => (
+                        <li key={a.product_name}>
+                          {a.product_name} ({a.pack_label}): asks for €
+                          {a.target.toFixed(2)}, {a.percent}% lower.{' '}
+                          {a.basis === 'profit'
+                            ? 'Worked out from your selling price so you keep your profit.'
+                            : 'Based on the better price found. Add your selling price on the item screen for a profit-based target.'}
+                        </li>
+                      ))
+                    ) : (
+                      <li>Working out what to ask for...</li>
+                    )
                   ) : (
                     <li>
                       {r.product_name}: seen online at {r.price_seen}. Your

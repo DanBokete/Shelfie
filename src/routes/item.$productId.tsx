@@ -22,7 +22,12 @@ import {
 } from '#/lib/format'
 import { baseUnitsPerPack, isRawUnit, standardQuantity } from '#/lib/units'
 import type { BaseUnit } from '#/lib/units'
-import { getProduct, getProductPriceChecks } from '#/server/fns'
+import { targetBuyPrice } from '#/lib/ask'
+import {
+  getProduct,
+  getProductPriceChecks,
+  saveSellingPrice,
+} from '#/server/fns'
 
 export const Route = createFileRoute('/item/$productId')({
   loader: async ({ params }) => {
@@ -104,6 +109,7 @@ function ItemPage() {
             supplier_name: supplier.name,
             items: [
               {
+                product_id: product.id,
                 product_name: product.canonical_name,
                 pack_label: pack(cur),
                 your_price: cur.pack_price,
@@ -199,6 +205,25 @@ function ItemPage() {
           </section>
         )}
       </div>
+
+      {/* 4. What you sell it for: lets the "ask to match" email aim for a profit-based price */}
+      {cur && curUnits && (
+        <SellingPrice
+          productId={product.id}
+          packLabel={pack(cur)}
+          saved={
+            product.selling_price_per_base_unit == null
+              ? null
+              : Math.round(
+                  Number(product.selling_price_per_base_unit) *
+                    curUnits.amount *
+                    100,
+                ) / 100
+          }
+          buyPrice={cur.pack_price}
+          bestPrice={bestInMyPack}
+        />
+      )}
 
       {/* 5. Price creep */}
       {insight.creep && (
@@ -349,6 +374,102 @@ function ItemPage() {
 
       {email && <EmailModal requests={email} onClose={() => setEmail(null)} />}
     </div>
+  )
+}
+
+/** Owner enters what a pack of this sells for (ex VAT); the match email then asks for the buy price that keeps their profit. */
+function SellingPrice({
+  productId,
+  packLabel,
+  saved,
+  buyPrice,
+  bestPrice,
+}: {
+  productId: string
+  packLabel: string
+  saved: number | null
+  buyPrice: number
+  bestPrice: number | null
+}) {
+  const router = useRouter()
+  const [value, setValue] = useState(saved == null ? '' : String(saved))
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+  const entered = Number(value)
+  const valid = value.trim() !== '' && Number.isFinite(entered) && entered > 0
+  const preview =
+    valid && bestPrice != null
+      ? targetBuyPrice({
+          your_price: buyPrice,
+          best_price: Math.round(bestPrice * 100) / 100,
+          selling_price: entered,
+        })
+      : null
+
+  async function save(price: number | null) {
+    setBusy(true)
+    setErr(null)
+    try {
+      await saveSellingPrice({
+        data: { product_id: productId, pack_price: price },
+      })
+      if (price == null) setValue('')
+      await router.invalidate()
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Could not save')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <section className="card px-5 py-4">
+      <p className="label">You sell it for</p>
+      <p className="mt-1 text-sm text-muted">
+        What one {packLabel} sells for in total, ex VAT. Used to work out the
+        buy price you need to sell at the competitive price and keep your
+        profit. Never shown to suppliers.
+      </p>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <span className="font-semibold">€</span>
+        <input
+          type="number"
+          min="0"
+          step="0.01"
+          inputMode="decimal"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          aria-label={`Selling price per ${packLabel}, ex VAT`}
+          className="w-32 rounded-lg border border-line bg-card px-3 py-2"
+        />
+        <button
+          className="btn-secondary px-3 py-2"
+          disabled={!valid || busy}
+          onClick={() => void save(entered)}
+        >
+          {busy ? 'Saving...' : 'Save'}
+        </button>
+        {saved != null && (
+          <button
+            className="btn-ghost px-2 py-2"
+            disabled={busy}
+            onClick={() => void save(null)}
+          >
+            Clear
+          </button>
+        )}
+      </div>
+      {preview && (
+        <p className="mt-2 text-sm">
+          The email will ask for <b>{euro(preview.target, { cents: true })}</b>{' '}
+          per {packLabel}, <b>{preview.percent}% lower</b>
+          {preview.basis === 'found_price' &&
+            ' (your selling price did not give a usable target, so this is the better price found)'}
+          .
+        </p>
+      )}
+      {err && <p className="mt-2 text-sm text-rust">{err}</p>}
+    </section>
   )
 }
 
