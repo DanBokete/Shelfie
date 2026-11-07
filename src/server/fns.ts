@@ -13,6 +13,7 @@ import {
   notifyNotHonoured,
   telegramStatus,
 } from '#/lib/alerts.server'
+import { latestStockReport } from '#/lib/audit.server'
 import { demoMode, model } from '#/lib/claude.server'
 import { updateDraft } from '#/lib/email.server'
 import { deliveryProblems } from '#/lib/gmail-replies.server'
@@ -352,6 +353,11 @@ export const getBusiness = createServerFn({ method: 'GET' }).handler(
     const s = await getSettings()
     return { name: s.business_name, town: s.town }
   },
+)
+
+/** The Savings page's last stock list, so it survives a refresh. */
+export const getLatestStockReport = createServerFn({ method: 'GET' }).handler(
+  () => latestStockReport(),
 )
 
 export const getAdminStatus = createServerFn({ method: 'GET' }).handler(

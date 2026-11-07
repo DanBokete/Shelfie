@@ -37,6 +37,7 @@ import { offerPrice, requestItems } from './reply-review'
 import type { ReplyOutcome } from './reply-review'
 import { reviewLines } from './reply-review.server'
 import { annualBaseUnits } from './savings'
+import { latestStockList, stockVolume } from './stock-volume.server'
 import type { Observation, SupplierPrice } from './savings'
 import { db, must } from './supabase.server'
 
@@ -414,7 +415,10 @@ export async function notifyWebDeal(args: {
       null,
     )
     if (!best || !isWebDeal(args.current.ppu, best.ppu)) return
-    const volume = annualBaseUnits(args.observations, await invoicePeriod())
+    // The stock list's weekly use when the product is on it, else invoice history.
+    const volume =
+      stockVolume(await latestStockList(), args.product, args.observations) ??
+      annualBaseUnits(args.observations, await invoicePeriod())
     await deliver(
       'web_price',
       dealKey(args.product.id, best.seller, best.ppu, args.product.base_unit),

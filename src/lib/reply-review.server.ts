@@ -36,6 +36,7 @@ import type {
 import { productInsight } from './savings'
 import type { Observation, ProductInsight } from './savings'
 import { ReplyRead } from './schemas'
+import { latestStockList, withStockVolume } from './stock-volume.server'
 import {
   INVOICE_BUCKET,
   db,
@@ -563,20 +564,32 @@ async function insightsFor(
   excludeObservations: Set<string>,
 ): Promise<Map<string, ProductInsight>> {
   if (productIds.length === 0) return new Map()
-  const [obs, period] = await Promise.all([
+  const [obs, period, stock, products] = await Promise.all([
     observationsByProduct(productIds),
     invoicePeriod(),
+    latestStockList(),
+    db().from('products').select('id, base_unit').in('id', productIds),
   ])
+  const baseUnit = new Map(
+    (
+      must(products, 'load product units') as Array<{
+        id: string
+        base_unit: BaseUnit
+      }>
+    ).map((p) => [p.id, p.base_unit]),
+  )
   return new Map(
-    productIds.map((id) => [
-      id,
-      productInsight(
-        (obs.get(id) ?? []).filter(
-          (o: Observation) => !o.id || !excludeObservations.has(o.id),
-        ),
-        { period },
-      ),
-    ]),
+    productIds.map((id) => {
+      const mine = (obs.get(id) ?? []).filter(
+        (o: Observation) => !o.id || !excludeObservations.has(o.id),
+      )
+      const unit = baseUnit.get(id)
+      // Yearly volume from the latest stock list when the product is on it.
+      const opts = unit
+        ? withStockVolume({ period }, stock, { id, base_unit: unit }, mine)
+        : { period }
+      return [id, productInsight(mine, opts)]
+    }),
   )
 }
 

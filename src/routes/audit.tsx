@@ -6,13 +6,16 @@ import { Icon, Spinner } from '#/components/Icon'
 import { pool, postFile, postJSON } from '#/lib/api'
 import type { AuditReport, ReportItem } from '#/lib/audit-types'
 import { prepareUpload } from '#/lib/client-files'
-import { euro, pct, perStandardShort } from '#/lib/format'
+import { dateTime, euro, pct, perStandardShort, timeAgo } from '#/lib/format'
 import { GROUP_LABELS } from '#/lib/savings'
 import type { FindingGroup } from '#/lib/savings'
 import { buildRows, readSheet, sampleRows } from '#/lib/stocklist'
+import { getLatestStockReport } from '#/server/fns'
 import type { Mapping, StockRow } from '#/lib/stocklist'
 
 export const Route = createFileRoute('/audit')({
+  // The last stock list, re-checked against today's prices, so a refresh keeps the report.
+  loader: () => getLatestStockReport(),
   component: AuditPage,
   head: () => ({ meta: [{ title: 'Stock list check - Shelfie' }] }),
 })
@@ -26,7 +29,7 @@ type Stage =
   | { kind: 'idle' }
   | { kind: 'reading'; file: string; message: string }
   | { kind: 'matching'; file: string; done: number; total: number }
-  | { kind: 'report'; report: AuditReport }
+  | { kind: 'report'; report: AuditReport; uploaded_at: string }
   | { kind: 'error'; message: string }
 
 const COLUMN_LABELS: Record<keyof Mapping['columns'], string> = {
@@ -38,7 +41,16 @@ const COLUMN_LABELS: Record<keyof Mapping['columns'], string> = {
 }
 
 function AuditPage() {
-  const [stage, setStage] = useState<Stage>({ kind: 'idle' })
+  const latest = Route.useLoaderData()
+  const [stage, setStage] = useState<Stage>(() =>
+    latest
+      ? {
+          kind: 'report',
+          report: latest.report,
+          uploaded_at: latest.uploaded_at,
+        }
+      : { kind: 'idle' },
+  )
   const [sheet, setSheet] = useState<{
     rows: Array<Array<string>>
     mapping: Mapping
@@ -136,7 +148,7 @@ function AuditPage() {
       action: 'finish',
       upload_id,
     })
-    setStage({ kind: 'report', report })
+    setStage({ kind: 'report', report, uploaded_at: new Date().toISOString() })
   }
 
   async function remap(next: Mapping) {
@@ -258,6 +270,7 @@ function AuditPage() {
       {stage.kind === 'report' && (
         <Report
           report={stage.report}
+          uploadedAt={stage.uploaded_at}
           truncated={sheet?.truncated ?? false}
           onEmail={setEmail}
         />
@@ -376,10 +389,12 @@ function emailItem(i: ReportItem) {
 
 function Report({
   report,
+  uploadedAt,
   truncated,
   onEmail,
 }: {
   report: AuditReport
+  uploadedAt: string
   truncated: boolean
   onEmail: (g: Array<EmailRequest>) => void
 }) {
@@ -425,6 +440,9 @@ function Report({
           </p>
         </div>
         <div className="flex flex-wrap gap-x-5 gap-y-1 px-5 py-3 text-sm text-muted">
+          <span title={dateTime(uploadedAt)}>
+            {report.file_name ?? 'Stock list'}, uploaded {timeAgo(uploadedAt)}
+          </span>
           <span>{report.item_count} items checked</span>
           {report.groups.map((g) =>
             g.items.length ? (

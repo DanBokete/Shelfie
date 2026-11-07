@@ -1,0 +1,9 @@
+{
+  "name": "email",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T15:46:17.340Z",
+  "output": {
+    "subject": "Request to match pricing on salted butter",
+    "body": "Hi Lee Valley team,\n\nThank you for all your reliable service. We really value working with you and want to keep it that way.\n\nI'm writing about our salted butter. We've seen lower pricing elsewhere, and for the 20 x 454g pack we would need €58.11 per pack, about 32% lower. This is what the business needs to stay competitive.\n\nCould you let me know whether you can match that? I'd be grateful for a reply by {reply_by_date}.\n\nThanks so much for considering it. I'm happy to talk it through if that helps.\n\nWarm regards,\nAoife\nThe Corner Café"
+  }
+}

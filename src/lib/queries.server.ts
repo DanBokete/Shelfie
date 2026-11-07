@@ -8,6 +8,11 @@ import type {
   ProductInsight,
 } from './savings'
 import { db, must } from './supabase.server'
+import {
+  latestStockList,
+  stockVolume,
+  withStockVolume,
+} from './stock-volume.server'
 import { perStandardUnit } from './units'
 import type { BaseUnit } from './units'
 
@@ -140,13 +145,19 @@ export interface Opportunity {
 }
 
 export async function allOpportunities(): Promise<Array<Opportunity>> {
-  const [products, obs, period] = await Promise.all([
+  const [products, obs, period, stock] = await Promise.all([
     allProducts(),
     observationsByProduct(),
     invoicePeriod(),
+    latestStockList(),
   ])
   return products.map((p) => {
-    const insight = productInsight(obs.get(p.id) ?? [], { period })
+    const mine = obs.get(p.id) ?? []
+    // Yearly volume from the latest stock list when the product is on it.
+    const insight = productInsight(
+      mine,
+      withStockVolume({ period }, stock, p, mine),
+    )
     return { product: p, insight, group: classify(insight) }
   })
 }
@@ -272,7 +283,7 @@ async function creepHistory(opps: Array<Opportunity>) {
 }
 
 export async function homeSummary() {
-  const [opps, counts, review, spend] = await Promise.all([
+  const [opps, counts, review, spend, stock] = await Promise.all([
     allOpportunities(),
     Promise.all([
       db()
@@ -292,6 +303,7 @@ export async function homeSummary() {
       .select('id', { count: 'exact', head: true })
       .eq('needs_review', true),
     spendSummary(),
+    latestStockList(),
   ])
   const switches = opps
     .filter((o) => o.group === 'switch' && (o.insight.annual_saving ?? 0) > 0)
@@ -319,6 +331,14 @@ export async function homeSummary() {
     products: opps.length,
     needs_review: review.count ?? 0,
     spend,
+    // The stock list whose weekly quantities the yearly figures use, if any.
+    stock_list: stock
+      ? {
+          file_name: stock.file_name,
+          uploaded_at: stock.uploaded_at,
+          products: stock.lines.size,
+        }
+      : null,
   }
 }
 
@@ -345,12 +365,17 @@ export async function productDetail(productId: string) {
     'load product',
   )
   if (!product) return null
-  const [obsMap, period] = await Promise.all([
+  const [obsMap, period, stock] = await Promise.all([
     observationsByProduct([productId]),
     invoicePeriod(),
+    latestStockList(),
   ])
   const obs = obsMap.get(productId) ?? []
-  const insight = productInsight(obs, { period })
+  const fromStock = stockVolume(stock, product, obs)
+  const insight = productInsight(
+    obs,
+    fromStock == null ? { period } : { period, annual_base_units: fromStock },
+  )
 
   // "How we matched this": every distinct raw name per supplier with its unit maths.
   const seen = new Set<string>()
@@ -404,6 +429,14 @@ export async function productDetail(productId: string) {
     history,
     supplier,
     period,
+    // Where the yearly volume came from, so the page can say so.
+    volume: fromStock
+      ? {
+          source: 'stock_list' as const,
+          file_name: stock?.file_name ?? null,
+          uploaded_at: stock?.uploaded_at ?? null,
+        }
+      : { source: 'invoices' as const, file_name: null, uploaded_at: null },
   }
 }
 

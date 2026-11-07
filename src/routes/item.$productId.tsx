@@ -84,7 +84,8 @@ function maths(packPrice: number, baseAmount: number, unit: BaseUnit): string {
 }
 
 function ItemPage() {
-  const { product, insight, names, supplier, live } = Route.useLoaderData()
+  const { product, insight, names, supplier, live, volume } =
+    Route.useLoaderData()
   const [email, setEmail] = useState<Array<EmailRequest> | null>(null)
   const unit = product.base_unit
   const cur = insight.current
@@ -153,6 +154,14 @@ function ItemPage() {
                 a year on this
               </span>
             </p>
+            <VolumeNote
+              volume={volume}
+              weekly={
+                insight.annual_base_units != null && curUnits
+                  ? `${Math.round((insight.annual_base_units / 52 / curUnits.amount) * 10) / 10} x ${pack(cur)}`
+                  : null
+              }
+            />
           </>
         ) : best == null || (insight.per_unit_saving ?? 0) <= 0 ? (
           <p className="flex items-center gap-2 text-2xl font-bold text-brand">
@@ -736,5 +745,41 @@ function OnlinePrices({
         )}
       </div>
     </section>
+  )
+}
+
+/** Says where the yearly saving's volume comes from: the stock list, or invoice history. */
+function VolumeNote({
+  volume,
+  weekly,
+}: {
+  volume: {
+    source: 'stock_list' | 'invoices'
+    file_name: string | null
+    uploaded_at: string | null
+  }
+  weekly: string | null
+}) {
+  return (
+    <p className="mt-2 text-sm text-brand-dark/80">
+      {volume.source === 'stock_list' ? (
+        <>
+          Based on {weekly ? `${weekly} a week` : 'your weekly use'} from your{' '}
+          <Link to="/audit" className="underline underline-offset-2">
+            stock list
+          </Link>
+          {volume.uploaded_at && ` (${shortDate(volume.uploaded_at)})`}.
+        </>
+      ) : (
+        <>
+          Based on {weekly ? `about ${weekly} a week` : 'what you bought'} from
+          your invoices.{' '}
+          <Link to="/audit" className="underline underline-offset-2">
+            Upload a stock list
+          </Link>{' '}
+          for your exact use.
+        </>
+      )}
+    </p>
   )
 }

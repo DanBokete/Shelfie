@@ -58,6 +58,19 @@ function Home() {
               <p className="mt-3 text-sm text-white/80">
                 From {d.invoices} invoices and {d.prices} prices across{' '}
                 {d.suppliers} suppliers.
+                {d.stock_list && (
+                  <>
+                    {' '}
+                    Yearly figures use the weekly amounts on your{' '}
+                    <Link
+                      to="/audit"
+                      className="underline underline-offset-2 hover:text-white"
+                    >
+                      stock list
+                    </Link>{' '}
+                    from {shortDate(d.stock_list.uploaded_at)}.
+                  </>
+                )}
               </p>
             </>
           )}

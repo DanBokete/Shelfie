@@ -1,0 +1,9 @@
+{
+  "name": "email",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T16:07:33.846Z",
+  "output": {
+    "subject": "Request to match pricing on frozen butter croissants",
+    "body": "Hi Lee Valley Wholesale team,\n\nThank you for all your reliable service. We really value working with you and want to keep it that way.\n\nI've found lower pricing on one of our regular items, and I'm hoping you can match it. For the butter croissants, frozen, we would need €17.90 per pack of 48, about 32% lower. We order around 3 packs a week, so this would be a steady order for you.\n\nThis is what the business needs to stay competitive.\n\nCould you let me know by {reply_by_date}? I'd much rather keep buying from you, and I'm happy to chat if that's easier.\n\nKind regards,\nAoife\nThe Corner Café"
+  }
+}

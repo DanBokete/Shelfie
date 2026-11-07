@@ -1,0 +1,9 @@
+{
+  "name": "email",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T14:33:15.765Z",
+  "output": {
+    "subject": "Whole milk pricing – can we talk?",
+    "body": "Hi Lee Valley Wholesale team,\n\nThank you for looking after The Corner Café so well. We value working with you and would like to keep doing so.\n\nI've found our 2L whole milk available elsewhere for about 36% lower than we currently pay. As we buy it every week, this makes a real difference to us. Could you match that, bringing the 2L whole milk down by 36%?\n\nIt would really help our business keep buying from you rather than moving our order.\n\nCould you please reply by {reply_by_date}? I'm happy to chat by phone if that's easier.\n\nThanks very much,\n\nAoife\nThe Corner Café"
+  }
+}

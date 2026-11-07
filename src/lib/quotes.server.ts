@@ -21,6 +21,7 @@ import {
   sendingStatus,
   withBusiness,
 } from './settings.server'
+import { latestStockList, withStockVolume } from './stock-volume.server'
 import { db, mustOne } from './supabase.server'
 import { baseUnitsPerPack, describePack, isRawUnit } from './units'
 
@@ -162,10 +163,11 @@ export async function draftQuoteRequest(
     throw new Error('A quote can only be requested for a price found online.')
   }
 
-  const [contact, obsMap, period] = await Promise.all([
+  const [contact, obsMap, period, stock] = await Promise.all([
     sellerContact(offer.supplier_id),
     observationsByProduct([offer.product_id]),
     invoicePeriod(),
+    latestStockList(),
   ])
   const seller = mustOne(
     await db()
@@ -176,8 +178,18 @@ export async function draftQuoteRequest(
     'load seller',
   )
 
-  // Typical weekly use, in the pack the owner buys now (e.g. "about 40 x 2L a week").
-  const insight = productInsight(obsMap.get(offer.product_id) ?? [], { period })
+  // Typical weekly use, in the pack the owner buys now (e.g. "about 40 x 2L a week"),
+  // from the stock list when the product is on it.
+  const obs = obsMap.get(offer.product_id) ?? []
+  const insight = productInsight(
+    obs,
+    withStockVolume(
+      { period },
+      stock,
+      { id: offer.product_id, base_unit: offer.products.base_unit },
+      obs,
+    ),
+  )
   const cur = insight.current
   const curUnits =
     cur && isRawUnit(cur.pack_unit)

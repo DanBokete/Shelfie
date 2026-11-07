@@ -1,0 +1,220 @@
+{
+  "name": "match",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T15:38:31.789Z",
+  "output": {
+    "results": [
+      {
+        "line_id": "L1",
+        "product_id": "p1",
+        "new_product": null,
+        "confidence": 0.95,
+        "reason": "S/SKIM is semi-skimmed; brand irrelevant for milk staple"
+      },
+      {
+        "line_id": "L2",
+        "product_id": "p3",
+        "new_product": null,
+        "confidence": 0.95,
+        "reason": "Oatly Barista matches same branded product"
+      },
+      {
+        "line_id": "L3",
+        "product_id": "p4",
+        "new_product": null,
+        "confidence": 0.9,
+        "reason": "Espresso beans, own-brand fine for coffee staple"
+      },
+      {
+        "line_id": "L4",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Decaf Coffee Beans",
+          "brand": null,
+          "category": "dry goods",
+          "base_unit": "g"
+        },
+        "confidence": 0.9,
+        "reason": "Decaf is not the same as espresso beans"
+      },
+      {
+        "line_id": "L5",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Butter",
+          "brand": null,
+          "category": "dairy",
+          "base_unit": "g"
+        },
+        "confidence": 0.6,
+        "reason": "Salted/unsalted not stated; avoid wrong match"
+      },
+      {
+        "line_id": "L6",
+        "product_id": "p7",
+        "new_product": null,
+        "confidence": 0.9,
+        "reason": "Mature cheddar, white; same product"
+      },
+      {
+        "line_id": "L7",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Catering Cream",
+          "brand": null,
+          "category": "dairy",
+          "base_unit": "ml"
+        },
+        "confidence": 0.95,
+        "reason": "Cream; candidates are tea bags"
+      },
+      {
+        "line_id": "L8",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Natural Yoghurt",
+          "brand": null,
+          "category": "dairy",
+          "base_unit": "g"
+        },
+        "confidence": 0.95,
+        "reason": "No candidates"
+      },
+      {
+        "line_id": "L9",
+        "product_id": "p10",
+        "new_product": null,
+        "confidence": 0.93,
+        "reason": "Free range large eggs match"
+      },
+      {
+        "line_id": "L10",
+        "product_id": "p11",
+        "new_product": null,
+        "confidence": 0.95,
+        "reason": "Plain flour; pack size differs only"
+      },
+      {
+        "line_id": "L11",
+        "product_id": "p12",
+        "new_product": null,
+        "confidence": 0.95,
+        "reason": "Caster sugar matches"
+      },
+      {
+        "line_id": "L12",
+        "product_id": "p13",
+        "new_product": null,
+        "confidence": 0.95,
+        "reason": "White sugar sticks match"
+      },
+      {
+        "line_id": "L13",
+        "product_id": "p14",
+        "new_product": null,
+        "confidence": 0.93,
+        "reason": "Hot chocolate powder match"
+      },
+      {
+        "line_id": "L14",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Porridge Oats",
+          "brand": null,
+          "category": "dry goods",
+          "base_unit": "g"
+        },
+        "confidence": 0.95,
+        "reason": "No candidates"
+      },
+      {
+        "line_id": "L15",
+        "product_id": "p16",
+        "new_product": null,
+        "confidence": 0.9,
+        "reason": "Granola matches"
+      },
+      {
+        "line_id": "L16",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Jam Portions Assorted",
+          "brand": null,
+          "category": "dry goods",
+          "base_unit": "each"
+        },
+        "confidence": 0.95,
+        "reason": "No candidates"
+      },
+      {
+        "line_id": "L17",
+        "product_id": "p17",
+        "new_product": null,
+        "confidence": 0.93,
+        "reason": "Cooked sliced ham matches"
+      },
+      {
+        "line_id": "L18",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Bacon Rashers",
+          "brand": null,
+          "category": "deli",
+          "base_unit": "g"
+        },
+        "confidence": 0.6,
+        "reason": "Back vs streaky unspecified; avoid wrong match"
+      },
+      {
+        "line_id": "L19",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Cooked Sliced Chicken Breast",
+          "brand": null,
+          "category": "deli",
+          "base_unit": "g"
+        },
+        "confidence": 0.85,
+        "reason": "Cooked sliced chicken differs from raw fillets or ham"
+      },
+      {
+        "line_id": "L20",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Diet Coke Can 330ml",
+          "brand": "Coca-Cola",
+          "category": "drinks",
+          "base_unit": "ml"
+        },
+        "confidence": 0.9,
+        "reason": "Diet Coke differs from regular Coca-Cola; branded"
+      },
+      {
+        "line_id": "L21",
+        "product_id": "p22",
+        "new_product": null,
+        "confidence": 0.8,
+        "reason": "Still water 500ml; brand not critical for water"
+      },
+      {
+        "line_id": "L22",
+        "product_id": "p23",
+        "new_product": null,
+        "confidence": 0.8,
+        "reason": "Sparkling water 500ml; brand not critical for water"
+      },
+      {
+        "line_id": "L23",
+        "product_id": null,
+        "new_product": {
+          "canonical_name": "Orange Juice NFC",
+          "brand": null,
+          "category": "drinks",
+          "base_unit": "ml"
+        },
+        "confidence": 0.6,
+        "reason": "NFC may differ from concentrate candidate; unsure"
+      }
+    ]
+  }
+}

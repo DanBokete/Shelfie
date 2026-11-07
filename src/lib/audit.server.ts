@@ -167,8 +167,14 @@ export async function matchBatch(
   }
 }
 
-/** Computes savings for every stored row, groups them and saves the total. */
-export async function finalize(uploadId: string): Promise<AuditReport> {
+/**
+ * Computes savings for every stored row, groups them and saves the total. With save false
+ * it only computes: reopening the Savings page shows the list against today's prices.
+ */
+export async function finalize(
+  uploadId: string,
+  opts: { save?: boolean } = {},
+): Promise<AuditReport> {
   const upload = must(
     await db()
       .from('stock_uploads')
@@ -346,6 +352,7 @@ export async function finalize(uploadId: string): Promise<AuditReport> {
     groups,
   }
 
+  if (opts.save === false) return report
   await Promise.all(
     items.map((i) =>
       db()
@@ -382,4 +389,26 @@ function matchSupplier(raw: string, list: Array<{ id: string; name: string }>) {
       )
     }) ?? null
   )
+}
+
+/** The latest finished stock list, re-checked against today's prices, or null. */
+export async function latestStockReport(): Promise<{
+  report: AuditReport
+  uploaded_at: string
+} | null> {
+  const latest = must(
+    await db()
+      .from('stock_uploads')
+      .select('id, created_at')
+      .eq('status', 'done')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle<{ id: string; created_at: string }>(),
+    'load latest stock list',
+  )
+  if (!latest) return null
+  return {
+    report: await finalize(latest.id, { save: false }),
+    uploaded_at: latest.created_at,
+  }
 }

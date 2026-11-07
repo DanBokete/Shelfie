@@ -1,0 +1,24 @@
+{
+  "name": "prices-read",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T16:09:54.697Z",
+  "output": {
+    "offers": [
+      {
+        "seller": "Tesco",
+        "title": "Tesco Irish Unsmoked Back Bacon Rashers 450G",
+        "url": "https://www.tesco.ie/shop/en-IE/products/290394354",
+        "price": 3,
+        "vat_included": true,
+        "vat_rate_percent": 0,
+        "pack_size": 450,
+        "pack_unit": "g",
+        "units_per_case": 1,
+        "match": "equivalent",
+        "match_note": "Small 450g retail pack, not the 2.27kg catering case",
+        "promo": true,
+        "confidence": 0.8
+      }
+    ]
+  }
+}
