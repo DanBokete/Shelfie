@@ -1,0 +1,259 @@
+{
+  "name": "stock-match",
+  "model": "claude-sonnet-5-5",
+  "saved_at": "2026-11-07T19:48:32.039Z",
+  "output": {
+    "results": [
+      {
+        "line_id": "L1",
+        "product_id": "p1",
+        "confidence": 0.93,
+        "reason": "Diet Coke cans match branded Diet Coke 330ml",
+        "packs_per_period": 2,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L2",
+        "product_id": null,
+        "confidence": 0.9,
+        "reason": "No candidates available",
+        "packs_per_period": 0.5,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L3",
+        "product_id": "p4",
+        "confidence": 0.9,
+        "reason": "Red onions match",
+        "packs_per_period": 0.5,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L4",
+        "product_id": "p5",
+        "confidence": 0.93,
+        "reason": "Oatly Barista oat drink same product",
+        "packs_per_period": 4,
+        "pack_size": 1,
+        "pack_unit": "l",
+        "units_per_case": 6
+      },
+      {
+        "line_id": "L5",
+        "product_id": "p6",
+        "confidence": 0.85,
+        "reason": "Blue roll matches",
+        "packs_per_period": 0.5,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L6",
+        "product_id": "p7",
+        "confidence": 0.8,
+        "reason": "Cream matches catering cream",
+        "packs_per_period": 7,
+        "pack_size": 1,
+        "pack_unit": "l",
+        "units_per_case": 1
+      },
+      {
+        "line_id": "L7",
+        "product_id": null,
+        "confidence": 0.9,
+        "reason": "Soda bread not in candidates; brownies unrelated",
+        "packs_per_period": 12,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L8",
+        "product_id": "p9",
+        "confidence": 0.95,
+        "reason": "Espresso beans match",
+        "packs_per_period": 9,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L9",
+        "product_id": "p12",
+        "confidence": 0.9,
+        "reason": "Lemons match",
+        "packs_per_period": 0.5,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L10",
+        "product_id": null,
+        "confidence": 0.9,
+        "reason": "Paper bags differ from tea bags",
+        "packs_per_period": 0.25,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L11",
+        "product_id": "p16",
+        "confidence": 0.6,
+        "reason": "Kerrygold is salted-type butter; staple brands may match",
+        "packs_per_period": 1,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L12",
+        "product_id": "p18",
+        "confidence": 0.96,
+        "reason": "White sliced pan exact match",
+        "packs_per_period": 11,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L13",
+        "product_id": "p24",
+        "confidence": 0.93,
+        "reason": "Sourdough loaf matches",
+        "packs_per_period": 25,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L14",
+        "product_id": "p25",
+        "confidence": 0.95,
+        "reason": "Hot chocolate powder match",
+        "packs_per_period": 2,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L15",
+        "product_id": "p26",
+        "confidence": 0.95,
+        "reason": "Plain flour match",
+        "packs_per_period": 0.5,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L16",
+        "product_id": "p11",
+        "confidence": 0.88,
+        "reason": "12oz cups match double wall cups; lids differ",
+        "packs_per_period": 0.75,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L17",
+        "product_id": "p28",
+        "confidence": 0.75,
+        "reason": "Takeaway boxes match kraft boxes",
+        "packs_per_period": 0.25,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L18",
+        "product_id": null,
+        "confidence": 0.95,
+        "reason": "Matcha is not hot chocolate",
+        "packs_per_period": 2,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L19",
+        "product_id": null,
+        "confidence": 0.9,
+        "reason": "No candidates available",
+        "packs_per_period": 0.25,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L20",
+        "product_id": null,
+        "confidence": 0.8,
+        "reason": "Cooked whole breast unclear versus sliced or raw fillets",
+        "packs_per_period": 4,
+        "pack_size": 1,
+        "pack_unit": "kg",
+        "units_per_case": 1
+      },
+      {
+        "line_id": "L21",
+        "product_id": "p17",
+        "confidence": 0.8,
+        "reason": "Frozen croissants match butter croissants",
+        "packs_per_period": 3,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L22",
+        "product_id": "p10",
+        "confidence": 0.95,
+        "reason": "Decaf beans match",
+        "packs_per_period": 1,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      },
+      {
+        "line_id": "L23",
+        "product_id": "p30",
+        "confidence": 0.97,
+        "reason": "Semi-skimmed milk match",
+        "packs_per_period": 12,
+        "pack_size": 2,
+        "pack_unit": "l",
+        "units_per_case": 1
+      },
+      {
+        "line_id": "L24",
+        "product_id": "p32",
+        "confidence": 0.9,
+        "reason": "Still water 500ml match",
+        "packs_per_period": 2.75,
+        "pack_size": 500,
+        "pack_unit": "ml",
+        "units_per_case": 24
+      },
+      {
+        "line_id": "L25",
+        "product_id": null,
+        "confidence": 0.9,
+        "reason": "No candidates available",
+        "packs_per_period": 0.25,
+        "pack_size": null,
+        "pack_unit": null,
+        "units_per_case": null
+      }
+    ]
+  }
+}

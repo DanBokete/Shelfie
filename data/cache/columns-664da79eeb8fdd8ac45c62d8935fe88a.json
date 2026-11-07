@@ -1,7 +1,7 @@
 {
   "name": "columns",
   "model": "claude-sonnet-5-5",
-  "saved_at": "2026-11-07T19:27:47.475Z",
+  "saved_at": "2026-11-07T19:53:00.420Z",
   "output": {
     "is_stock_list": true,
     "header_row_index": 0,

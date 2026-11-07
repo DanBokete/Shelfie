@@ -4,7 +4,7 @@ import { checkGmailReplies } from '#/lib/gmail-replies.server'
 import { handle } from '#/lib/http.server'
 
 // POST json {force?}: check the owner's Gmail for replies to sent requests and read them.
-// The app calls this every few minutes while open; force skips the once-a-minute limit.
+// The app calls this every 30 seconds while open; force skips the 25-second limit.
 export const Route = createFileRoute('/api/email/replies')({
   server: {
     handlers: {

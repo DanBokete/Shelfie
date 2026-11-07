@@ -63,7 +63,7 @@ interface ReplyCheck {
 
 /**
  * Supplier replies to requests Shelfie sent, read from the owner's Gmail. The app checks
- * Gmail every few minutes (see __root); this list refreshes itself from the database so a
+ * Gmail every 30 seconds (see __root); this list refreshes itself from the database so a
  * reply shows up as soon as it is read, and tells the page when one was.
  */
 export function Replies({

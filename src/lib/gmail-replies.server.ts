@@ -44,7 +44,7 @@ export { bounceNote, isBounce }
 /** Requests older than this are no longer watched for replies. */
 const WATCH_DAYS = 45
 /** Automatic checks closer together than this are skipped; "Check now" always runs. */
-const MIN_INTERVAL_MS = 60_000
+const MIN_INTERVAL_MS = 25_000
 const MAX_BODY_CHARS = 20_000
 
 interface SentDraft {
@@ -117,7 +117,7 @@ let running: Promise<ReplyCheck> | null = null
 
 /**
  * Checks Gmail for new replies to sent requests and reads them. Overlapping calls share
- * one check. Automatic calls within a minute of the last check are skipped.
+ * one check. Automatic calls within 25 seconds of the last check are skipped.
  */
 export function checkGmailReplies(opts: { force?: boolean } = {}) {
   running ??= run(opts.force ?? false).finally(() => {
@@ -145,7 +145,7 @@ async function run(force: boolean): Promise<ReplyCheck> {
     settings.replies_checked_at &&
     Date.now() - Date.parse(settings.replies_checked_at) < MIN_INTERVAL_MS
   )
-    return skip('Checked less than a minute ago.')
+    return skip('Checked a few seconds ago.')
 
   const since = new Date(Date.now() - WATCH_DAYS * 86_400_000).toISOString()
   // Only original requests: a reminder is sent in its request's thread and names it in

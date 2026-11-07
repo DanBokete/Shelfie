@@ -139,12 +139,12 @@ function Logo() {
 }
 
 /** How often the open app checks Gmail for supplier replies. */
-const REPLY_CHECK_MS = 2 * 60_000
+const REPLY_CHECK_MS = 30_000
 
 /**
  * While the app is open and visible, checks Gmail for replies to sent requests, and
  * refreshes the page when one was read so new prices show. The server skips a check made
- * within a minute of the last one, so several open tabs do not multiply the work.
+ * within 25 seconds of the last one, so several open tabs do not multiply the work.
  */
 function useReplyChecks() {
   const router = useRouter()

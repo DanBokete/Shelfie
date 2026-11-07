@@ -288,7 +288,7 @@ function SettingsPage() {
 
       <Section
         title="Reading replies"
-        hint="Shelfie checks your Gmail every couple of minutes while the app is open, and reads replies to the emails it sent: quotes and price lists become prices, invoices are read like any upload. It opens nothing else in your inbox and leaves emails unread."
+        hint="Shelfie checks your Gmail every 30 seconds while the app is open, and reads replies to the emails it sent: quotes and price lists become prices, invoices are read like any upload. It opens nothing else in your inbox and leaves emails unread."
         badge={
           view.reply_scanning_ready ? (
             <span className="chip bg-good-soft text-good">
