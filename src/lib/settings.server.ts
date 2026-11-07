@@ -11,6 +11,10 @@ export interface Settings {
   reply_by_days: number
   cc_shelfie: boolean
   bcc_email: string | null
+  /** How requests are sent: the owner's Gmail account, or Postmark (needs a domain). */
+  send_via: SendVia
+  /** The address request emails are sent from: the Gmail account, or a Postmark sender. */
+  from_email: string | null
   reply_scanning: boolean
   /** Null: use INBOUND_EMAIL_ADDRESS. */
   inbound_address: string | null
@@ -22,8 +26,10 @@ export interface Settings {
   updated_at: string
 }
 
+export type SendVia = 'gmail' | 'postmark'
+
 const COLS =
-  'business_name, owner_name, town, reply_by_days, cc_shelfie, bcc_email, reply_scanning, inbound_address, webhook_secret, match_by_sender, alerts_enabled, alert_min_saving, updated_at'
+  'business_name, owner_name, town, reply_by_days, cc_shelfie, bcc_email, send_via, from_email, reply_scanning, inbound_address, webhook_secret, match_by_sender, alerts_enabled, alert_min_saving, updated_at'
 
 export async function getSettings(): Promise<Settings> {
   const row = mustOne(
@@ -45,6 +51,45 @@ export function inboundAddress(s: Settings): string | null {
 /** The webhook secret in use: the saved one, else .env. */
 export function webhookSecret(s: Settings): string | null {
   return s.webhook_secret || process.env.INBOUND_WEBHOOK_SECRET || null
+}
+
+/** Whether Shelfie can send, and if not, what the owner has to do. */
+export function sendingStatus(s: Settings): {
+  ready: boolean
+  problem: string | null
+} {
+  if (s.send_via === 'gmail') {
+    if (!process.env.GMAIL_APP_PASSWORD)
+      return {
+        ready: false,
+        problem:
+          'Sending is not set up: add your Gmail app password to .env as GMAIL_APP_PASSWORD and restart the app.',
+      }
+    if (!s.from_email)
+      return {
+        ready: false,
+        problem: 'Enter your Gmail address under "Send emails from".',
+      }
+    return { ready: true, problem: null }
+  }
+  if (!process.env.POSTMARK_SERVER_TOKEN)
+    return {
+      ready: false,
+      problem:
+        'Sending is not set up: add POSTMARK_SERVER_TOKEN to .env and restart the app.',
+    }
+  if (!s.from_email)
+    return {
+      ready: false,
+      problem: 'Set the address emails come from in Settings.',
+    }
+  if (/@(gmail|googlemail)\.com$/i.test(s.from_email))
+    return {
+      ready: false,
+      problem:
+        'Postmark cannot send from a Gmail address. Choose "My Gmail account" instead, or use an address on your own domain.',
+    }
+  return { ready: true, problem: null }
 }
 
 /** The address a request should CC so its reply comes back to Shelfie, or null. */
@@ -79,6 +124,8 @@ export const SettingsInput = z.object({
   reply_by_days: z.number().int().min(1).max(60),
   cc_shelfie: z.boolean(),
   bcc_email: optionalEmail,
+  send_via: z.enum(['gmail', 'postmark']),
+  from_email: optionalEmail,
   reply_scanning: z.boolean(),
   inbound_address: optionalEmail,
   match_by_sender: z.boolean(),
@@ -139,6 +186,7 @@ export async function settingsView() {
         : null,
     // Replies can only arrive when there is an address to CC and a secret to check.
     reply_scanning_ready: s.reply_scanning && Boolean(address && secret),
+    sending: sendingStatus(s),
   }
 }
 export type SettingsView = Awaited<ReturnType<typeof settingsView>>

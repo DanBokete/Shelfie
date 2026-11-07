@@ -14,7 +14,12 @@ import {
 import { invoicePeriod, observationsByProduct } from './queries.server'
 import { productInsight } from './savings'
 import { EmailDraft, SellerContact } from './schemas'
-import { getSettings, replyCc, withBusiness } from './settings.server'
+import {
+  getSettings,
+  replyCc,
+  sendingStatus,
+  withBusiness,
+} from './settings.server'
 import { db, mustOne } from './supabase.server'
 import { baseUnitsPerPack, describePack, isRawUnit } from './units'
 
@@ -239,6 +244,7 @@ export async function draftQuoteRequest(offerId: string) {
     supplier: { name: seller.name, email: contact.email },
     reply_cc: replyCc(settings, inboundAddressFor, row.id),
     reply_bcc: settings.bcc_email,
+    sending: sendingStatus(settings),
     contact,
     ...draft,
   }

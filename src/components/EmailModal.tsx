@@ -1,9 +1,11 @@
-// Drafts one email per request, lets the owner edit it, then hands it to their mail app.
+// Drafts one email per request, lets the owner edit it, then sends it from Shelfie (Postmark).
 // Two kinds: "match" asks a current supplier to match a lower price; "quote" asks a seller
 // found online for their trade prices.
+import { Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { Icon, Spinner } from './Icon'
 import { postJSON } from '#/lib/api'
+import { dateTime } from '#/lib/format'
 import { saveDraft } from '#/server/fns'
 
 export interface EmailItem {
@@ -48,6 +50,8 @@ interface DraftResponse {
   reply_cc?: string | null
   /** The owner's own address from Settings, BCC'd so they keep a copy. */
   reply_bcc?: string | null
+  /** Whether Shelfie can send, and if not, what to set up. */
+  sending: { ready: boolean; problem: string | null }
   contact?: Contact
 }
 
@@ -61,7 +65,10 @@ interface Draft {
   bcc?: string | null
   contact?: Contact
   error?: string
-  sent?: boolean
+  sending?: { ready: boolean; problem: string | null }
+  send: 'idle' | 'sending' | 'sent'
+  sendError?: string
+  sentAt?: string
 }
 
 function nameOf(r: EmailRequest): string {
@@ -82,7 +89,13 @@ export function EmailModal({
   onClose: () => void
 }) {
   const [drafts, setDrafts] = useState<Array<Draft>>(() =>
-    requests.map(() => ({ state: 'drafting', to: '', subject: '', body: '' })),
+    requests.map(() => ({
+      state: 'drafting',
+      to: '',
+      subject: '',
+      body: '',
+      send: 'idle',
+    })),
   )
   const [tab, setTab] = useState(0)
   const [copied, setCopied] = useState(false)
@@ -102,6 +115,7 @@ export function EmailModal({
           to: r.supplier.email ?? '',
           cc: r.reply_cc ?? null,
           bcc: r.reply_bcc ?? null,
+          sending: r.sending,
           contact: r.contact,
         }),
       )
@@ -129,7 +143,7 @@ export function EmailModal({
   const r = requests[tab]
   const quote = r.kind === 'quote'
 
-  function persist(status: 'draft' | 'approved') {
+  function persist(status: 'draft') {
     if (!d.id) return
     void saveDraft({
       data: {
@@ -142,14 +156,33 @@ export function EmailModal({
     })
   }
 
-  function send() {
-    persist('approved')
-    patch(tab, { sent: true })
-    // The CC copies Shelfie in, so a reply-all lands in the app as well as the owner's inbox.
-    const cc = d.cc ? `&cc=${encodeURIComponent(d.cc)}` : ''
-    const bcc = d.bcc ? `&bcc=${encodeURIComponent(d.bcc)}` : ''
-    window.location.href = `mailto:${encodeURIComponent(d.to.trim())}?subject=${encodeURIComponent(d.subject)}&body=${encodeURIComponent(d.body)}${cc}${bcc}`
+  async function send() {
+    const i = tab
+    if (!d.id) return
+    patch(i, { send: 'sending', sendError: undefined })
+    try {
+      // The server adds the CC (Shelfie's reply address) and BCC from Settings.
+      const res = await postJSON<{ sent_at: string }>('/api/email/send', {
+        id: d.id,
+        to: d.to.trim(),
+        subject: d.subject,
+        body: d.body,
+      })
+      patch(i, { send: 'sent', sentAt: res.sent_at })
+    } catch (e) {
+      patch(i, {
+        send: 'idle',
+        sendError: e instanceof Error ? e.message : 'Could not send the email',
+      })
+    }
   }
+
+  const sent = d.send === 'sent'
+  const canSend =
+    d.state === 'ready' &&
+    d.send === 'idle' &&
+    Boolean(d.sending?.ready) &&
+    d.to.trim() !== ''
 
   async function copy() {
     await navigator.clipboard.writeText(`Subject: ${d.subject}\n\n${d.body}`)
@@ -203,7 +236,7 @@ export function EmailModal({
                 {drafts[i].state === 'drafting' && (
                   <Spinner className="h-3.5 w-3.5" />
                 )}
-                {drafts[i].sent && (
+                {drafts[i].send === 'sent' && (
                   <Icon name="check" className="h-3.5 w-3.5 text-brand" />
                 )}
                 {nameOf(x)}
@@ -232,8 +265,34 @@ export function EmailModal({
               </button>
             </div>
           )}
-          {d.state === 'ready' && (
+          {d.state === 'ready' && sent && (
+            <div className="space-y-2 py-12 text-center">
+              <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-good-soft text-good">
+                <Icon name="check" className="h-6 w-6" />
+              </span>
+              <p className="text-lg font-semibold">Sent to {d.to}</p>
+              <p className="text-sm text-muted">
+                {d.sentAt && `${dateTime(d.sentAt)}. `}
+                {d.cc
+                  ? 'Their reply will show up under Invoices → Replies.'
+                  : 'Their reply goes to your inbox.'}
+              </p>
+            </div>
+          )}
+          {d.state === 'ready' && !sent && (
             <>
+              {d.sending && !d.sending.ready && (
+                <p className="flex flex-wrap items-center gap-x-2 rounded-xl bg-warn-soft px-3 py-2.5 text-sm text-warn">
+                  <Icon name="alert" className="h-4 w-4 shrink-0" />
+                  {d.sending.problem}{' '}
+                  <Link
+                    to="/settings"
+                    className="font-semibold underline underline-offset-2"
+                  >
+                    Open Settings
+                  </Link>
+                </p>
+              )}
               {d.contact && (
                 <ContactNote contact={d.contact} seller={nameOf(r)} />
               )}
@@ -249,6 +308,16 @@ export function EmailModal({
                   value={d.to}
                   onChange={(e) => patch(tab, { to: e.target.value })}
                 />
+                {(d.cc || d.bcc) && (
+                  <span className="block text-xs text-muted">
+                    {[
+                      d.cc && 'Shelfie is CC’d to read the reply',
+                      d.bcc && `a copy goes to ${d.bcc}`,
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </span>
+                )}
               </label>
               <label className="block space-y-1">
                 <span className="label">Subject</span>
@@ -291,25 +360,46 @@ export function EmailModal({
           )}
         </div>
 
+        {d.sendError && (
+          <p
+            role="alert"
+            className="border-t border-line bg-rust-soft px-5 py-2.5 text-sm text-rust"
+          >
+            {d.sendError}
+          </p>
+        )}
         <footer className="flex gap-2 border-t border-line px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-          <button
-            className="btn-primary flex-1"
-            disabled={d.state !== 'ready'}
-            onClick={send}
-          >
-            <Icon name="mail" className="h-4 w-4" /> Send
-          </button>
-          <button
-            className="btn-secondary"
-            disabled={d.state !== 'ready'}
-            onClick={() => void copy()}
-          >
-            <Icon name={copied ? 'check' : 'copy'} className="h-4 w-4" />{' '}
-            {copied ? 'Copied' : 'Copy'}
-          </button>
-          <button className="btn-ghost" onClick={onClose}>
-            Cancel
-          </button>
+          {sent ? (
+            <button className="btn-primary flex-1" onClick={onClose}>
+              Done
+            </button>
+          ) : (
+            <>
+              <button
+                className="btn-primary flex-1"
+                disabled={!canSend}
+                onClick={() => void send()}
+              >
+                {d.send === 'sending' ? (
+                  <Spinner className="h-4 w-4" />
+                ) : (
+                  <Icon name="mail" className="h-4 w-4" />
+                )}
+                {d.send === 'sending' ? 'Sending…' : 'Send'}
+              </button>
+              <button
+                className="btn-secondary"
+                disabled={d.state !== 'ready'}
+                onClick={() => void copy()}
+              >
+                <Icon name={copied ? 'check' : 'copy'} className="h-4 w-4" />{' '}
+                {copied ? 'Copied' : 'Copy'}
+              </button>
+              <button className="btn-ghost" onClick={onClose}>
+                Cancel
+              </button>
+            </>
+          )}
         </footer>
       </div>
     </div>

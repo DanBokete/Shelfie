@@ -2,9 +2,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { replyByDate } from './email.server'
 import { inboundAddressFor } from './inbound'
 import { P11_QUOTE_REQUEST } from './prompts'
+import { fromHeader, gmailError } from './send.server'
 import {
   inboundAddress,
   replyCc,
+  sendingStatus,
   webhookSecret,
   withBusiness,
 } from './settings.server'
@@ -19,6 +21,8 @@ const base: Settings = {
   reply_by_days: 7,
   cc_shelfie: true,
   bcc_email: null,
+  send_via: 'gmail',
+  from_email: null,
   reply_scanning: true,
   inbound_address: 'abc123@inbound.postmarkapp.com',
   webhook_secret: null,
@@ -91,5 +95,58 @@ describe('reply-by date', () => {
     const from = new Date('2026-11-07T12:00:00Z')
     expect(replyByDate(7, from)).toBe('Saturday, 14 November')
     expect(replyByDate(10, from)).toBe('Tuesday, 17 November')
+  })
+})
+
+describe('sending', () => {
+  it('through Gmail needs an app password and the Gmail address', () => {
+    vi.stubEnv('GMAIL_APP_PASSWORD', '')
+    const gmail = { ...base, from_email: 'aoife@gmail.com' }
+    expect(sendingStatus(gmail).problem).toMatch(/GMAIL_APP_PASSWORD/)
+    vi.stubEnv('GMAIL_APP_PASSWORD', 'abcd efgh ijkl mnop')
+    expect(sendingStatus(base).problem).toMatch(/Gmail address/)
+    expect(sendingStatus(gmail)).toEqual({ ready: true, problem: null })
+  })
+
+  it('through Postmark needs a token and a non-Gmail From address', () => {
+    const pm = { ...base, send_via: 'postmark' as const }
+    vi.stubEnv('POSTMARK_SERVER_TOKEN', '')
+    expect(sendingStatus({ ...pm, from_email: 'a@b.ie' }).problem).toMatch(
+      /POSTMARK_SERVER_TOKEN/,
+    )
+    vi.stubEnv('POSTMARK_SERVER_TOKEN', 'token')
+    expect(sendingStatus(pm).problem).toMatch(/Settings/)
+    expect(
+      sendingStatus({ ...pm, from_email: 'aoife@gmail.com' }).problem,
+    ).toMatch(/cannot send from a Gmail address/)
+    expect(sendingStatus({ ...pm, from_email: 'a@b.ie' })).toEqual({
+      ready: true,
+      problem: null,
+    })
+  })
+
+  it('explains Gmail failures the owner can fix', () => {
+    expect(gmailError({ code: 'EAUTH', responseCode: 535 })).toMatch(
+      /app password/,
+    )
+    expect(
+      gmailError({
+        responseCode: 550,
+        response: '550 5.4.5 Daily user sending limit exceeded.',
+      }),
+    ).toMatch(/daily sending limit/)
+    expect(gmailError({ code: 'ETIMEDOUT' })).toMatch(/Could not reach Gmail/)
+    expect(gmailError({ code: 'EOTHER' })).toBeNull()
+  })
+
+  it('writes the From line with the owner and business, quoted', () => {
+    expect(
+      fromHeader({
+        ...base,
+        owner_name: 'Aoife',
+        business_name: 'Café "Corner", Cork',
+        from_email: 'orders@corner.ie',
+      }),
+    ).toBe('"Aoife at Café Corner, Cork" <orders@corner.ie>')
   })
 })

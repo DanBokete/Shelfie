@@ -27,6 +27,8 @@ function formOf(v: View) {
     reply_by_days: String(v.reply_by_days),
     cc_shelfie: v.cc_shelfie,
     bcc_email: v.bcc_email ?? '',
+    send_via: v.send_via,
+    from_email: v.from_email ?? '',
     reply_scanning: v.reply_scanning,
     inbound_address: v.inbound_address ?? '',
     match_by_sender: v.match_by_sender,
@@ -153,8 +155,57 @@ function SettingsPage() {
 
       <Section
         title="Sending requests"
-        hint="The 'Ask to match' and 'Ask for a quote' emails. They open in your own mail app, so they're sent from whichever account it uses."
+        hint="The 'Ask to match' and 'Ask for a quote' emails. Shelfie sends them for you, without opening your mail app."
+        badge={
+          view.sending.ready ? (
+            <span className="chip bg-good-soft text-good">
+              <Icon name="check" className="h-3 w-3" /> Ready
+            </span>
+          ) : (
+            <span className="chip bg-warn-soft text-warn">Not set up</span>
+          )
+        }
       >
+        {view.sending.problem && (
+          <p className="rounded-lg bg-warn-soft px-3 py-2 text-sm text-warn">
+            {view.sending.problem}
+          </p>
+        )}
+        <fieldset className="space-y-2">
+          <legend className="mb-1.5 text-sm font-medium">Send with</legend>
+          <Choice
+            name="send_via"
+            checked={form.send_via === 'gmail'}
+            onChange={() => set('send_via', 'gmail')}
+            label="My Gmail account"
+            hint="Sent as you, from your Gmail, and kept in your Gmail Sent folder. Needs a Google app password in .env (GMAIL_APP_PASSWORD)."
+          />
+          <Choice
+            name="send_via"
+            checked={form.send_via === 'postmark'}
+            onChange={() => set('send_via', 'postmark')}
+            label="Postmark"
+            hint="For an address on your own domain, e.g. orders@yourcafe.ie. Needs POSTMARK_SERVER_TOKEN in .env and a confirmed sender in Postmark."
+          />
+        </fieldset>
+        <Field
+          label="Send emails from"
+          hint={
+            form.send_via === 'gmail'
+              ? 'Your Gmail address: the account the app password belongs to. Suppliers reply to it.'
+              : 'Suppliers see this address and reply to it. It must be a confirmed sender in Postmark (Sender Signatures).'
+          }
+        >
+          <input
+            className="input"
+            type="email"
+            placeholder={
+              form.send_via === 'gmail' ? 'you@gmail.com' : 'orders@yourcafe.ie'
+            }
+            value={form.from_email}
+            onChange={(e) => set('from_email', e.target.value)}
+          />
+        </Field>
         <Field
           label="Ask for a reply within"
           hint="The email gives the supplier a date this many days away."
@@ -441,6 +492,38 @@ function Toggle({
         />
         <span className="h-6 w-10 rounded-full bg-line transition-colors peer-checked:bg-brand peer-focus-visible:ring-2 peer-focus-visible:ring-brand/40" />
         <span className="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-card shadow transition-transform peer-checked:translate-x-4" />
+      </span>
+    </label>
+  )
+}
+
+function Choice({
+  name,
+  label,
+  hint,
+  checked,
+  onChange,
+}: {
+  name: string
+  label: string
+  hint: string
+  checked: boolean
+  onChange: () => void
+}) {
+  return (
+    <label
+      className={`flex cursor-pointer gap-3 rounded-lg border px-3 py-2.5 ${checked ? 'border-brand bg-brand-soft/60' : 'border-line hover:bg-soft/60'}`}
+    >
+      <input
+        type="radio"
+        name={name}
+        className="mt-1 h-4 w-4 shrink-0 accent-brand"
+        checked={checked}
+        onChange={onChange}
+      />
+      <span>
+        <span className="block text-sm font-medium">{label}</span>
+        <span className="block text-xs text-muted">{hint}</span>
       </span>
     </label>
   )

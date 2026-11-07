@@ -3,7 +3,12 @@ import { askJSON } from './claude.server'
 import { inboundAddressFor } from './inbound'
 import { P6_NEGOTIATION_EMAIL } from './prompts'
 import { EmailDraft } from './schemas'
-import { getSettings, replyCc, withBusiness } from './settings.server'
+import {
+  getSettings,
+  replyCc,
+  sendingStatus,
+  withBusiness,
+} from './settings.server'
 import { db, must } from './supabase.server'
 
 export interface EmailItem {
@@ -88,6 +93,7 @@ export async function draftEmail(supplierId: string, items: Array<EmailItem>) {
     supplier,
     reply_cc: replyCc(settings, inboundAddressFor, row.id),
     reply_bcc: settings.bcc_email,
+    sending: sendingStatus(settings),
     ...draft,
   }
 }
